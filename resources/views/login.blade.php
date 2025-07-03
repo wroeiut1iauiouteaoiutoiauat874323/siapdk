@@ -41,7 +41,7 @@
                     <div class="col-md-11">
                         <div class="form-group mt-3">
                             <label for="NIP">NIP</label>
-                            <input type="text" name="NIP" id="NIP" class="form-control" required autofocus
+                            <input type="text" name="nipPegawai" id="nipPegawai" class="form-control" required autofocus
                                 placeholder="Masukkan NIP Anda">
                         </div>
                         <div class="form-group mt-3">

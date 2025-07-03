@@ -8,7 +8,6 @@
     <title>Adira IT Assets Management</title>
     <link rel="stylesheet" href="{{ asset('bt/css/bootstrap.css') }}">
 </head>
-
 @if ($menu == 'dashboard' || $menu == 'user_manajemen' || $menu == 'export_to_excel')
 
     <body class="bg-warning">
