@@ -26,6 +26,7 @@ Route::get('/', [HomeController::class, 'index'])->name('index');
 // tampilan sub menu
 // Route::get('/dashboard/{menu}', [HomeController::class, 'dashboard'])->name('dashboard');
 Route::get('/dashboard/{menu}', [HomeController::class, 'dashboard'])->name('dashboard');
+Route::get('/dashboard/{menu}/search/', [HomeController::class, 'search'])->name('dashboard.search');
 Route::get('/logout', [HomeController::class, 'logout'])->name('logout');
 
 

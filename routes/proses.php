@@ -8,6 +8,33 @@ use App\Http\Controllers\prosesController;
 Route::post('login', [prosesController::class, 'login'])->name('login');
 Route::post('login/lempar', [prosesController::class, 'login_lempar'])->name('login.lempar');
 
+// Start Data Barang
+Route::post('/data_barang/store', [prosesController::class, 'data_barang_store'])->name('data_barang.store');
+Route::post('/data_barang/{id}/edit', [prosesController::class, 'data_barang_edit'])->name('data_barang.edit');
+Route::delete('/data_barang/{id}/delete', [prosesController::class, 'data_barang_destroy'])->name('data_barang.hapus');
+// End Data Barang
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Start Admin
 // Start User Manajemen Admin
 Route::post('/admin/user_manajemen/store', [prosesController::class, 'admin_usermanajemen_store'])->name('admin.user_manajemen.store');

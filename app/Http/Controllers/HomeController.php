@@ -26,6 +26,60 @@ class HomeController extends Controller
         return view('login');
     }
 
+    public function search($menu)
+    {
+        if (!isset($_COOKIE['kukis'])) {
+            return redirect()->route('login');
+        }
+        if (isset($_COOKIE['kukis'])) {
+            $kukis = $_COOKIE['kukis'];
+            if (jurnalhelper::cekkukis($kukis)) {
+                $usernya = DataPegawai::where('kukis', $_COOKIE['kukis'])->first();
+                if($menu == 'barang' ||  $menu == 'tbarang' || $menu == 'kendaraan' || $menu == 'tkendaraan' || $menu == 'profil' ){
+                    if($menu == 'barang'){
+                        $data_user = DataPegawai::all();
+                        $data_barang = DataBarang::all();
+                        $key = request()->input('search');
+                        $datanya = DataBarang::where('namaBarang', 'like', '%' . $key . '%')->paginate(15);
+                        return view('dashboard', [
+                            'status' => $_COOKIE['status'],
+                            'nama' => $_COOKIE['nama'],
+                            'nip' => $_COOKIE['nip'],
+                            'waktu' => $_COOKIE['current_time_formatted'],
+                            'tanggal' => $_COOKIE['tanggal'],
+                            'menu' => $menu,
+                            'datanya' => $datanya
+                        ], compact('data_user'));
+                    }
+                    if($menu == 'kendaraan'){
+                        $data_user = DataPegawai::all();
+                        $data_barang = DataBarang::all();
+                        $datanya = DataBarang::paginate(10);
+                        return view('dashboard', ['status' => $_COOKIE['status'], 'nama' => $_COOKIE['nama'], 'nip' => $_COOKIE['nip'], 'waktu' => $_COOKIE['current_time_formatted'], 'tanggal' => $_COOKIE['tanggal'], 'menu' => $menu, 'datanya' => $datanya], compact( 'data_user'));
+                    }
+                    if($menu == 'tbarang'){
+                        $data_user = DataPegawai::all();
+                        $data_barang = DataBarang::all();
+                        $datanya = DataBarang::paginate(10);
+                        return view('dashboard', ['status' => $_COOKIE['status'], 'nama' => $_COOKIE['nama'], 'nip' => $_COOKIE['nip'], 'waktu' => $_COOKIE['current_time_formatted'], 'tanggal' => $_COOKIE['tanggal'], 'menu' => $menu, 'datanya' => $datanya], compact( 'data_user'));
+                    }
+                    if($menu == 'tkendaraan'){
+                        $data_user = DataPegawai::all();
+                        $data_barang = DataBarang::all();
+                        $datanya = DataBarang::paginate(10);
+                        return view('dashboard', ['status' => $_COOKIE['status'], 'nama' => $_COOKIE['nama'], 'nip' => $_COOKIE['nip'], 'waktu' => $_COOKIE['current_time_formatted'], 'tanggal' => $_COOKIE['tanggal'], 'menu' => $menu, 'datanya' => $datanya], compact( 'data_user'));
+                    }
+                    if($_COOKIE['status'] == 'admin'){
+
+                    }
+                }
+                return redirect()->route('dashboard', ['menu' => 'barang']);
+            }else{
+            }
+        return redirect()->route('index');
+        }
+    }
+
     public function dashboard($menu)
     {
         if (!isset($_COOKIE['kukis'])) {
@@ -35,23 +89,37 @@ class HomeController extends Controller
             $kukis = $_COOKIE['kukis'];
             if (jurnalhelper::cekkukis($kukis)) {
                 $usernya = DataPegawai::where('kukis', $_COOKIE['kukis'])->first();
-                if($menu == 'barang' ||  $menu == 'data_barang' || $menu == 'DataPegawai' || $menu == 'mutasi' || $menu == 'pengguna' || $menu == 'penghapusan' || $menu == 'export_to_excel'){
-
-                    if($_COOKIE['status'] == 'umum'){
-
-                        if($menu == 'barang'){
-                            $data_user = DataPegawai::all();
-                            $data_barang = DataBarang::all();
-                            $datanya = DataBarang::paginate(10);
-                            return view('dashboard', ['status' => $_COOKIE['status'], 'nama' => $_COOKIE['nama'], 'nip' => $_COOKIE['nip'], 'waktu' => $_COOKIE['current_time_formatted'], 'tanggal' => $_COOKIE['tanggal'], 'menu' => $menu, 'datanya' => $datanya], compact( 'data_user'));
-                        }
-
-                    } elseif($_COOKIE['status'] == 'admin'){
+                if($menu == 'barang' ||  $menu == 'tbarang' || $menu == 'kendaraan' || $menu == 'tkendaraan' || $menu == 'profil' ){
+                    if($menu == 'barang'){
+                        $data_user = DataPegawai::all();
+                        $data_barang = DataBarang::all();
+                        $datanya = DataBarang::paginate(15);
+                        return view('dashboard', ['status' => $_COOKIE['status'], 'nama' => $_COOKIE['nama'], 'nip' => $_COOKIE['nip'], 'waktu' => $_COOKIE['current_time_formatted'], 'tanggal' => $_COOKIE['tanggal'], 'menu' => $menu, 'datanya' => $datanya], compact( 'data_user'));
+                    }
+                    if($menu == 'kendaraan'){
+                        $data_user = DataPegawai::all();
+                        $data_barang = DataBarang::all();
+                        $datanya = DataBarang::paginate(10);
+                        return view('dashboard', ['status' => $_COOKIE['status'], 'nama' => $_COOKIE['nama'], 'nip' => $_COOKIE['nip'], 'waktu' => $_COOKIE['current_time_formatted'], 'tanggal' => $_COOKIE['tanggal'], 'menu' => $menu, 'datanya' => $datanya], compact( 'data_user'));
+                    }
+                    if($menu == 'tbarang'){
+                        $data_user = DataPegawai::all();
+                        $data_barang = DataBarang::all();
+                        $datanya = DataBarang::paginate(10);
+                        return view('dashboard', ['status' => $_COOKIE['status'], 'nama' => $_COOKIE['nama'], 'nip' => $_COOKIE['nip'], 'waktu' => $_COOKIE['current_time_formatted'], 'tanggal' => $_COOKIE['tanggal'], 'menu' => $menu, 'datanya' => $datanya], compact( 'data_user'));
+                    }
+                    if($menu == 'tkendaraan'){
+                        $data_user = DataPegawai::all();
+                        $data_barang = DataBarang::all();
+                        $datanya = DataBarang::paginate(10);
+                        return view('dashboard', ['status' => $_COOKIE['status'], 'nama' => $_COOKIE['nama'], 'nip' => $_COOKIE['nip'], 'waktu' => $_COOKIE['current_time_formatted'], 'tanggal' => $_COOKIE['tanggal'], 'menu' => $menu, 'datanya' => $datanya], compact( 'data_user'));
+                    }
+                    if($_COOKIE['status'] == 'admin'){
 
                     }
                 }
+                return redirect()->route('dashboard', ['menu' => 'barang']);
             }else{
-                // return redirect()->route('dashboard', ['menu' => 'barang']);
             }
         return redirect()->route('index');
         }

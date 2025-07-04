@@ -53,4 +53,92 @@ class prosesController extends Controller
 
     }
 
+    public function data_barang_store(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'namaBarang' => 'required|string|max:255',
+            'jenisBarangPersediaan' => 'required|string|max:100',
+            'jumlahTotal' => 'required|integer|min:1',
+            'jumlahTersedia' => 'required|integer|min:1',
+        ], [
+            'namaBarang.required' => 'Nama barang wajib diisi.',
+            'jenisBarangPersediaan.required' => 'Kategori wajib diisi.',
+            'jumlahTotal.required' => 'Jumlah total wajib diisi.',
+            'jumlahTotal.integer' => 'Jumlah total harus berupa angka.',
+            'jumlahTotal.min' => 'Jumlah total minimal 1.',
+            'jumlahTersedia.required' => 'Jumlah tersedia wajib diisi.',
+            'jumlahTersedia.integer' => 'Jumlah tersedia harus berupa angka.',
+            'jumlahTersedia.min' => 'Jumlah tersedia minimal 1.',
+        ]);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        $barang = new DataBarang();
+        $barang->namaBarang = $request->namaBarang;
+        $barang->jenisBarangPersediaan = $request->jenisBarangPersediaan;
+        $barang->jumlahTotal = $request->jumlahTotal;
+        $barang->jumlahTersedia = $request->jumlahTersedia;
+        $barang->save();
+        return redirect()->route('dashboard', ['menu' => 'barang'])
+            ->with('success', 'Data barang berhasil disimpan.');
+    }
+
+
+    public function data_barang_edit(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'namaBarang' => 'required|string|max:255',
+            'jenisBarangPersediaan' => 'required|string|max:100',
+            'jumlahTotal' => 'required|integer|min:1',
+            'jumlahTersedia' => 'required|integer|min:1',
+        ], [
+            'namaBarang.required' => 'Nama barang wajib diisi.',
+            'jenisBarangPersediaan.required' => 'Kategori wajib diisi.',
+            'jumlahTotal.required' => 'Jumlah total wajib diisi.',
+            'jumlahTotal.integer' => 'Jumlah total harus berupa angka.',
+            'jumlahTotal.min' => 'Jumlah total minimal 1.',
+            'jumlahTersedia.required' => 'Jumlah tersedia wajib diisi.',
+            'jumlahTersedia.integer' => 'Jumlah tersedia harus berupa angka.',
+            'jumlahTersedia.min' => 'Jumlah tersedia minimal 1.',
+        ]);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        $barang = DataBarang::findOrFail($id);
+        $barang->namaBarang = $request->namaBarang;
+        $barang->jenisBarangPersediaan = $request->jenisBarangPersediaan;
+        $barang->jumlahTotal = $request->jumlahTotal;
+        $barang->jumlahTersedia = $request->jumlahTersedia;
+        $barang->save();
+
+        return redirect()->route('dashboard', ['menu' => 'barang'])
+            ->with('success', 'Data barang berhasil diperbarui.');
+    }
+
+    public function data_barang_destroy($id)
+    {
+        $barang = DataBarang::findOrFail($id);
+        $barang->delete();
+
+        // Set idBarang pada transaksi terkait menjadi null
+        TransaksiBarang::where('idDataBarang', $id)->update(['idDataBarang' => null]);
+
+        // Update urutan id barang (reindex id)
+        $barangs = DataBarang::orderBy('id')->get();
+        $newId = 1;
+        foreach ($barangs as $b) {
+            if ($b->id != $newId) {
+            // Update id only if different
+            DataBarang::where('id', $b->id)->update(['id' => $newId]);
+            }
+            $newId++;
+        }
+
+        return redirect()->route('dashboard', ['menu' => 'barang'])
+            ->with('success', 'Data barang berhasil dihapus.');
+    }
 }
