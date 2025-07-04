@@ -11,6 +11,7 @@ use App\Models\DataKendaraan;
 use App\Models\DataBarang;
 use App\Models\TransaksiBarang;
 use App\Models\TransaksiKendaraan;
+use App\Helpers\jurnalhelper;
 
 use Carbon\Carbon;
 
@@ -44,7 +45,11 @@ class prosesController extends Controller
         // Simpan data pegawai ke session Laravel
         session(['pegawai_login' => $pegawai->id]);
 
-        return redirect()->route('dashboard', ['menu' => 'dashboard']);
+        $usernya = DataPegawai::where('nipPegawai', $request->nipPegawai)->first();
+        jurnalhelper::buatkukis($usernya);
+
+
+        return redirect()->route('dashboard', ['menu' => 'barang']);
 
     }
 

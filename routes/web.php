@@ -24,6 +24,7 @@ use App\Http\Controllers\salahController;
 Route::get('/', [HomeController::class, 'index'])->name('index');
 
 // tampilan sub menu
+// Route::get('/dashboard/{menu}', [HomeController::class, 'dashboard'])->name('dashboard');
 Route::get('/dashboard/{menu}', [HomeController::class, 'dashboard'])->name('dashboard');
 Route::get('/logout', [HomeController::class, 'logout'])->name('logout');
 
