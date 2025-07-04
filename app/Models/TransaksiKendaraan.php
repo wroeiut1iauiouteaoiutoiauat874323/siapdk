@@ -12,12 +12,11 @@ class TransaksiKendaraan extends Model
     protected $table = 'transaksi_kendaraan';
 
     protected $fillable = [
+        'tanggal_transaksi',
         'idDataKendaraan',
         'idDataPegawai',
         'jenisTransaksi',
         'jumlahPinjam',
-        'tanggalPinjam',
-        'tanggalDikembalikan',
         'statusTransaksi',
     ];
 

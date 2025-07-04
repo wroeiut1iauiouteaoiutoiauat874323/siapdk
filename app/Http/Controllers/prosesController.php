@@ -174,10 +174,12 @@ class prosesController extends Controller
             'namaKendaraan' => 'required|string|max:255',
             'jenisKendaraan' => 'required|string|max:100',
             'nomorPolisi' => 'required|string|max:20',
+            'statusKendaraan' => 'required|string|max:50',
         ], [
             'namaKendaraan.required' => 'Nama kendaraan wajib diisi.',
             'jenisKendaraan.required' => 'Jenis kendaraan wajib diisi.',
             'nomorPolisi.required' => 'Nomor polisi wajib diisi.',
+            'statusKendaraan.required' => 'Status wajib diisi.',
         ]);
 
         if ($validator->fails()) {
@@ -188,6 +190,7 @@ class prosesController extends Controller
         $kendaraan->namaKendaraan = $request->namaKendaraan;
         $kendaraan->jenisKendaraan = $request->jenisKendaraan;
         $kendaraan->nomorPolisi = $request->nomorPolisi;
+        $kendaraan->status = $request->statusKendaraan;
         $kendaraan->save();
 
         return redirect()->route('dashboard', ['menu' => 'kendaraan'])
@@ -215,5 +218,47 @@ class prosesController extends Controller
 
         return redirect()->route('dashboard', ['menu' => 'kendaraan'])
             ->with('success', 'Data kendaraan berhasil dihapus.');
+    }
+
+    public function transaksi_barang_store(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'nama_pegawai' => 'required|string|max:255',
+            'status_pegawai' => 'required|string|max:100',
+            'nama_barang' => 'required|integer|exists:data_barang,id',
+            'jenisTransaksi' => 'required|in:masuk,keluar',
+            'jumlahPinjam' => 'required|integer|min:1',
+            'tanggal_transaksi' => 'required|date',
+        ], [
+            'nama_pegawai.required' => 'Nama pegawai wajib diisi.',
+            'status_pegawai.required' => 'Status pegawai wajib diisi.',
+            'nama_barang.required' => 'Nama barang wajib dipilih.',
+            'nama_barang.exists' => 'Barang yang dipilih tidak ditemukan.',
+            'jenisTransaksi.required' => 'Jenis transaksi wajib dipilih.',
+            'jumlahPinjam.required' => 'Jumlah wajib diisi.',
+            'jumlahPinjam.integer' => 'Jumlah harus berupa angka.',
+            'jumlahPinjam.min' => 'Jumlah minimal 1.',
+            'tanggal_transaksi.required' => 'Tanggal transaksi wajib diisi.',
+            'tanggal_transaksi.date' => 'Tanggal transaksi tidak valid.',
+        ]);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        $statusTransaksi = $request->jenisTransaksi === 'masuk' ? 'Dikembalikan' : 'Dipinjam';
+
+        $transaksi = new TransaksiBarang();
+        $transaksi->nama_pegawai = $request->nama_pegawai;
+        $transaksi->status_pegawai = $request->status_pegawai;
+        $transaksi->idDataBarang = $request->nama_barang;
+        $transaksi->jenisTransaksi = $request->jenisTransaksi;
+        $transaksi->jumlahPinjam = $request->jumlahPinjam;
+        $transaksi->tanggal_transaksi = $request->tanggal_transaksi;
+        $transaksi->statusTransaksi = $statusTransaksi;
+        $transaksi->save();
+
+        return redirect()->route('dashboard', ['menu' => 'tbarang'])
+            ->with('success', 'Transaksi barang berhasil disimpan.');
     }
 }

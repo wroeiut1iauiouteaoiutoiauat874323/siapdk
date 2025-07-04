@@ -37,7 +37,11 @@
                         </div>
                         <div class="mb-3">
                             <label for="statusKendaraan" class="form-label">Status</label>
-                            <input type="text" class="form-control" id="statusKendaraan" name="statusKendaraan" required>
+                            <select class="form-select" id="statusKendaraan" name="statusKendaraan" required>
+                                <option value="" disabled selected>Pilih status</option>
+                                <option value="Tersedia">Tersedia</option>
+                                <option value="Tidak Tersedia">Tidak Tersedia</option>
+                            </select>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -85,7 +89,7 @@
                                     <td>{{ $kendaraan->namaKendaraan }}</td>
                                     <td>{{ $kendaraan->jenisKendaraan }}</td>
                                     <td>{{ $kendaraan->nomorPolisi }}</td>
-                                    <td>{{ $kendaraan->statusKendaraan }}</td>
+                                    <td>{{ $kendaraan->status }}</td>
                                     <td>
                                     <!-- Tombol Edit -->
                                     <a href="#" class="btn btn-warning btn-sm btn-action" title="Edit" data-bs-toggle="modal" data-bs-target="#modalEditKendaraan{{ $kendaraan->id }}">
@@ -117,7 +121,10 @@
                                                         </div>
                                                         <div class="mb-3">
                                                             <label for="statusKendaraan{{ $kendaraan->id }}" class="form-label">Status</label>
-                                                            <input type="text" class="form-control" id="statusKendaraan{{ $kendaraan->id }}" name="statusKendaraan" value="{{ $kendaraan->statusKendaraan }}" required>
+                                                            <select class="form-select" id="statusKendaraan{{ $kendaraan->id }}" name="statusKendaraan" required>
+                                                                <option value="Tersedia" {{ $kendaraan->status == 'Tersedia' ? 'selected' : '' }}>Tersedia</option>
+                                                                <option value="Tidak Tersedia" {{ $kendaraan->status == 'Tidak Tersedia' ? 'selected' : '' }}>Tidak Tersedia</option>
+                                                            </select>
                                                         </div>
                                                     </div>
                                                     <div class="modal-footer">

@@ -12,12 +12,11 @@ class TransaksiBarang extends Model
     protected $table = 'transaksi_barang';
 
     protected $fillable = [
+        'tanggal_transaksi',
         'idDataBarang',
         'idDataPegawai',
         'jenisTransaksi',
         'jumlahPinjam',
-        'tanggalPinjam',
-        'tanggalDikembalikan',
         'statusTransaksi',
     ];
 

@@ -14,8 +14,8 @@ class DataKendaraan extends Model
     protected $fillable = [
         'jenisKendaraan',
         'namaKendaraan',
-        'jumlahTotal',
-        'jumlahTersedia',
+        'nomorPolisi',
+        'status',
     ];
 
     public function transaksiKendaraan()

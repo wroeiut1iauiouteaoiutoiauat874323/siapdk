@@ -16,6 +16,7 @@ class DataPegawai extends Model
         'namaPegawai',
         'nipPegawai',
         'password',
+        'status',
     ];
 
     protected $hidden = [

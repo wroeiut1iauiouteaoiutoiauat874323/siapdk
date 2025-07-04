@@ -25,21 +25,45 @@
                     </div>
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label for="namaBarang" class="form-label">Nama Barang</label>
-                            <input type="text" class="form-control" id="namaBarang" name="namaBarang" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="jenisTransaksi" class="form-label">Jenis Transaksi</label>
-                            <input type="text" class="form-control" id="jenisTransaksi" name="jenisTransaksi" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="jumlah" class="form-label">Jumlah</label>
-                            <input type="number" class="form-control" id="jumlah" name="jumlah" min="1" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="tanggalTransaksi" class="form-label">Tanggal Transaksi</label>
-                            <input type="date" class="form-control" id="tanggalTransaksi" name="tanggalTransaksi" required>
-                        </div>
+                        <label for="namaPegawai" class="form-label">Nama Peminjam</label>
+                        <input type="text" class="form-control" id="namaPegawai" name="nama_pegawai" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="statusPegawai" class="form-label">Status Pegawai</label>
+                        <select class="form-select" id="statusPegawai" name="status_pegawai" required>
+                            <option value="" disabled selected>Pilih status pegawai</option>
+                            <option value="PNS">PNS</option>
+                            <option value="PPPK">PPPK</option>
+                            <option value="CPNS">CPNS</option>
+                            <option value="CPPPK">CPPPK</option>
+                            <option value="honorer">Honorer</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="namaBarang" class="form-label">Nama Barang</label>
+                        <select class="form-select" id="nama_barang" name="nama_barang" required>
+                            <option value="" disabled selected>Pilih barang</option>
+                            @foreach($data_barang->sortBy('namaBarang') as $barang)
+                                <option value="{{ $barang->id }}">{{ $barang->namaBarang }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="jenisTransaksi" class="form-label">Jenis Transaksi</label>
+                        <select class="form-select" id="jenisTransaksi" name="jenisTransaksi" required>
+                            <option value="" disabled selected>Pilih jenis transaksi</option>
+                            <option value="masuk">Masuk</option>
+                            <option value="keluar">Keluar</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="jumlahPinjam" class="form-label">Jumlah</label>
+                        <input type="number" class="form-control" id="jumlahPinjam" name="jumlahPinjam" min="1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="tanggalTransaksi" class="form-label">Tanggal Transaksi</label>
+                        <input type="date" class="form-control" id="tanggalTransaksi" name="tanggal_transaksi" required>
+                    </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -72,21 +96,27 @@
                             <thead>
                                 <tr>
                                     <th scope="col">No</th>
+                                    <th scope="col">Nama Peminjam</th>
+                                    <th scope="col">Status Peminjam</th>
                                     <th scope="col">Nama Barang</th>
                                     <th scope="col">Jenis Transaksi</th>
                                     <th scope="col">Jumlah</th>
                                     <th scope="col">Tanggal Transaksi</th>
+                                    <th scope="col">Status</th>
                                     <th scope="col">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse($datanya as $transaksi)
                                 <tr>
-                                    <td>{{ $transaksi->id }}</td>
-                                    <td>{{ $transaksi->namaBarang }}</td>
+                                    <td>{{ $loop->iteration + ($datanya->currentPage() - 1) * $datanya->perPage() }}</td>
+                                    <td>{{ $transaksi->nama_pegawai }} </td>
+                                    <td>{{ $transaksi->status_pegawai }} </td>
+                                    <td>{{ $transaksi->barang->namaBarang ?? '-' }}</td>
                                     <td>{{ $transaksi->jenisTransaksi }}</td>
-                                    <td>{{ $transaksi->jumlah }}</td>
-                                    <td>{{ $transaksi->tanggalTransaksi }}</td>
+                                    <td>{{ $transaksi->jumlahPinjam }}</td>
+                                    <td>{{ $transaksi->tanggal_transaksi }}</td>
+                                    <td>{{ $transaksi->statusTransaksi }}</td>
                                     <td>
                                     <!-- Tombol Edit -->
                                     <a href="#" class="btn btn-warning btn-sm btn-action" title="Edit" data-bs-toggle="modal" data-bs-target="#modalEditTransaksi{{ $transaksi->id }}">
@@ -104,22 +134,48 @@
                                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
                                                     </div>
                                                     <div class="modal-body">
-                                                        <div class="mb-3">
-                                                            <label for="namaBarang{{ $transaksi->id }}" class="form-label">Nama Barang</label>
-                                                            <input type="text" class="form-control" id="namaBarang{{ $transaksi->id }}" name="namaBarang" value="{{ $transaksi->namaBarang }}" required>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="jenisTransaksi{{ $transaksi->id }}" class="form-label">Jenis Transaksi</label>
-                                                            <input type="text" class="form-control" id="jenisTransaksi{{ $transaksi->id }}" name="jenisTransaksi" value="{{ $transaksi->jenisTransaksi }}" required>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="jumlah{{ $transaksi->id }}" class="form-label">Jumlah</label>
-                                                            <input type="number" class="form-control" id="jumlah{{ $transaksi->id }}" name="jumlah" value="{{ $transaksi->jumlah }}" min="1" required>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="tanggalTransaksi{{ $transaksi->id }}" class="form-label">Tanggal Transaksi</label>
-                                                            <input type="date" class="form-control" id="tanggalTransaksi{{ $transaksi->id }}" name="tanggalTransaksi" value="{{ $transaksi->tanggalTransaksi }}" required>
-                                                        </div>
+                                                    <div class="mb-3">
+                                                        <label for="namaPegawai{{ $transaksi->id }}" class="form-label">Nama Peminjam</label>
+                                                        <input type="text" class="form-control" id="namaPegawai{{ $transaksi->id }}" name="nama_pegawai" value="{{ $transaksi->nama_pegawai }}" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="statusPegawai{{ $transaksi->id }}" class="form-label">Status Pegawai</label>
+                                                        <select class="form-select" id="statusPegawai{{ $transaksi->id }}" name="status_pegawai" required>
+                                                            <option value="" disabled {{ !$transaksi->status_pegawai ? 'selected' : '' }}>Pilih status pegawai</option>
+                                                            <option value="PNS" {{ $transaksi->status_pegawai == 'PNS' ? 'selected' : '' }}>PNS</option>
+                                                            <option value="PPPK" {{ $transaksi->status_pegawai == 'PPPK' ? 'selected' : '' }}>PPPK</option>
+                                                            <option value="CPNS" {{ $transaksi->status_pegawai == 'CPNS' ? 'selected' : '' }}>CPNS</option>
+                                                            <option value="CPPPK" {{ $transaksi->status_pegawai == 'CPPPK' ? 'selected' : '' }}>CPPPK</option>
+                                                            <option value="honorer" {{ $transaksi->status_pegawai == 'honorer' ? 'selected' : '' }}>Honorer</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="namaBarang{{ $transaksi->id }}" class="form-label">Nama Barang</label>
+                                                        <select class="form-select" id="namaBarang{{ $transaksi->id }}" name="nama_barang" required>
+                                                            <option value="{{ $transaksi->idDataBarang }}" selected>{{ $transaksi->barang->namaBarang ?? '-' }}</option>
+                                                            @foreach($data_barang->sortBy('namaBarang') as $barang)
+                                                                @if($barang->id != $transaksi->idDataBarang)
+                                                                    <option value="{{ $barang->id }}">{{ $barang->namaBarang }}</option>
+                                                                @endif
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="jenisTransaksi{{ $transaksi->id }}" class="form-label">Jenis Transaksi</label>
+                                                        <select class="form-select" id="jenisTransaksi{{ $transaksi->id }}" name="jenisTransaksi" required>
+                                                            <option value="" disabled {{ !$transaksi->jenisTransaksi ? 'selected' : '' }}>Pilih jenis transaksi</option>
+                                                            <option value="masuk" {{ $transaksi->jenisTransaksi == 'masuk' ? 'selected' : '' }}>Masuk</option>
+                                                            <option value="keluar" {{ $transaksi->jenisTransaksi == 'keluar' ? 'selected' : '' }}>Keluar</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="jumlahPinjam{{ $transaksi->id }}" class="form-label">Jumlah</label>
+                                                        <input type="number" class="form-control" id="jumlahPinjam{{ $transaksi->id }}" name="jumlahPinjam" value="{{ $transaksi->jumlahPinjam }}" min="1" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="tanggalTransaksi{{ $transaksi->id }}" class="form-label">Tanggal Transaksi</label>
+                                                        <input type="date" class="form-control" id="tanggalTransaksi{{ $transaksi->id }}" name="tanggal_transaksi" value="{{ $transaksi->tanggal_transaksi }}" required>
+                                                    </div>
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -144,7 +200,7 @@
                                 </tr>
                                 @endforelse
                                 <tr>
-                                    <td colspan="6" class="text-center">
+                                    <td colspan="9" class="text-center">
                                         {{ $datanya->links() }}
                                     </td>
                                 </tr>
