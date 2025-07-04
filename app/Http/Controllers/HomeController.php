@@ -54,20 +54,17 @@ class HomeController extends Controller
                     if($menu == 'kendaraan'){
                         $data_user = DataPegawai::all();
                         $data_barang = DataBarang::all();
-                        $datanya = DataBarang::paginate(10);
-                        return view('dashboard', ['status' => $_COOKIE['status'], 'nama' => $_COOKIE['nama'], 'nip' => $_COOKIE['nip'], 'waktu' => $_COOKIE['current_time_formatted'], 'tanggal' => $_COOKIE['tanggal'], 'menu' => $menu, 'datanya' => $datanya], compact( 'data_user'));
-                    }
-                    if($menu == 'tbarang'){
-                        $data_user = DataPegawai::all();
-                        $data_barang = DataBarang::all();
-                        $datanya = DataBarang::paginate(10);
-                        return view('dashboard', ['status' => $_COOKIE['status'], 'nama' => $_COOKIE['nama'], 'nip' => $_COOKIE['nip'], 'waktu' => $_COOKIE['current_time_formatted'], 'tanggal' => $_COOKIE['tanggal'], 'menu' => $menu, 'datanya' => $datanya], compact( 'data_user'));
-                    }
-                    if($menu == 'tkendaraan'){
-                        $data_user = DataPegawai::all();
-                        $data_barang = DataBarang::all();
-                        $datanya = DataBarang::paginate(10);
-                        return view('dashboard', ['status' => $_COOKIE['status'], 'nama' => $_COOKIE['nama'], 'nip' => $_COOKIE['nip'], 'waktu' => $_COOKIE['current_time_formatted'], 'tanggal' => $_COOKIE['tanggal'], 'menu' => $menu, 'datanya' => $datanya], compact( 'data_user'));
+                        $key = request()->input('search');
+                        $datanya = DataKendaraan::where('namaKendaraan', 'like', '%' . $key . '%')->paginate(15);
+                        return view('dashboard', [
+                            'status' => $_COOKIE['status'],
+                            'nama' => $_COOKIE['nama'],
+                            'nip' => $_COOKIE['nip'],
+                            'waktu' => $_COOKIE['current_time_formatted'],
+                            'tanggal' => $_COOKIE['tanggal'],
+                            'menu' => $menu,
+                            'datanya' => $datanya
+                        ], compact('data_user'));
                     }
                     if($_COOKIE['status'] == 'admin'){
 
@@ -99,19 +96,19 @@ class HomeController extends Controller
                     if($menu == 'kendaraan'){
                         $data_user = DataPegawai::all();
                         $data_barang = DataBarang::all();
-                        $datanya = DataBarang::paginate(10);
+                        $datanya = DataKendaraan::paginate(15);
                         return view('dashboard', ['status' => $_COOKIE['status'], 'nama' => $_COOKIE['nama'], 'nip' => $_COOKIE['nip'], 'waktu' => $_COOKIE['current_time_formatted'], 'tanggal' => $_COOKIE['tanggal'], 'menu' => $menu, 'datanya' => $datanya], compact( 'data_user'));
                     }
                     if($menu == 'tbarang'){
                         $data_user = DataPegawai::all();
                         $data_barang = DataBarang::all();
-                        $datanya = DataBarang::paginate(10);
+                        $datanya = TransaksiBarang::paginate(15);
                         return view('dashboard', ['status' => $_COOKIE['status'], 'nama' => $_COOKIE['nama'], 'nip' => $_COOKIE['nip'], 'waktu' => $_COOKIE['current_time_formatted'], 'tanggal' => $_COOKIE['tanggal'], 'menu' => $menu, 'datanya' => $datanya], compact( 'data_user'));
                     }
                     if($menu == 'tkendaraan'){
                         $data_user = DataPegawai::all();
                         $data_barang = DataBarang::all();
-                        $datanya = DataBarang::paginate(10);
+                        $datanya = TransaksiKendaraan::paginate(15);
                         return view('dashboard', ['status' => $_COOKIE['status'], 'nama' => $_COOKIE['nama'], 'nip' => $_COOKIE['nip'], 'waktu' => $_COOKIE['current_time_formatted'], 'tanggal' => $_COOKIE['tanggal'], 'menu' => $menu, 'datanya' => $datanya], compact( 'data_user'));
                     }
                     if($_COOKIE['status'] == 'admin'){

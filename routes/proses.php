@@ -14,6 +14,12 @@ Route::post('/data_barang/{id}/edit', [prosesController::class, 'data_barang_edi
 Route::delete('/data_barang/{id}/delete', [prosesController::class, 'data_barang_destroy'])->name('data_barang.hapus');
 // End Data Barang
 
+// Start Data Kendaraan
+Route::post('/data_kendaraan/store', [prosesController::class, 'data_kendaraan_store'])->name('data_kendaraan.store');
+Route::post('/data_kendaraan/{id}/edit', [prosesController::class, 'data_kendaraan_edit'])->name('data_kendaraan.edit');
+Route::delete('/data_kendaraan/{id}/delete', [prosesController::class, 'data_kendaraan_destroy'])->name('data_kendaraan.hapus');
+// End Data Kendaraan
+
 
 
 

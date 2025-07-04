@@ -141,4 +141,79 @@ class prosesController extends Controller
         return redirect()->route('dashboard', ['menu' => 'barang'])
             ->with('success', 'Data barang berhasil dihapus.');
     }
+
+    public function data_kendaraan_store(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'namaKendaraan' => 'required|string|max:255',
+            'jenisKendaraan' => 'required|string|max:100',
+            'nomorPolisi' => 'required|string|max:20',
+        ], [
+            'namaKendaraan.required' => 'Nama kendaraan wajib diisi.',
+            'jenisKendaraan.required' => 'Jenis kendaraan wajib diisi.',
+            'nomorPolisi.required' => 'Nomor polisi wajib diisi.',
+        ]);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        $kendaraan = new DataKendaraan();
+        $kendaraan->namaKendaraan = $request->namaKendaraan;
+        $kendaraan->jenisKendaraan = $request->jenisKendaraan;
+        $kendaraan->nomorPolisi = $request->nomorPolisi;
+        $kendaraan->save();
+
+        return redirect()->route('dashboard', ['menu' => 'kendaraan'])
+            ->with('success', 'Data kendaraan berhasil disimpan.');
+    }
+
+    public function data_kendaraan_edit(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'namaKendaraan' => 'required|string|max:255',
+            'jenisKendaraan' => 'required|string|max:100',
+            'nomorPolisi' => 'required|string|max:20',
+        ], [
+            'namaKendaraan.required' => 'Nama kendaraan wajib diisi.',
+            'jenisKendaraan.required' => 'Jenis kendaraan wajib diisi.',
+            'nomorPolisi.required' => 'Nomor polisi wajib diisi.',
+        ]);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        $kendaraan = DataKendaraan::findOrFail($id);
+        $kendaraan->namaKendaraan = $request->namaKendaraan;
+        $kendaraan->jenisKendaraan = $request->jenisKendaraan;
+        $kendaraan->nomorPolisi = $request->nomorPolisi;
+        $kendaraan->save();
+
+        return redirect()->route('dashboard', ['menu' => 'kendaraan'])
+            ->with('success', 'Data kendaraan berhasil diperbarui.');
+    }
+
+    public function data_kendaraan_destroy($id)
+    {
+        $kendaraan = DataKendaraan::findOrFail($id);
+        $kendaraan->delete();
+
+        // Set idKendaraan pada transaksi terkait menjadi null
+        TransaksiKendaraan::where('idDataKendaraan', $id)->update(['idDataKendaraan' => null]);
+
+        // Update urutan id kendaraan (reindex id)
+        $kendaraans = DataKendaraan::orderBy('id')->get();
+        $newId = 1;
+        foreach ($kendaraans as $k) {
+            if ($k->id != $newId) {
+                // Update id only if different
+                DataKendaraan::where('id', $k->id)->update(['id' => $newId]);
+            }
+            $newId++;
+        }
+
+        return redirect()->route('dashboard', ['menu' => 'kendaraan'])
+            ->with('success', 'Data kendaraan berhasil dihapus.');
+    }
 }
