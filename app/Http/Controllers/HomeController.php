@@ -66,6 +66,27 @@ class HomeController extends Controller
                             'datanya' => $datanya
                         ], compact('data_user'));
                     }
+                    if($menu == 'tbarang'){
+                        $data_user = DataPegawai::all();
+                        $data_barang = DataBarang::all();
+                        $key = request()->input('search');
+                        $datanya = TransaksiBarang::with(['barang', 'pegawai'])
+                            ->whereHas('barang', function ($query) use ($key) {
+                                $query->where('namaBarang', 'like', "%{$key}%");
+                            })
+                            ->orWhere('nama_pegawai', 'like', "%{$key}%")
+                            ->orderByDesc('tanggal_transaksi')
+                            ->paginate(15);
+                        return view('dashboard', [
+                            'status' => $_COOKIE['status'],
+                            'nama' => $_COOKIE['nama'],
+                            'nip' => $_COOKIE['nip'],
+                            'waktu' => $_COOKIE['current_time_formatted'],
+                            'tanggal' => $_COOKIE['tanggal'],
+                            'menu' => $menu,
+                            'datanya' => $datanya
+                        ], compact('data_user', 'data_barang'));
+                    }
                     if($_COOKIE['status'] == 'admin'){
 
                     }
@@ -91,7 +112,25 @@ class HomeController extends Controller
                         $data_user = DataPegawai::all();
                         $data_barang = DataBarang::all();
                         $datanya = DataBarang::paginate(15);
-                        return view('dashboard', ['status' => $_COOKIE['status'], 'nama' => $_COOKIE['nama'], 'nip' => $_COOKIE['nip'], 'waktu' => $_COOKIE['current_time_formatted'], 'tanggal' => $_COOKIE['tanggal'], 'menu' => $menu, 'datanya' => $datanya], compact( 'data_user'));
+                        foreach ($datanya as $barang) {
+                            $jumlahPinjaman = \App\Models\TransaksiBarang::where('idDataBarang', $barang->id)
+                                ->where('statustransaksi', 'Dipinjam')
+                                ->sum('jumlahPinjam');
+                            $jumlahPengembalian = \App\Models\TransaksiBarang::where('idDataBarang', $barang->id)
+                                ->where('statustransaksi', 'Dikembalikan')
+                                ->sum('jumlahPinjam');
+                            $barang->jumlahTersedia = $barang->jumlahTotal - $jumlahPinjaman + $jumlahPengembalian;
+                            $barang->save();
+                        }
+                        return view('dashboard', [
+                            'status' => $_COOKIE['status'],
+                            'nama' => $_COOKIE['nama'],
+                            'nip' => $_COOKIE['nip'],
+                            'waktu' => $_COOKIE['current_time_formatted'],
+                            'tanggal' => $_COOKIE['tanggal'],
+                            'menu' => $menu,
+                            'datanya' => $datanya
+                        ], compact('data_user'));
                     }
                     if($menu == 'kendaraan'){
                         $data_user = DataPegawai::all();

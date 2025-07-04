@@ -59,16 +59,12 @@ class prosesController extends Controller
             'namaBarang' => 'required|string|max:255',
             'jenisBarangPersediaan' => 'required|string|max:100',
             'jumlahTotal' => 'required|integer|min:1',
-            'jumlahTersedia' => 'required|integer|min:1',
         ], [
             'namaBarang.required' => 'Nama barang wajib diisi.',
             'jenisBarangPersediaan.required' => 'Kategori wajib diisi.',
             'jumlahTotal.required' => 'Jumlah total wajib diisi.',
             'jumlahTotal.integer' => 'Jumlah total harus berupa angka.',
             'jumlahTotal.min' => 'Jumlah total minimal 1.',
-            'jumlahTersedia.required' => 'Jumlah tersedia wajib diisi.',
-            'jumlahTersedia.integer' => 'Jumlah tersedia harus berupa angka.',
-            'jumlahTersedia.min' => 'Jumlah tersedia minimal 1.',
         ]);
 
         if ($validator->fails()) {
@@ -79,7 +75,6 @@ class prosesController extends Controller
         $barang->namaBarang = $request->namaBarang;
         $barang->jenisBarangPersediaan = $request->jenisBarangPersediaan;
         $barang->jumlahTotal = $request->jumlahTotal;
-        $barang->jumlahTersedia = $request->jumlahTersedia;
         $barang->save();
         return redirect()->route('dashboard', ['menu' => 'barang'])
             ->with('success', 'Data barang berhasil disimpan.');
@@ -92,16 +87,12 @@ class prosesController extends Controller
             'namaBarang' => 'required|string|max:255',
             'jenisBarangPersediaan' => 'required|string|max:100',
             'jumlahTotal' => 'required|integer|min:1',
-            'jumlahTersedia' => 'required|integer|min:1',
         ], [
             'namaBarang.required' => 'Nama barang wajib diisi.',
             'jenisBarangPersediaan.required' => 'Kategori wajib diisi.',
             'jumlahTotal.required' => 'Jumlah total wajib diisi.',
             'jumlahTotal.integer' => 'Jumlah total harus berupa angka.',
             'jumlahTotal.min' => 'Jumlah total minimal 1.',
-            'jumlahTersedia.required' => 'Jumlah tersedia wajib diisi.',
-            'jumlahTersedia.integer' => 'Jumlah tersedia harus berupa angka.',
-            'jumlahTersedia.min' => 'Jumlah tersedia minimal 1.',
         ]);
 
         if ($validator->fails()) {
@@ -112,7 +103,6 @@ class prosesController extends Controller
         $barang->namaBarang = $request->namaBarang;
         $barang->jenisBarangPersediaan = $request->jenisBarangPersediaan;
         $barang->jumlahTotal = $request->jumlahTotal;
-        $barang->jumlahTersedia = $request->jumlahTersedia;
         $barang->save();
 
         return redirect()->route('dashboard', ['menu' => 'barang'])
@@ -226,7 +216,7 @@ class prosesController extends Controller
             'nama_pegawai' => 'required|string|max:255',
             'status_pegawai' => 'required|string|max:100',
             'nama_barang' => 'required|integer|exists:data_barang,id',
-            'jenisTransaksi' => 'required|in:masuk,keluar',
+            'jenisTransaksi' => 'required|in:Masuk,Keluar',
             'jumlahPinjam' => 'required|integer|min:1',
             'tanggal_transaksi' => 'required|date',
         ], [
@@ -260,5 +250,69 @@ class prosesController extends Controller
 
         return redirect()->route('dashboard', ['menu' => 'tbarang'])
             ->with('success', 'Transaksi barang berhasil disimpan.');
+    }
+
+    public function transaksi_barang_edit(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'nama_pegawai' => 'required|string|max:255',
+            'status_pegawai' => 'required|string|max:100',
+            'nama_barang' => 'required|integer|exists:data_barang,id',
+            'jenisTransaksi' => 'required|in:Masuk,Keluar',
+            'jumlahPinjam' => 'required|integer|min:1',
+            'tanggal_transaksi' => 'required|date',
+        ], [
+            'nama_pegawai.required' => 'Nama pegawai wajib diisi.',
+            'status_pegawai.required' => 'Status pegawai wajib diisi.',
+            'nama_barang.required' => 'Nama barang wajib dipilih.',
+            'nama_barang.exists' => 'Barang yang dipilih tidak ditemukan.',
+            'jenisTransaksi.required' => 'Jenis transaksi wajib dipilih.',
+            'jumlahPinjam.required' => 'Jumlah wajib diisi.',
+            'jumlahPinjam.integer' => 'Jumlah harus berupa angka.',
+            'jumlahPinjam.min' => 'Jumlah minimal 1.',
+            'tanggal_transaksi.required' => 'Tanggal transaksi wajib diisi.',
+            'tanggal_transaksi.date' => 'Tanggal transaksi tidak valid.',
+        ]);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        $statusTransaksi = $request->jenisTransaksi === 'masuk' ? 'Dikembalikan' : 'Dipinjam';
+
+        $transaksi = TransaksiBarang::findOrFail($id);
+        $transaksi->nama_pegawai = $request->nama_pegawai;
+        $transaksi->status_pegawai = $request->status_pegawai;
+        $transaksi->idDataBarang = $request->nama_barang;
+        $transaksi->jenisTransaksi = $request->jenisTransaksi;
+        $transaksi->jumlahPinjam = $request->jumlahPinjam;
+        $transaksi->tanggal_transaksi = $request->tanggal_transaksi;
+        $transaksi->statusTransaksi = $statusTransaksi;
+        $transaksi->save();
+
+        return redirect()->route('dashboard', ['menu' => 'tbarang'])
+            ->with('success', 'Transaksi barang berhasil diperbarui.');
+    }
+
+    public function transaksi_barang_destroy($id)
+    {
+        $transaksi = TransaksiBarang::findOrFail($id);
+        $transaksi->delete();
+
+        // Set idDataBarang pada transaksi terkait menjadi null
+        DataBarang::where('id', $transaksi->idDataBarang);
+
+        // Update urutan id transaksi (reindex id)
+        $transaksis = TransaksiBarang::orderBy('id')->get();
+        $newId = 1;
+        foreach ($transaksis as $t) {
+            if ($t->id != $newId) {
+                // Update id only if different
+                TransaksiBarang::where('id', $t->id)->update(['id' => $newId]);
+            }
+            $newId++;
+        }
+        return redirect()->route('dashboard', ['menu' => 'tbarang'])
+            ->with('success', 'Transaksi barang berhasil dihapus.');
     }
 }

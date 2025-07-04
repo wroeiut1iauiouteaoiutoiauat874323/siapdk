@@ -2,7 +2,7 @@
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h4 class="fw-bold text-primary mb-0">Data Transaksi Barang</h4>
-        <form action="{{ route('dashboard.search', ['menu' => 'transaksi_barang']) }}" method="GET" class="d-flex me-3">
+        <form action="{{ route('dashboard.search', ['menu' => 'tbarang']) }}" method="GET" class="d-flex me-3">
             <input type="text" name="search" class="form-control me-2" placeholder="Cari transaksi..." value="">
             <button type="submit" class="btn btn-primary">
                 <i class="bi bi-search"></i>
@@ -36,7 +36,7 @@
                             <option value="PPPK">PPPK</option>
                             <option value="CPNS">CPNS</option>
                             <option value="CPPPK">CPPPK</option>
-                            <option value="honorer">Honorer</option>
+                            <option value="Honorer">Honorer</option>
                         </select>
                     </div>
                     <div class="mb-3">
@@ -52,8 +52,8 @@
                         <label for="jenisTransaksi" class="form-label">Jenis Transaksi</label>
                         <select class="form-select" id="jenisTransaksi" name="jenisTransaksi" required>
                             <option value="" disabled selected>Pilih jenis transaksi</option>
-                            <option value="masuk">Masuk</option>
-                            <option value="keluar">Keluar</option>
+                            <option value="Masuk">Masuk</option>
+                            <option value="Keluar">Keluar</option>
                         </select>
                     </div>
                     <div class="mb-3">
@@ -96,12 +96,12 @@
                             <thead>
                                 <tr>
                                     <th scope="col">No</th>
+                                    <th scope="col">Tanggal Transaksi</th>
+                                    <th scope="col">Nama Barang</th>
                                     <th scope="col">Nama Peminjam</th>
                                     <th scope="col">Status Peminjam</th>
-                                    <th scope="col">Nama Barang</th>
                                     <th scope="col">Jenis Transaksi</th>
                                     <th scope="col">Jumlah</th>
-                                    <th scope="col">Tanggal Transaksi</th>
                                     <th scope="col">Status</th>
                                     <th scope="col">Aksi</th>
                                 </tr>
@@ -110,12 +110,12 @@
                                 @forelse($datanya as $transaksi)
                                 <tr>
                                     <td>{{ $loop->iteration + ($datanya->currentPage() - 1) * $datanya->perPage() }}</td>
+                                    <td>{{ $transaksi->tanggal_transaksi }}</td>
+                                    <td>{{ $transaksi->barang->namaBarang ?? '-' }}</td>
                                     <td>{{ $transaksi->nama_pegawai }} </td>
                                     <td>{{ $transaksi->status_pegawai }} </td>
-                                    <td>{{ $transaksi->barang->namaBarang ?? '-' }}</td>
                                     <td>{{ $transaksi->jenisTransaksi }}</td>
                                     <td>{{ $transaksi->jumlahPinjam }}</td>
-                                    <td>{{ $transaksi->tanggal_transaksi }}</td>
                                     <td>{{ $transaksi->statusTransaksi }}</td>
                                     <td>
                                     <!-- Tombol Edit -->
@@ -146,7 +146,7 @@
                                                             <option value="PPPK" {{ $transaksi->status_pegawai == 'PPPK' ? 'selected' : '' }}>PPPK</option>
                                                             <option value="CPNS" {{ $transaksi->status_pegawai == 'CPNS' ? 'selected' : '' }}>CPNS</option>
                                                             <option value="CPPPK" {{ $transaksi->status_pegawai == 'CPPPK' ? 'selected' : '' }}>CPPPK</option>
-                                                            <option value="honorer" {{ $transaksi->status_pegawai == 'honorer' ? 'selected' : '' }}>Honorer</option>
+                                                            <option value="Honorer" {{ $transaksi->status_pegawai == 'Honorer' ? 'selected' : '' }}>Honorer</option>
                                                         </select>
                                                     </div>
                                                     <div class="mb-3">
@@ -164,8 +164,8 @@
                                                         <label for="jenisTransaksi{{ $transaksi->id }}" class="form-label">Jenis Transaksi</label>
                                                         <select class="form-select" id="jenisTransaksi{{ $transaksi->id }}" name="jenisTransaksi" required>
                                                             <option value="" disabled {{ !$transaksi->jenisTransaksi ? 'selected' : '' }}>Pilih jenis transaksi</option>
-                                                            <option value="masuk" {{ $transaksi->jenisTransaksi == 'masuk' ? 'selected' : '' }}>Masuk</option>
-                                                            <option value="keluar" {{ $transaksi->jenisTransaksi == 'keluar' ? 'selected' : '' }}>Keluar</option>
+                                                            <option value="Masuk" {{ $transaksi->jenisTransaksi == 'Masuk' ? 'selected' : '' }}>Masuk</option>
+                                                            <option value="Keluar" {{ $transaksi->jenisTransaksi == 'Keluar' ? 'selected' : '' }}>Keluar</option>
                                                         </select>
                                                     </div>
                                                     <div class="mb-3">

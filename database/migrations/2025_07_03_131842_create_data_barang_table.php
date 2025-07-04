@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('data_barang', function (Blueprint $table) {
             $table->id();
-            $table->string('jenisBarangPersediaan');
-            $table->string('namaBarang');
-            $table->integer('jumlahTotal');
-            $table->integer('jumlahTersedia');
+            $table->string('jenisBarangPersediaan')->nullable();
+            $table->string('namaBarang')->nullable();
+            $table->integer('jumlahTotal')->nullable();
+            $table->integer('jumlahTersedia')->nullable();
             $table->timestamps();
         });
     }
