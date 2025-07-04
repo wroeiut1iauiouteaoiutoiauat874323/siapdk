@@ -20,6 +20,11 @@ Route::post('/data_kendaraan/{id}/edit', [prosesController::class, 'data_kendara
 Route::delete('/data_kendaraan/{id}/delete', [prosesController::class, 'data_kendaraan_destroy'])->name('data_kendaraan.hapus');
 // End Data Kendaraan
 
+// Start Transaksi Barang
+Route::post('/transaksi_barang/store', [prosesController::class, 'transaksi_barang_store'])->name('transaksi_barang.store');
+Route::post('/transaksi_barang/{id}/edit', [prosesController::class, 'transaksi_barang_edit'])->name('transaksi_barang.edit');
+Route::delete('/transaksi_barang/{id}/delete', [prosesController::class, 'transaksi_barang_destroy'])->name('transaksi_barang.hapus');
+// End transaksi Barang
 
 
 

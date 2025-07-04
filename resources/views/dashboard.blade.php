@@ -149,7 +149,7 @@
 @elseif ($menu == 'kendaraan')
     @include('dashboard.umum.dataKendaraan')
 @elseif ($menu == 'tbarang')
-    @include('dashboard.pengguna.transaksi_barang')
+    @include('dashboard.umum.transaksi_barang')
 @elseif ($menu == 'tkendaraan')
     @include('dashboard.pengguna.transaksi_kendaraan')
 @endif
