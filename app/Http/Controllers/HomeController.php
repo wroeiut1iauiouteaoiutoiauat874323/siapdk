@@ -136,7 +136,32 @@ class HomeController extends Controller
                         $data_user = DataPegawai::all();
                         $data_barang = DataBarang::all();
                         $datanya = DataKendaraan::paginate(15);
-                        return view('dashboard', ['status' => $_COOKIE['status'], 'nama' => $_COOKIE['nama'], 'nip' => $_COOKIE['nip'], 'waktu' => $_COOKIE['current_time_formatted'], 'tanggal' => $_COOKIE['tanggal'], 'menu' => $menu, 'datanya' => $datanya], compact( 'data_user'));
+
+                        foreach ($datanya as $kendaraan) {
+                            // Ambil transaksi terakhir untuk kendaraan ini
+                            $transaksiTerakhir = TransaksiKendaraan::where('idDataKendaraan', $kendaraan->id)
+                                ->orderByDesc('tanggal_transaksi')
+                                ->first();
+
+                            if ($transaksiTerakhir) {
+                                if ($transaksiTerakhir->statustransaksi == 'Dipinjam') {
+                                    $kendaraan->status = 'Tidak Tersedia';
+                                } elseif ($transaksiTerakhir->statustransaksi == 'Dikembalikan') {
+                                    $kendaraan->tersedia = "Tersedia";
+                                }
+                                $kendaraan->save();
+                            }
+                        }
+
+                        return view('dashboard', [
+                            'status' => $_COOKIE['status'],
+                            'nama' => $_COOKIE['nama'],
+                            'nip' => $_COOKIE['nip'],
+                            'waktu' => $_COOKIE['current_time_formatted'],
+                            'tanggal' => $_COOKIE['tanggal'],
+                            'menu' => $menu,
+                            'datanya' => $datanya
+                        ], compact('data_user'));
                     }
                     if($menu == 'tbarang'){
                         $data_user = DataPegawai::all();
@@ -146,9 +171,17 @@ class HomeController extends Controller
                     }
                     if($menu == 'tkendaraan'){
                         $data_user = DataPegawai::all();
-                        $data_barang = DataBarang::all();
-                        $datanya = TransaksiKendaraan::paginate(15);
-                        return view('dashboard', ['status' => $_COOKIE['status'], 'nama' => $_COOKIE['nama'], 'nip' => $_COOKIE['nip'], 'waktu' => $_COOKIE['current_time_formatted'], 'tanggal' => $_COOKIE['tanggal'], 'menu' => $menu, 'datanya' => $datanya], compact( 'data_user'));
+                        $data_kendaraan = DataKendaraan::all();
+                        $datanya = Transaksikendaraan::orderByDesc('tanggal_transaksi', 'DESC')->paginate(15);
+                        return view('dashboard', [
+                            'status' => $_COOKIE['status'],
+                            'nama' => $_COOKIE['nama'],
+                            'nip' => $_COOKIE['nip'],
+                            'waktu' => $_COOKIE['current_time_formatted'],
+                            'tanggal' => $_COOKIE['tanggal'],
+                            'menu' => $menu,
+                            'datanya' => $datanya
+                        ], compact('data_user', 'data_kendaraan'));
                     }
                     if($_COOKIE['status'] == 'admin'){
 

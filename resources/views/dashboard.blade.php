@@ -151,7 +151,7 @@
 @elseif ($menu == 'tbarang')
     @include('dashboard.umum.transaksi_barang')
 @elseif ($menu == 'tkendaraan')
-    @include('dashboard.pengguna.transaksi_kendaraan')
+    @include('dashboard.umum.transaksi_kendaraan')
 @endif
 
 <!-- Bootstrap JS and dependencies -->

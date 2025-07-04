@@ -37,10 +37,6 @@
                             <label for="jumlahTotal" class="form-label">Jumlah Total</label>
                             <input type="number" class="form-control" id="jumlahTotal" name="jumlahTotal" min="1" required>
                         </div>
-                        <div class="mb-3">
-                            <label for="jumlahTersedia" class="form-label">Jumlah Tersedia</label>
-                            <input type="number" class="form-control" id="jumlahTersedia" name="jumlahTersedia" min="1" required>
-                        </div>
 
                     </div>
                     <div class="modal-footer">
@@ -118,10 +114,6 @@
                                                         <div class="mb-3">
                                                             <label for="jumlahTotal{{ $barang->id }}" class="form-label">Jumlah Total</label>
                                                             <input type="number" class="form-control" id="jumlahTotal{{ $barang->id }}" name="jumlahTotal" value="{{ $barang->jumlahTotal }}" min="1" required>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="jumlahTersedia{{ $barang->id }}" class="form-label">Jumlah Tersedia</label>
-                                                            <input type="number" class="form-control" id="jumlahTersedia{{ $barang->id }}" name="jumlahTersedia" value="{{ $barang->jumlahTersedia }}" min="1" required>
                                                         </div>
                                                     </div>
                                                     <div class="modal-footer">
