@@ -111,17 +111,7 @@ class HomeController extends Controller
                     if($menu == 'barang'){
                         $data_user = DataPegawai::all();
                         $data_barang = DataBarang::all();
-                        $datanya = DataBarang::paginate(15);
-                        foreach ($datanya as $barang) {
-                            $jumlahPinjaman = \App\Models\TransaksiBarang::where('idDataBarang', $barang->id)
-                                ->where('statustransaksi', 'Dipinjam')
-                                ->sum('jumlahPinjam');
-                            $jumlahPengembalian = \App\Models\TransaksiBarang::where('idDataBarang', $barang->id)
-                                ->where('statustransaksi', 'Dikembalikan')
-                                ->sum('jumlahPinjam');
-                            $barang->jumlahTersedia = $barang->jumlahTotal - $jumlahPinjaman + $jumlahPengembalian;
-                            $barang->save();
-                        }
+                        $datanya = DataBarang::orderBy('namaBarang')->paginate(15);
                         return view('dashboard', [
                             'status' => $_COOKIE['status'],
                             'nama' => $_COOKIE['nama'],

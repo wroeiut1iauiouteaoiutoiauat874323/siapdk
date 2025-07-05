@@ -14,6 +14,17 @@
         </a>
     </div>
 
+    @if ($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
     <!-- Modal Tambah Barang -->
     <div class="modal fade" id="modalTambahBarang" tabindex="-1" aria-labelledby="modalTambahBarangLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -74,22 +85,22 @@
                                     <th scope="col" class="text-center">Kategori</th>
                                     <th scope="col" class="text-center">Jumlah Total</th>
                                     <th scope="col" class="text-center">Jumlah Tersedia</th>
-                                    <th scope="col" class="text-center">Aksi</th>
+                                    <th scope="col" style="width: 100px; padding-left:25px">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse($datanya as $barang)
                                 <tr>
-                                    <td class="text-center">{{ $barang->id }}</td>
+                                    <td class="text-center">{{ $loop->iteration + ($datanya->currentPage() - 1) * $datanya->perPage() }}</td>
                                     <td class="text-center">{{ $barang->namaBarang }}</td>
                                     <td class="text-center">{{ $barang->jenisBarangPersediaan }}</td>
                                     <td class="text-center">{{ $barang->jumlahTotal }}</td>
                                     <td class="text-center">{{ $barang->jumlahTersedia }}</td>
-                                    <td class="text-center">
-                                    <!-- Tombol Edit -->
-                                    <a href="#" class="btn btn-warning btn-sm btn-action" title="Edit" data-bs-toggle="modal" data-bs-target="#modalEditBarang{{ $barang->id }}">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
+                                    <td>
+                                        <!-- Tombol Edit -->
+                                        <a href="#" class="btn btn-warning btn-sm btn-action " title="Edit" data-bs-toggle="modal" data-bs-target="#modalEditBarang{{ $barang->id }}">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
 
                                     <!-- Modal Edit Barang -->
                                     <div class="modal fade" id="modalEditBarang{{ $barang->id }}" tabindex="-1" aria-labelledby="modalEditBarangLabel{{ $barang->id }}" aria-hidden="true">
@@ -139,7 +150,7 @@
                                 </tr>
                                 @endforelse
                                 <tr>
-                                    <td colspan="6" class="text-center">
+                                    <td colspan="9" class="text-center">
                                         {{ $datanya->links() }}
                                     </td>
                                 </tr>

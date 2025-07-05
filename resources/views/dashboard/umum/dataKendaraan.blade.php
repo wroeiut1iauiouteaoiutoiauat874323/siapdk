@@ -72,18 +72,18 @@
                                     <th scope="col" class="text-center">Jenis</th>
                                     <th scope="col" class="text-center">Nomor Polisi</th>
                                     <th scope="col" class="text-center">Status</th>
-                                    <th scope="col" class="text-center">Aksi</th>
+                                    <th scope="col" style="width: 100px; padding-left:25px">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse($datanya as $kendaraan)
                                 <tr>
-                                    <td class="text-center">{{ $kendaraan->id }}</td>
+                                    <td class="text-center">{{ $loop->iteration + ($datanya->currentPage() - 1) * $datanya->perPage() }}</td>
                                     <td class="text-center">{{ $kendaraan->namaKendaraan }}</td>
                                     <td class="text-center">{{ $kendaraan->jenisKendaraan }}</td>
                                     <td class="text-center">{{ $kendaraan->nomorPolisi }}</td>
                                     <td class="text-center">{{ $kendaraan->status }}</td>
-                                    <td class="text-center">
+                                    <td>
                                     <!-- Tombol Edit -->
                                     <a href="#" class="btn btn-warning btn-sm btn-action" title="Edit" data-bs-toggle="modal" data-bs-target="#modalEditKendaraan{{ $kendaraan->id }}">
                                         <i class="bi bi-pencil"></i>
@@ -137,7 +137,7 @@
                                 </tr>
                                 @endforelse
                                 <tr>
-                                    <td colspan="6" class="text-center">
+                                    <td colspan="9" class="text-center">
                                         {{ $datanya->links() }}
                                     </td>
                                 </tr>

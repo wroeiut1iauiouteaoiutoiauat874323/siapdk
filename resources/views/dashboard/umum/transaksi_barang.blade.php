@@ -1,4 +1,3 @@
-
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h4 class="fw-bold text-primary mb-0">Data Transaksi Barang</h4>
@@ -12,6 +11,17 @@
             <i class="bi bi-plus-circle me-1"></i> Tambah Transaksi
         </a>
     </div>
+
+    @if ($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
 
     <!-- Modal Tambah Transaksi -->
     <div class="modal fade" id="modalTambahTransaksi" tabindex="-1" aria-labelledby="modalTambahTransaksiLabel" aria-hidden="true">
@@ -109,7 +119,7 @@
                                     <th scope="col" class="text-center">Jenis Transaksi</th>
                                     <th scope="col" class="text-center">Jumlah</th>
                                     <th scope="col" class="text-center">Status</th>
-                                    <th scope="col" class="text-center">Aksi</th>
+                                    <th scope="col" style="width: 100px; padding-left:25px">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -124,7 +134,7 @@
                                     <td class="text-center">{{ $transaksi->jenisTransaksi }}</td>
                                     <td class="text-center">{{ $transaksi->jumlahPinjam }}</td>
                                     <td class="text-center">{{ $transaksi->statusTransaksi }}</td>
-                                    <td class="text-center">
+                                    <td>
                                     <!-- Tombol Edit -->
                                     <a href="#" class="btn btn-warning btn-sm btn-action" title="Edit" data-bs-toggle="modal" data-bs-target="#modalEditTransaksi{{ $transaksi->id }}">
                                         <i class="bi bi-pencil"></i>
@@ -183,6 +193,11 @@
                                                         <label for="tanggalTransaksi{{ $transaksi->id }}" class="form-label">Tanggal Transaksi</label>
                                                         <input type="date" class="form-control" id="tanggalTransaksi{{ $transaksi->id }}" name="tanggal_transaksi" value="{{ $transaksi->tanggal_transaksi }}" required>
                                                     </div>
+                                                    <div class="mb-3">
+                                                        <label for="waktuTransaksi{{ $transaksi->id }}" class="form-label">Waktu Transaksi</label>
+                                                        <input type="time" class="form-control" id="waktuTransaksi{{ $transaksi->id }}" name="waktu_transaksi" value="{{ $transaksi->waktu }}" required step="1">
+                                                        <small class="text-muted">Format 24 jam (contoh: 14:30)</small>
+                                                    </div>
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -207,7 +222,7 @@
                                 </tr>
                                 @endforelse
                                 <tr>
-                                    <td colspan="9" class="text-center">
+                                    <td colspan="10" class="text-center">
                                         {{ $datanya->links() }}
                                     </td>
                                 </tr>

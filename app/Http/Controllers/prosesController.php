@@ -71,10 +71,20 @@ class prosesController extends Controller
             return back()->withErrors($validator)->withInput();
         }
 
+        // Cek apakah nama barang dan kategori sudah ada
+        $exists = DataBarang::where('namaBarang', $request->namaBarang)
+            ->where('jenisBarangPersediaan', $request->jenisBarangPersediaan)
+            ->exists();
+
+        if ($exists) {
+            return back()->withErrors(['namaBarang' => 'Nama barang dengan kategori tersebut sudah ada.'])->withInput();
+        }
+
         $barang = new DataBarang();
         $barang->namaBarang = $request->namaBarang;
         $barang->jenisBarangPersediaan = $request->jenisBarangPersediaan;
         $barang->jumlahTotal = $request->jumlahTotal;
+        $barang->jumlahTersedia = $request->jumlahTotal;
         $barang->save();
         return redirect()->route('dashboard', ['menu' => 'barang'])
             ->with('success', 'Data barang berhasil disimpan.');
@@ -99,10 +109,28 @@ class prosesController extends Controller
             return back()->withErrors($validator)->withInput();
         }
 
+        // Cek apakah nama barang dan kategori sudah ada (kecuali untuk barang ini sendiri)
+        $exists = DataBarang::where('namaBarang', $request->namaBarang)
+            ->where('jenisBarangPersediaan', $request->jenisBarangPersediaan)
+            ->where('id', '!=', $id)
+            ->exists();
+
+        if ($exists) {
+            return back()->withErrors(['namaBarang' => 'Nama barang dengan kategori tersebut sudah ada.'])->withInput();
+        }
+
         $barang = DataBarang::findOrFail($id);
+
+        // Update jumlahTersedia jika jumlahTotal berubah
+        $selisih = $request->jumlahTotal - $barang->jumlahTotal;
+        $barang->jumlahTotal = $request->jumlahTotal;
+        $barang->jumlahTersedia += $selisih;
+        if ($barang->jumlahTersedia < 0) {
+            $barang->jumlahTersedia = 0;
+        }
+
         $barang->namaBarang = $request->namaBarang;
         $barang->jenisBarangPersediaan = $request->jenisBarangPersediaan;
-        $barang->jumlahTotal = $request->jumlahTotal;
         $barang->save();
 
         return redirect()->route('dashboard', ['menu' => 'barang'])
@@ -111,22 +139,15 @@ class prosesController extends Controller
 
     public function data_barang_destroy($id)
     {
+        // Cek apakah barang sudah digunakan di transaksi
+        $transaksiCount = TransaksiBarang::where('idDataBarang', $id)->count();
+        if ($transaksiCount > 0) {
+            return redirect()->route('dashboard', ['menu' => 'barang'])
+            ->withErrors(['error' => 'Data barang tidak dapat dihapus karena sudah digunakan pada transaksi.']);
+        }
+
         $barang = DataBarang::findOrFail($id);
         $barang->delete();
-
-        // Set idBarang pada transaksi terkait menjadi null
-        TransaksiBarang::where('idDataBarang', $id)->update(['idDataBarang' => null]);
-
-        // Update urutan id barang (reindex id)
-        $barangs = DataBarang::orderBy('id')->get();
-        $newId = 1;
-        foreach ($barangs as $b) {
-            if ($b->id != $newId) {
-            // Update id only if different
-            DataBarang::where('id', $b->id)->update(['id' => $newId]);
-            }
-            $newId++;
-        }
 
         return redirect()->route('dashboard', ['menu' => 'barang'])
             ->with('success', 'Data barang berhasil dihapus.');
@@ -230,11 +251,35 @@ class prosesController extends Controller
             'tanggal_transaksi.date' => 'Tanggal transaksi tidak valid.',
         ]);
 
+        // Tambahan validasi agar jumlahPinjam tidak boleh minus
+        if ($request->jumlahPinjam < 1) {
+            return back()->withErrors(['jumlahPinjam' => 'Jumlah tidak boleh kurang dari 1.'])->withInput();
+        }
+
         if ($validator->fails()) {
             return back()->withErrors($validator)->withInput();
         }
+        // Ambil data barang
+        $barang = DataBarang::findOrFail($request->nama_barang);
 
-        $statusTransaksi = $request->jenisTransaksi === 'masuk' ? 'Dikembalikan' : 'Dipinjam';
+        // Pastikan field jumlahTersedia sudah ada di tabel data_barang
+        if ($request->jenisTransaksi === 'Masuk') {
+            // Jika input masuk lebih dari stok, error salah input
+            if ($request->jumlahPinjam > $barang->jumlahTersedia) {
+                return back()->withErrors(['jumlahPinjam' => 'Input jumlah masuk tidak boleh lebih dari stok yang tersedia.'])->withInput();
+            }
+            // Tambah jumlahTersedia
+            $barang->jumlahTersedia += $request->jumlahPinjam;
+        } elseif ($request->jenisTransaksi === 'Keluar') {
+            // Kurangi jumlahTersedia, cek stok cukup
+            if ($barang->jumlahTersedia < $request->jumlahPinjam) {
+                return back()->withErrors(['jumlahPinjam' => 'Stok barang tidak mencukupi.'])->withInput();
+            }
+            $barang->jumlahTersedia -= $request->jumlahPinjam;
+        }
+        $barang->save();
+
+        $statusTransaksi = $request->jenisTransaksi === 'Masuk' ? 'Dikembalikan' : 'Dipinjam';
 
         $transaksi = new TransaksiBarang();
         $transaksi->nama_pegawai = $request->nama_pegawai;
@@ -273,19 +318,51 @@ class prosesController extends Controller
             'tanggal_transaksi.date' => 'Tanggal transaksi tidak valid.',
         ]);
 
+        // Tambahan validasi agar jumlahPinjam tidak boleh minus
+        if ($request->jumlahPinjam < 1) {
+            return back()->withErrors(['jumlahPinjam' => 'Jumlah tidak boleh kurang dari 1.'])->withInput();
+        }
+
         if ($validator->fails()) {
             return back()->withErrors($validator)->withInput();
         }
 
-        $statusTransaksi = $request->jenisTransaksi === 'masuk' ? 'Dikembalikan' : 'Dipinjam';
-
+        // Ambil data barang lama dan transaksi lama
         $transaksi = TransaksiBarang::findOrFail($id);
+        $barangLama = DataBarang::findOrFail($transaksi->idDataBarang);
+        $barangBaru = DataBarang::findOrFail($request->nama_barang);
+
+        // Kembalikan stok barang lama jika barang diganti atau jumlah berubah
+        if ($transaksi->jenisTransaksi === 'Masuk') {
+            $barangLama->jumlahTersedia -= $transaksi->jumlahPinjam;
+        } elseif ($transaksi->jenisTransaksi === 'Keluar') {
+            $barangLama->jumlahTersedia += $transaksi->jumlahPinjam;
+        }
+        $barangLama->save();
+
+        // Update stok barang baru sesuai transaksi baru
+        if ($request->jenisTransaksi === 'Masuk') {
+            if ($request->jumlahPinjam > $barangBaru->jumlahTersedia) {
+            return back()->withErrors(['jumlahPinjam' => 'Input jumlah masuk tidak boleh lebih dari stok yang tersedia.'])->withInput();
+            }
+            $barangBaru->jumlahTersedia += $request->jumlahPinjam;
+        } elseif ($request->jenisTransaksi === 'Keluar') {
+            if ($barangBaru->jumlahTersedia < $request->jumlahPinjam) {
+            return back()->withErrors(['jumlahPinjam' => 'Stok barang tidak mencukupi.'])->withInput();
+            }
+            $barangBaru->jumlahTersedia -= $request->jumlahPinjam;
+        }
+        $barangBaru->save();
+
+        $statusTransaksi = $request->jenisTransaksi === 'Masuk' ? 'Dikembalikan' : 'Dipinjam';
+
         $transaksi->nama_pegawai = $request->nama_pegawai;
         $transaksi->status_pegawai = $request->status_pegawai;
         $transaksi->idDataBarang = $request->nama_barang;
         $transaksi->jenisTransaksi = $request->jenisTransaksi;
         $transaksi->jumlahPinjam = $request->jumlahPinjam;
         $transaksi->tanggal_transaksi = $request->tanggal_transaksi;
+        $transaksi->waktu = $request->waktu_transaksi;
         $transaksi->statusTransaksi = $statusTransaksi;
         $transaksi->save();
 
@@ -296,18 +373,30 @@ class prosesController extends Controller
     public function transaksi_barang_destroy($id)
     {
         $transaksi = TransaksiBarang::findOrFail($id);
-        $transaksi->delete();
 
-        // Set idDataBarang pada transaksi terkait menjadi null
-        DataBarang::where('id', $transaksi->idDataBarang);
+        // Kembalikan stok barang jika transaksi dihapus
+        $barang = DataBarang::find($transaksi->idDataBarang);
+        if ($barang) {
+            if ($transaksi->jenisTransaksi === 'Masuk') {
+            // Jika transaksi masuk dihapus, stok dikurangi
+            $barang->jumlahTersedia -= $transaksi->jumlahPinjam;
+            if ($barang->jumlahTersedia < 0) $barang->jumlahTersedia = 0;
+            } elseif ($transaksi->jenisTransaksi === 'Keluar') {
+            // Jika transaksi keluar dihapus, stok dikembalikan
+            $barang->jumlahTersedia += $transaksi->jumlahPinjam;
+            }
+            $barang->save();
+        }
+
+        $transaksi->delete();
 
         // Update urutan id transaksi (reindex id)
         $transaksis = TransaksiBarang::orderBy('id')->get();
         $newId = 1;
         foreach ($transaksis as $t) {
             if ($t->id != $newId) {
-                // Update id only if different
-                TransaksiBarang::where('id', $t->id)->update(['id' => $newId]);
+            // Update id only if different
+            TransaksiBarang::where('id', $t->id)->update(['id' => $newId]);
             }
             $newId++;
         }

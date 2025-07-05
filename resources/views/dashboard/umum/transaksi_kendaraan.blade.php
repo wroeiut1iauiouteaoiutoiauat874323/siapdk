@@ -133,7 +133,7 @@
                                     <th scope="col" class="text-center">Status Peminjam</th>
                                     <th scope="col" class="text-center">Jenis Transaksi</th>
                                     <th scope="col" class="text-center">Status</th>
-                                    <th scope="col" class="text-center">Aksi</th>
+                                    <th scope="col" style="width: 100px; padding-left:25px">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -148,7 +148,7 @@
                                     <td class="text-center">{{ $transaksi->status_pegawai }} </td>
                                     <td class="text-center">{{ $transaksi->jenisTransaksi }}</td>
                                     <td class="text-center">{{ $transaksi->statusTransaksi }}</td>
-                                    <td class="text-center">
+                                    <td>
                                     <!-- Tombol Edit -->
                                     <a href="#" class="btn btn-warning btn-sm btn-action" title="Edit" data-bs-toggle="modal" data-bs-target="#modalEditTransaksi{{ $transaksi->id }}">
                                         <i class="bi bi-pencil"></i>
@@ -231,7 +231,7 @@
                                 </tr>
                                 @endforelse
                                 <tr>
-                                    <td colspan="9" class="text-center">
+                                    <td colspan="10" class="text-center">
                                         {{ $datanya->links() }}
                                     </td>
                                 </tr>
