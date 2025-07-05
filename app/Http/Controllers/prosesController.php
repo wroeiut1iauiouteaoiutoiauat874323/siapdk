@@ -205,7 +205,12 @@ class prosesController extends Controller
         } else {
             $kendaraan->keterangan = $request->keterangan;
         }
-        $kendaraan->status = 'Tersedia';
+        // Jika ingin meminjam, kendaraan harus tersedia
+        if ($request->keterangan !== 'Ada') {
+            $kendaraan->status = 'Tidak Tersedia';
+        } else{
+            $kendaraan->status = 'Tersedia';
+        }
         // Membuat kode unik base36 dengan panjang 7 digit, diawali huruf 'K', dan memastikan tidak kembar
         do {
             $unique = uniqid('', true) . random_int(1000, 9999);
@@ -254,7 +259,12 @@ class prosesController extends Controller
         } else {
             $kendaraan->keterangan = $request->keterangan;
         }
-        $kendaraan->status = 'Tersedia';
+        // Jika ingin meminjam, kendaraan harus tersedia
+        if ($request->keterangan !== 'Ada') {
+            $kendaraan->status = 'Tidak Tersedia';
+        } else{
+            $kendaraan->status = 'Tersedia';
+        }
         $kendaraan->save();
 
         return redirect()->route('dashboard', ['menu' => 'kendaraan'])
@@ -512,6 +522,15 @@ class prosesController extends Controller
             if ($kendaraan->status === 'Tersedia') {
             return back()->withErrors(['nama_kendaraan' => 'Kendaraan sudah tersedia, tidak perlu dikembalikan.'])->withInput();
             }
+        }
+
+        // Validasi apakah data kendaraan ditemukan
+        if (!$kendaraan) {
+            return back()->withErrors(['nama_kendaraan' => 'Data kendaraan tidak ditemukan atau tidak sesuai.'])->withInput();
+        }
+        // Jika ingin meminjam, kendaraan harus tersedia
+        if ($kendaraan->keterangan !== 'Ada') {
+        return back()->withErrors(['nama_kendaraan' => 'Kendaraan tidak tersedia untuk dipinjam.'])->withInput();
         }
         // Membuat kode unik base36 dengan panjang 12 digit, diawali huruf 'TK', dan memastikan tidak kembar
         $usedCodes = [];
