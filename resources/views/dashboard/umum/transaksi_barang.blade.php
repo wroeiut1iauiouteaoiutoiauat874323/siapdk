@@ -82,6 +82,10 @@
                         <input type="time" class="form-control" id="waktuTransaksi" name="waktu_transaksi" required step="1">
                         <small class="text-muted">Format 24 jam (contoh: 14:30)</small>
                     </div>
+                    <div class="mb-3">
+                        <label for="alasanTransaksi" class="form-label">Alasan</label>
+                        <textarea class="form-control" id="alasanTransaksi" name="alasan" rows="2" required></textarea>
+                    </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -124,7 +128,7 @@
                                     <th scope="col" class="text-center">Jenis Transaksi</th>
                                     <th scope="col" class="text-center">Jumlah</th>
                                     <th scope="col" class="text-center">Status</th>
-                                    <th scope="col" style="width: 100px; padding-left:25px">Aksi</th>
+                                    <th scope="col" style="width: 135px; padding-left:50px">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -142,7 +146,30 @@
                                     <td class="text-center">{{ $transaksi->jumlahPinjam }}</td>
                                     <td class="text-center">{{ $transaksi->statusTransaksi }}</td>
                                     <td>
-                                    <!-- Tombol Edit -->
+                                    <!-- Tombol Lihat Alasan -->
+                                    <button type="button" class="btn btn-info btn-sm btn-action" title="Lihat Alasan" data-bs-toggle="modal" data-bs-target="#modalAlasanTransaksi{{ $transaksi->id }}">
+                                        <i class="bi bi-info-circle"></i>
+                                    </button>
+
+                                    <!-- Modal Alasan Transaksi -->
+                                    <div class="modal fade" id="modalAlasanTransaksi{{ $transaksi->id }}" tabindex="-1" aria-labelledby="modalAlasanTransaksiLabel{{ $transaksi->id }}" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="modalAlasanTransaksiLabel{{ $transaksi->id }}">Alasan Transaksi</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    {{ $transaksi->alasan }}
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                        <!-- Tombol Edit -->
                                     <a href="#" class="btn btn-warning btn-sm btn-action" title="Edit" data-bs-toggle="modal" data-bs-target="#modalEditTransaksi{{ $transaksi->id }}">
                                         <i class="bi bi-pencil"></i>
                                     </a>
@@ -205,6 +232,10 @@
                                                         <input type="time" class="form-control" id="waktuTransaksi{{ $transaksi->id }}" name="waktu_transaksi" value="{{ $transaksi->waktu }}" required step="1">
                                                         <small class="text-muted">Format 24 jam (contoh: 14:30)</small>
                                                     </div>
+                                                    <div class="mb-3">
+                                                        <label for="alasanTransaksi{{ $transaksi->id }}" class="form-label">Alasan</label>
+                                                        <textarea class="form-control" id="alasanTransaksi{{ $transaksi->id }}" name="alasan" rows="2" required>{{ $transaksi->alasan }}</textarea>
+                                                    </div>
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -229,7 +260,7 @@
                                 </tr>
                                 @endforelse
                                 <tr>
-                                    <td colspan="10" class="text-center">
+                                    <td colspan="12" class="text-center">
                                         {{ $datanya->links() }}
                                     </td>
                                 </tr>

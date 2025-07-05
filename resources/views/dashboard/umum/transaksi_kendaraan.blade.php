@@ -64,7 +64,7 @@
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label for="nomorPolisi" class="form-label">No Polisi</label>
+                            <label for="nomorPolisi" class="form-label">Nomor Polisi atau Ciri Kendaraan</label>
                             <select class="form-select" id="nomorPolisi" name="nomor_polisi" required>
                                 <option value="{{ $kendaraan->nomorPolisi }}" disabled selected>Pilih nomor polisi</option>
                                 @foreach($data_kendaraan->sortBy('nomorPolisi') as $kendaraan)
@@ -85,10 +85,14 @@
                             <input type="date" class="form-control" id="tanggalTransaksi" name="tanggal_transaksi" required>
                         </div>
                         <div class="mb-3">
-                        <label for="waktuTransaksi" class="form-label">Waktu Transaksi</label>
-                        <input type="time" class="form-control" id="waktuTransaksi" name="waktu_transaksi" required step="1">
-                        <small class="text-muted">Format 24 jam (contoh: 14:30)</small>
-                    </div>
+                            <label for="waktuTransaksi" class="form-label">Waktu Transaksi</label>
+                            <input type="time" class="form-control" id="waktuTransaksi" name="waktu_transaksi" required step="1">
+                            <small class="text-muted">Format 24 jam (contoh: 14:30)</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="alasan" class="form-label">Alasan Transaksi</label>
+                            <textarea class="form-control" id="alasan" name="alasan" rows="3" placeholder="Masukkan alasan" required></textarea>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -138,7 +142,7 @@
                                     <th scope="col" class="text-center">Status Peminjam</th>
                                     <th scope="col" class="text-center">Jenis Transaksi</th>
                                     <th scope="col" class="text-center">Status</th>
-                                    <th scope="col" style="width: 100px; padding-left:25px">Aksi</th>
+                                    <th scope="col" style="width: 135px; padding-left:50px">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -156,6 +160,27 @@
                                     <td class="text-center">{{ $transaksi->jenisTransaksi }}</td>
                                     <td class="text-center">{{ $transaksi->statusTransaksi }}</td>
                                     <td>
+                                    <!-- Tombol Lihat Alasan -->
+                                    <button type="button" class="btn btn-info btn-sm btn-action" title="Lihat Alasan" data-bs-toggle="modal" data-bs-target="#modalAlasanTransaksi{{ $transaksi->id }}">
+                                        <i class="bi bi-info-circle"></i>
+                                    </button>
+                                    <!-- Modal Alasan Transaksi -->
+                                    <div class="modal fade" id="modalAlasanTransaksi{{ $transaksi->id }}" tabindex="-1" aria-labelledby="modalAlasanTransaksiLabel{{ $transaksi->id }}" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="modalAlasanTransaksiLabel{{ $transaksi->id }}">Alasan Transaksi</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>{{ $transaksi->alasan ?? 'Tidak ada alasan yang diberikan.' }}</p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <!-- Tombol Edit -->
                                     <a href="#" class="btn btn-warning btn-sm btn-action" title="Edit" data-bs-toggle="modal" data-bs-target="#modalEditTransaksi{{ $transaksi->id }}">
                                         <i class="bi bi-pencil"></i>
@@ -190,29 +215,46 @@
                                                         <div class="mb-3">
                                                             <label for="namaKendaraan{{ $transaksi->id }}" class="form-label">Nama Kendaraan</label>
                                                             <select class="form-select" id="namaKendaraan{{ $transaksi->id }}" name="nama_kendaraan" required>
-                                                                <option value="{{ $transaksi->idDataKendaraan }}" selected>{{ $transaksi->kendaraan->namaKendaraan ?? '-' }}</option>
-                                                                @foreach($data_kendaraan->sortBy('namaKendaraan') as $kendaraan)
-                                                                    @if($kendaraan->id != $transaksi->idDataKendaraan)
-                                                                        <option value="{{ $kendaraan->id }}">{{ $kendaraan->namaKendaraan }}</option>
+                                                                <option value="{{ $transaksi->kendaraan->namaKendaraan ?? '' }}" selected>{{ $transaksi->kendaraan->namaKendaraan ?? '-' }}</option>
+                                                                @foreach($data_kendaraan->unique('namaKendaraan')->sortBy('namaKendaraan') as $kendaraan)
+                                                                    @if($kendaraan->namaKendaraan != ($transaksi->kendaraan->namaKendaraan ?? ''))
+                                                                        <option value="{{ $kendaraan->namaKendaraan }}">{{ $kendaraan->namaKendaraan }}</option>
                                                                     @endif
                                                                 @endforeach
                                                             </select>
                                                         </div>
                                                         <div class="mb-3">
+                                                            <label for="nomorPolisi{{ $transaksi->id }}" class="form-label">Nomor Polisi atau Ciri Kendaraan</label>
+                                                            <select class="form-select" id="nomorPolisi{{ $transaksi->id }}" name="nomor_polisi" required>
+                                                                <option value="{{ $transaksi->kendaraan->nomorPolisi ?? '' }}" selected>{{ $transaksi->kendaraan->nomorPolisi ?? '-' }}</option>
+                                                                @foreach($data_kendaraan->sortBy('nomorPolisi') as $kendaraan)
+                                                                    @if($kendaraan->nomorPolisi != ($transaksi->kendaraan->nomorPolisi ?? ''))
+                                                                        <option value="{{ $kendaraan->nomorPolisi }}">{{ $kendaraan->nomorPolisi }}</option>
+                                                                    @endif
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+
+                                                        <div class="mb-3">
                                                             <label for="jenisTransaksi{{ $transaksi->id }}" class="form-label">Jenis Transaksi</label>
                                                             <select class="form-select" id="jenisTransaksi{{ $transaksi->id }}" name="jenisTransaksi" required>
                                                                 <option value="" disabled {{ !$transaksi->jenisTransaksi ? 'selected' : '' }}>Pilih jenis transaksi</option>
-                                                                <option value="Keluar" {{ $transaksi->jenisTransaksi == 'Pinjam' ? 'selected' : '' }}>Pinjam</option>
-                                                                <option value="Masuk" {{ $transaksi->jenisTransaksi == 'Kembali' ? 'selected' : '' }}>Kembali</option>
+                                                                <option value="Keluar" {{ $transaksi->jenisTransaksi == 'Keluar' ? 'selected' : '' }}>Keluar</option>
+                                                                <option value="Masuk" {{ $transaksi->jenisTransaksi == 'Masuk' ? 'selected' : '' }}>Masuk</option>
                                                             </select>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="jumlahPinjam{{ $transaksi->id }}" class="form-label">Jumlah</label>
-                                                            <input type="number" class="form-control" id="jumlahPinjam{{ $transaksi->id }}" name="jumlahPinjam" value="{{ $transaksi->jumlahPinjam }}" min="1" required>
                                                         </div>
                                                         <div class="mb-3">
                                                             <label for="tanggalTransaksi{{ $transaksi->id }}" class="form-label">Tanggal Transaksi</label>
                                                             <input type="date" class="form-control" id="tanggalTransaksi{{ $transaksi->id }}" name="tanggal_transaksi" value="{{ $transaksi->tanggal_transaksi }}" required>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="waktuTransaksi{{ $transaksi->id }}" class="form-label">Waktu Transaksi</label>
+                                                            <input type="time" class="form-control" id="waktuTransaksi{{ $transaksi->id }}" name="waktu_transaksi" value="{{ $transaksi->waktu }}" required step="1">
+                                                            <small class="text-muted">Format 24 jam (contoh: 14:30)</small>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="alasan{{ $transaksi->id }}" class="form-label">Alasan Transaksi</label>
+                                                            <textarea class="form-control" id="alasan{{ $transaksi->id }}" name="alasan" rows="3" required>{{ $transaksi->alasan }}</textarea>
                                                         </div>
                                                     </div>
                                                     <div class="modal-footer">
@@ -238,7 +280,7 @@
                                 </tr>
                                 @endforelse
                                 <tr>
-                                    <td colspan="10" class="text-center">
+                                    <td colspan="12" class="text-center">
                                         {{ $datanya->links() }}
                                     </td>
                                 </tr>

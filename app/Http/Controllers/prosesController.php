@@ -186,11 +186,33 @@ class prosesController extends Controller
             return back()->withErrors($validator)->withInput();
         }
 
+        // Cek apakah nama kendaraan dan nomor polisi sudah ada
+        $exists = DataKendaraan::where('namaKendaraan', $request->namaKendaraan)
+            ->where('nomorPolisi', $request->nomorPolisi)
+            ->exists();
+
+        if ($exists) {
+            return back()->withErrors(['namaKendaraan' => 'Nama kendaraan dengan nomor polisi tersebut sudah ada.'])->withInput();
+        }
+
         $kendaraan = new DataKendaraan();
         $kendaraan->namaKendaraan = $request->namaKendaraan;
         $kendaraan->jenisKendaraan = $request->jenisKendaraan;
         $kendaraan->nomorPolisi = $request->nomorPolisi;
+        // Jika ada alasanKendaraan, gabungkan dengan keterangan
+        if ($request->filled('alasanKendaraan')) {
+            $kendaraan->keterangan = trim($request->keterangan . ' ' . $request->alasanKendaraan);
+        } else {
+            $kendaraan->keterangan = $request->keterangan;
+        }
         $kendaraan->status = 'Tersedia';
+        // Membuat kode unik base36 dengan panjang 7 digit, diawali huruf 'K', dan memastikan tidak kembar
+        do {
+            $unique = uniqid('', true) . random_int(1000, 9999);
+            $kodeBase36 = strtoupper(str_pad(base_convert(crc32($unique), 10, 36), 7, '0', STR_PAD_LEFT));
+            $kode = 'K' . $kodeBase36;
+        } while (DataKendaraan::where('kode', $kode)->exists());
+        $kendaraan->kode = $kode;
         $kendaraan->save();
 
         return redirect()->route('dashboard', ['menu' => 'kendaraan'])
@@ -208,15 +230,31 @@ class prosesController extends Controller
             'jenisKendaraan.required' => 'Jenis kendaraan wajib diisi.',
             'nomorPolisi.required' => 'Nomor polisi atau ciri wajib diisi.',
         ]);
-
         if ($validator->fails()) {
             return back()->withErrors($validator)->withInput();
+        }
+
+        // Cek apakah nama kendaraan dan nomor polisi sudah ada (kecuali untuk data ini sendiri)
+        $exists = DataKendaraan::where('namaKendaraan', $request->namaKendaraan)
+            ->where('nomorPolisi', $request->nomorPolisi)
+            ->where('id', '!=', $id)
+            ->exists();
+
+        if ($exists) {
+            return back()->withErrors(['namaKendaraan' => 'Nama kendaraan dengan nomor polisi tersebut sudah ada.'])->withInput();
         }
 
         $kendaraan = DataKendaraan::findOrFail($id);
         $kendaraan->namaKendaraan = $request->namaKendaraan;
         $kendaraan->jenisKendaraan = $request->jenisKendaraan;
         $kendaraan->nomorPolisi = $request->nomorPolisi;
+        // Jika ada alasanKendaraan, gabungkan dengan keterangan
+        if ($request->filled('alasanKendaraan')) {
+            $kendaraan->keterangan = trim($request->keterangan . ' ' . $request->alasanKendaraan);
+        } else {
+            $kendaraan->keterangan = $request->keterangan;
+        }
+        $kendaraan->status = 'Tersedia';
         $kendaraan->save();
 
         return redirect()->route('dashboard', ['menu' => 'kendaraan'])
@@ -225,22 +263,15 @@ class prosesController extends Controller
 
     public function data_kendaraan_destroy($id)
     {
+        // Cek apakah kendaraan sudah digunakan di transaksi
+        $transaksiCount = TransaksiKendaraan::where('idDataKendaraan', $id)->count();
+        if ($transaksiCount > 0) {
+            return redirect()->route('dashboard', ['menu' => 'kendaraan'])
+            ->withErrors(['error' => 'Data kendaraan tidak dapat dihapus karena sudah digunakan pada transaksi.']);
+        }
+
         $kendaraan = DataKendaraan::findOrFail($id);
         $kendaraan->delete();
-
-        // Set idKendaraan pada transaksi terkait menjadi null
-        TransaksiKendaraan::where('idDataKendaraan', $id)->update(['idDataKendaraan' => null]);
-
-        // Update urutan id kendaraan (reindex id)
-        $kendaraans = DataKendaraan::orderBy('id')->get();
-        $newId = 1;
-        foreach ($kendaraans as $k) {
-            if ($k->id != $newId) {
-                // Update id only if different
-                DataKendaraan::where('id', $k->id)->update(['id' => $newId]);
-            }
-            $newId++;
-        }
 
         return redirect()->route('dashboard', ['menu' => 'kendaraan'])
             ->with('success', 'Data kendaraan berhasil dihapus.');
@@ -307,6 +338,15 @@ class prosesController extends Controller
         $transaksi->tanggal_transaksi = $request->tanggal_transaksi;
         $transaksi->waktu = $request->waktu_transaksi;
         $transaksi->statusTransaksi = $statusTransaksi;
+        if ($request->filled('alasan')) {
+            $transaksi->alasan = $request->alasan;
+        }
+        // Membuat kode unik transaksi barang, format: TB + 8 digit acak base36, pastikan unik
+        do {
+            $unique = uniqid('', true) . random_int(1000, 9999);
+            $kodeTransaksi = 'TB' . strtoupper(str_pad(base_convert(crc32($unique), 10, 36), 8, '0', STR_PAD_LEFT));
+        } while (TransaksiBarang::where('kode', $kodeTransaksi)->exists());
+        $transaksi->kode = $kodeTransaksi;
         $transaksi->save();
 
         return redirect()->route('dashboard', ['menu' => 'tbarang'])
@@ -381,6 +421,11 @@ class prosesController extends Controller
         $transaksi->tanggal_transaksi = $request->tanggal_transaksi;
         $transaksi->waktu = $request->waktu_transaksi;
         $transaksi->statusTransaksi = $statusTransaksi;
+        if ($request->filled('alasan')) {
+            $transaksi->alasan = $request->alasan;
+        } else {
+            $transaksi->alasan = null; // Atau bisa diisi dengan string kosong
+        }
         $transaksi->save();
 
         return redirect()->route('dashboard', ['menu' => 'tbarang'])
@@ -468,6 +513,18 @@ class prosesController extends Controller
             return back()->withErrors(['nama_kendaraan' => 'Kendaraan sudah tersedia, tidak perlu dikembalikan.'])->withInput();
             }
         }
+        // Membuat kode unik base36 dengan panjang 12 digit, diawali huruf 'TK', dan memastikan tidak kembar
+        $usedCodes = [];
+        function generateKodeUnik12($usedCodes, $prefix = 'TK', $length = 12) {
+            do {
+            $unique = uniqid('', true) . random_int(1000, 9999);
+            $kodeBase36 = strtoupper(str_pad(base_convert(crc32($unique), 10, 36), $length, '0', STR_PAD_LEFT));
+            $kode = $prefix . $kodeBase36;
+            } while (in_array($kode, $usedCodes));
+            return $kode;
+        }
+
+        $kode = generateKodeUnik12($usedCodes);
 
         $transaksi = new TransaksiKendaraan();
         $transaksi->nama_pegawai = $request->nama_pegawai;
@@ -476,6 +533,14 @@ class prosesController extends Controller
         $transaksi->jenisTransaksi = $request->jenisTransaksi;
         $transaksi->tanggal_transaksi = $request->tanggal_transaksi;
         $transaksi->statusTransaksi = $statusTransaksi;
+        $transaksi->kode = $kode;
+        $transaksi->alasan = $request->alasan ?? null; // Jika alasan tidak diisi, set null
+        // Jika ada waktu transaksi, simpan juga
+        if ($request->filled('waktu_transaksi')) {
+            $transaksi->waktu = $request->waktu_transaksi;
+        } else {
+            $transaksi->waktu = Carbon::now()->format('H:i:s'); // Atau bisa diisi dengan waktu sekarang
+        }
         $transaksi->save();
 
         // Update status kendaraan
@@ -489,5 +554,115 @@ class prosesController extends Controller
 
         return redirect()->route('dashboard', ['menu' => 'tkendaraan'])
             ->with('success', 'Transaksi kendaraan berhasil disimpan.');
+    }
+
+    public function transaksi_kendaraan_edit(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'nama_pegawai' => 'required|string|max:255',
+            'status_pegawai' => 'required|string|max:100',
+            'nama_kendaraan' => 'required',
+            'jenisTransaksi' => 'required|in:Masuk,Keluar',
+            'tanggal_transaksi' => 'required|date',
+        ], [
+            'nama_pegawai.required' => 'Nama pegawai wajib diisi.',
+            'status_pegawai.required' => 'Status pegawai wajib diisi.',
+            'nama_kendaraan.required' => 'Nama kendaraan wajib dipilih.',
+            'jenisTransaksi.required' => 'Jenis transaksi wajib dipilih.',
+            'tanggal_transaksi.required' => 'Tanggal transaksi wajib diisi.',
+            'tanggal_transaksi.date' => 'Tanggal transaksi tidak valid.',
+        ]);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        $transaksi = TransaksiKendaraan::findOrFail($id);
+
+        // Ambil kendaraan lama dan baru
+        $kendaraanLama = DataKendaraan::find($transaksi->idDataKendaraan);
+        $kendaraanBaru = DataKendaraan::where('namaKendaraan', $request->nama_kendaraan)
+            ->where('nomorPolisi', $request->nomor_polisi)
+            ->first();
+
+        if (!$kendaraanBaru) {
+            return back()->withErrors(['nama_kendaraan' => 'Kendaraan atau plat nomor tidak sinkron.'])->withInput();
+        }
+
+        // Jika kendaraan diganti, kembalikan status kendaraan lama
+        if ($kendaraanLama && $kendaraanLama->id !== $kendaraanBaru->id) {
+            if ($transaksi->jenisTransaksi === 'Keluar') {
+                $kendaraanLama->status = 'Tersedia';
+            } elseif ($transaksi->jenisTransaksi === 'Masuk') {
+                $kendaraanLama->status = 'Tidak Tersedia';
+            }
+            $kendaraanLama->save();
+        }
+
+        $statusTransaksi = strtolower($request->jenisTransaksi) === 'masuk' ? 'Dikembalikan' : 'Dipinjam';
+
+        // Update data transaksi
+        $transaksi->nama_pegawai = $request->nama_pegawai;
+        $transaksi->status_pegawai = $request->status_pegawai;
+        $transaksi->idDataKendaraan = $kendaraanBaru->id;
+        $transaksi->jenisTransaksi = $request->jenisTransaksi;
+        $transaksi->tanggal_transaksi = $request->tanggal_transaksi;
+        $transaksi->statusTransaksi = $statusTransaksi;
+        if ($request->filled('waktu_transaksi')) {
+            $transaksi->waktu = $request->waktu_transaksi;
+        } else {
+            $transaksi->waktu = Carbon::now()->format('H:i:s');
+        }
+        if ($request->filled('alasan')) {
+            $transaksi->alasan = $request->alasan;
+        } else {
+            $transaksi->alasan = null;
+        }
+        $transaksi->save();
+
+        // Update status kendaraan baru
+        if (strtolower($request->jenisTransaksi) === 'keluar') {
+            $kendaraanBaru->status = 'Tidak Tersedia';
+        } elseif (strtolower($request->jenisTransaksi) === 'masuk') {
+            $kendaraanBaru->status = 'Tersedia';
+        }
+        $kendaraanBaru->save();
+
+        return redirect()->route('dashboard', ['menu' => 'tkendaraan'])
+            ->with('success', 'Transaksi kendaraan berhasil diperbarui.');
+    }
+
+    public function transaksi_kendaraan_destroy($id)
+    {
+        $transaksi = TransaksiKendaraan::findOrFail($id);
+
+        // Kembalikan status kendaraan jika transaksi dihapus
+        $kendaraan = DataKendaraan::find($transaksi->idDataKendaraan);
+        if ($kendaraan) {
+            if ($transaksi->jenisTransaksi === 'Keluar') {
+                // Jika transaksi keluar dihapus, kendaraan harus tersedia
+                $kendaraan->status = 'Tersedia';
+            } elseif ($transaksi->jenisTransaksi === 'Masuk') {
+                // Jika transaksi masuk dihapus, kendaraan harus tidak tersedia
+                $kendaraan->status = 'Tidak Tersedia';
+            }
+            $kendaraan->save();
+        }
+
+        $transaksi->delete();
+
+        // Update urutan id transaksi (reindex id)
+        $transaksis = TransaksiKendaraan::orderBy('id')->get();
+        $newId = 1;
+        foreach ($transaksis as $t) {
+            if ($t->id != $newId) {
+                // Update id only if different
+                TransaksiKendaraan::where('id', $t->id)->update(['id' => $newId]);
+            }
+            $newId++;
+        }
+
+        return redirect()->route('dashboard', ['menu' => 'tkendaraan'])
+            ->with('success', 'Transaksi kendaraan berhasil dihapus.');
     }
 }

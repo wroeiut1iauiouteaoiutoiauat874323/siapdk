@@ -15,6 +15,13 @@
         </a>
     </div>
 
+    @if($errors->has('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ $errors->first('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
     <!-- Modal Tambah Kendaraan -->
     <div class="modal fade" id="modalTambahKendaraan" tabindex="-1" aria-labelledby="modalTambahKendaraanLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -39,6 +46,33 @@
                             <input type="text" class="form-control" id="nomorPolisi" name="nomorPolisi" required>
                             <small class="form-text text-muted">Jika tidak ada nomor polisi, isi dengan ciri-ciri kendaraan.</small>
                         </div>
+                        <div class="mb-3">
+                            <label for="keterangan" class="form-label">Keterangan</label>
+                            <select class="form-select" id="keterangan" name="keterangan" required onchange="toggleAlasanKendaraan(this)">
+                                <option value="" disabled selected>Pilih keterangan kendaraan</option>
+                                <option value="Ada">Ada</option>
+                                <option value="Tidak Ada">Tidak Ada</option>
+                            </select>
+                            <small class="form-text text-muted">Pilih <b>Ada</b> jika kendaraan masih ada. Jika <b>Tidak Ada</b>, harap isi alasan di bawah.</small>
+                        </div>
+                        <div class="mb-3 d-none" id="alasanKendaraanWrapper">
+                            <label for="alasanKendaraan" class="form-label">Alasan Tidak Ada</label>
+                            <input type="text" class="form-control" id="alasanKendaraan" name="alasanKendaraan" placeholder="Contoh: Sudah dijual, hilang, rusak berat, dll.">
+                        </div>
+                        <script>
+                            function toggleAlasanKendaraan(select) {
+                                var alasanWrapper = document.getElementById('alasanKendaraanWrapper');
+                                var alasanInput = document.getElementById('alasanKendaraan');
+                                if (select.value === 'Tidak Ada') {
+                                    alasanWrapper.classList.remove('d-none');
+                                    alasanInput.required = true;
+                                } else {
+                                    alasanWrapper.classList.add('d-none');
+                                    alasanInput.required = false;
+                                    alasanInput.value = '';
+                                }
+                            }
+                        </script>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -76,6 +110,7 @@
                                     <th scope="col" class="text-center">Jenis</th>
                                     <th scope="col" class="text-center">Nomor Polisi</th>
                                     <th scope="col" class="text-center">Status</th>
+                                    <th scope="col" class="text-center">Keterangan</th>
                                     <th scope="col" style="width: 100px; padding-left:25px">Aksi</th>
                                 </tr>
                             </thead>
@@ -88,6 +123,7 @@
                                     <td class="text-center">{{ $kendaraan->jenisKendaraan }}</td>
                                     <td class="text-center">{{ $kendaraan->nomorPolisi }}</td>
                                     <td class="text-center">{{ $kendaraan->status }}</td>
+                                    <td class="text-center">{{ $kendaraan->keterangan }}</td>
                                     <td>
                                     <!-- Tombol Edit -->
                                     <a href="#" class="btn btn-warning btn-sm btn-action" title="Edit" data-bs-toggle="modal" data-bs-target="#modalEditKendaraan{{ $kendaraan->id }}">
@@ -118,6 +154,39 @@
                                                             <input type="text" class="form-control" id="nomorPolisi{{ $kendaraan->id }}" name="nomorPolisi" value="{{ $kendaraan->nomorPolisi }}" required>
                                                             <small class="form-text text-muted">Jika tidak ada nomor polisi, isi dengan ciri-ciri kendaraan.</small>
                                                         </div>
+                                                        <div class="mb-3">
+                                                            <label for="keterangan{{ $kendaraan->id }}" class="form-label">Keterangan</label>
+                                                            <select class="form-select" id="keterangan{{ $kendaraan->id }}" name="keterangan" required onchange="toggleAlasanKendaraanEdit(this, '{{ $kendaraan->id }}')">
+                                                                <option value="" disabled {{ $kendaraan->keterangan == null ? 'selected' : '' }}>Pilih keterangan kendaraan</option>
+                                                                <option value="Ada" {{ $kendaraan->keterangan == 'Ada' ? 'selected' : '' }}>Ada</option>
+                                                                <option value="Tidak Ada" {{ $kendaraan->keterangan == 'Tidak Ada' || Str::contains($kendaraan->keterangan, 'Tidak Ada') ? 'selected' : '' }}>Tidak Ada</option>
+                                                            </select>
+                                                            <small class="form-text text-muted">Pilih <b>Ada</b> jika kendaraan masih ada. Jika <b>Tidak Ada</b>, harap isi alasan di bawah.</small>
+                                                        </div>
+                                                        <div class="mb-3 {{ $kendaraan->keterangan == 'Tidak Ada' || Str::contains($kendaraan->keterangan, 'Tidak Ada') ? '' : 'd-none' }}" id="alasanKendaraanWrapperEdit{{ $kendaraan->id }}">
+                                                            <label for="alasanKendaraanEdit{{ $kendaraan->id }}" class="form-label">Alasan Tidak Ada</label>
+                                                            <input type="text" class="form-control" id="alasanKendaraanEdit{{ $kendaraan->id }}" name="alasanKendaraan" placeholder="Contoh: Sudah dijual, hilang, rusak berat, dll." value="{{ $kendaraan->alasanKendaraan ?? '' }}" {{ $kendaraan->keterangan == 'Tidak Ada' || Str::contains($kendaraan->keterangan, 'Tidak Ada') ? 'required' : '' }}>
+                                                        </div>
+                                                        <script>
+                                                            function toggleAlasanKendaraanEdit(select, id) {
+                                                                var alasanWrapper = document.getElementById('alasanKendaraanWrapperEdit' + id);
+                                                                var alasanInput = document.getElementById('alasanKendaraanEdit' + id);
+                                                                if (select.value === 'Tidak Ada') {
+                                                                    alasanWrapper.classList.remove('d-none');
+                                                                    alasanInput.required = true;
+                                                                } else {
+                                                                    alasanWrapper.classList.add('d-none');
+                                                                    alasanInput.required = false;
+                                                                    alasanInput.value = '';
+                                                                }
+                                                            }
+                                                            document.addEventListener('DOMContentLoaded', function() {
+                                                                var select = document.getElementById('keterangan{{ $kendaraan->id }}');
+                                                                if (select && select.value === 'Tidak Ada') {
+                                                                    toggleAlasanKendaraanEdit(select, '{{ $kendaraan->id }}');
+                                                                }
+                                                            });
+                                                        </script>
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>

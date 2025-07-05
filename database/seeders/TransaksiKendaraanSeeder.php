@@ -50,6 +50,7 @@ class TransaksiKendaraanSeeder extends Seeder
             'statusTransaksi' => $statusTransaksi,
             'waktu' => now()->subDays(rand(0, 365))->subMinutes(rand(0, 1440)),
             'kode' => $kode,
+            'alasan' => fake()->sentence(),
             ]);
         }
 
