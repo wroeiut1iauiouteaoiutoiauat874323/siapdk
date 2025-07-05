@@ -40,7 +40,11 @@ class HomeController extends Controller
                         $data_user = DataPegawai::all();
                         $data_barang = DataBarang::all();
                         $key = request()->input('search');
-                        $datanya = DataBarang::where('namaBarang', 'like', '%' . $key . '%')
+                        $datanya = DataBarang::where(function ($query) use ($key) {
+                                $query->where('namaBarang', 'like', '%' . $key . '%')
+                                      ->orWhere('kode', 'like', '%' . $key . '%')
+                                      ->orWhere('jenisBarangPersediaan', 'like', '%' . $key . '%');
+                            })
                             ->orderBy('namaBarang')
                             ->paginate(15);
                         return view('dashboard', [
@@ -57,7 +61,13 @@ class HomeController extends Controller
                         $data_user = DataPegawai::all();
                         $data_barang = DataBarang::all();
                         $key = request()->input('search');
-                        $datanya = DataKendaraan::where('namaKendaraan', 'like', '%' . $key . '%')->paginate(15);
+                        $datanya = DataKendaraan::where(function ($query) use ($key) {
+                                $query->where('namaKendaraan', 'like', '%' . $key . '%')
+                                      ->orWhere('kode', 'like', '%' . $key . '%')
+                                      ->orWhere('jenisKendaraan', 'like', '%' . $key . '%')
+                                      ->orWhere('nomorPolisi', 'like', '%' . $key . '%');
+                            })
+                            ->paginate(15);
                         return view('dashboard', [
                             'status' => $_COOKIE['status'],
                             'nama' => $_COOKIE['nama'],
@@ -74,8 +84,10 @@ class HomeController extends Controller
                         $key = request()->input('search');
                         $datanya = TransaksiBarang::where(function ($query) use ($key) {
                                 $query->whereHas('barang', function ($q) use ($key) {
-                                    $q->where('namaBarang', 'like', "%{$key}%");
+                                    $q->where('namaBarang', 'like', '%' . $key . '%')
+                                    ->orWhere('jenisBarangPersediaan', 'like', '%' . $key . '%');
                                 })
+                                ->orWhere('kode', 'like', '%' . $key . '%')
                                 ->orWhere('nama_pegawai', 'like', "%{$key}%");
                             })
                             ->orderByDesc('tanggal_transaksi')
@@ -90,6 +102,32 @@ class HomeController extends Controller
                             'menu' => $menu,
                             'datanya' => $datanya
                         ], compact('data_user', 'data_barang'));
+                    }
+                    if($menu == 'tkendaraan'){
+                        $data_user = DataPegawai::all();
+                        $data_kendaraan = DataKendaraan::all();
+                        $key = request()->input('search');
+                        $datanya = Transaksikendaraan::where(function ($query) use ($key) {
+                                $query->whereHas('kendaraan', function ($q) use ($key) {
+                                    $q->where('namaKendaraan', 'like', '%' . $key . '%')
+                                      ->orWhere('jenisKendaraan', 'like', '%' . $key . '%')
+                                      ->orWhere('nomorPolisi', 'like', '%' . $key . '%');
+                                })
+                                ->orWhere('kode', 'like', '%' . $key . '%')
+                                ->orWhere('nama_pegawai', 'like', "%{$key}%");
+                            })
+                            ->orderByDesc('tanggal_transaksi')
+                            ->orderByDesc('waktu')
+                            ->paginate(15);
+                        return view('dashboard', [
+                            'status' => $_COOKIE['status'],
+                            'nama' => $_COOKIE['nama'],
+                            'nip' => $_COOKIE['nip'],
+                            'waktu' => $_COOKIE['current_time_formatted'],
+                            'tanggal' => $_COOKIE['tanggal'],
+                            'menu' => $menu,
+                            'datanya' => $datanya
+                        ], compact('data_user', 'data_kendaraan'));
                     }
                     if($_COOKIE['status'] == 'admin'){
 

@@ -111,15 +111,43 @@ class prosesController extends Controller
             'jumlahTotal.integer' => 'Jumlah total harus berupa angka.',
             'jumlahTotal.min' => 'Jumlah total minimal 1.',
         ]);
-
         if ($validator->fails()) {
             return back()->withErrors($validator)->withInput();
         }
 
         $barang = DataBarang::findOrFail($id);
+        $jumlahTotalLama = $barang->jumlahTotal;
+        $jumlahTersediaLama = $barang->jumlahTersedia;
+        $jumlahTotalBaru = $request->jumlahTotal;
+
+        // Hitung selisih perubahan total
+        $selisih = $jumlahTotalBaru - $jumlahTotalLama;
+
+        // Jika dikurangi, pastikan jumlahTersedia tidak lebih besar dari jumlahTotal baru
+        if ($selisih < 0) {
+            // Jika pengurangan menyebabkan jumlah tersedia menjadi 0, error
+            if ($jumlahTersediaLama + $selisih <= 0) {
+            return back()->withErrors(['jumlahTotal' => 'Jumlah total tidak boleh dikurangi sehingga barang tersedia menjadi 0 atau kurang.'])->withInput();
+            }
+        }
+
+        // Update jumlahTersedia sesuai perubahan jumlahTotal
+        $barang->jumlahTotal = $jumlahTotalBaru;
         $barang->namaBarang = $request->namaBarang;
         $barang->jenisBarangPersediaan = $request->jenisBarangPersediaan;
-        $barang->jumlahTotal = $request->jumlahTotal;
+
+        // Jika jumlahTotal bertambah, tambahkan ke jumlahTersedia
+        if ($selisih > 0) {
+            $barang->jumlahTersedia += $selisih;
+        }
+        // Jika jumlahTotal berkurang, kurangi jumlahTersedia dengan selisih
+        elseif ($selisih < 0) {
+            $barang->jumlahTersedia += $selisih; // selisih negatif, jadi mengurangi
+            if ($barang->jumlahTersedia < 0) {
+            $barang->jumlahTersedia = 0;
+            }
+        }
+
         $barang->save();
 
         return redirect()->route('dashboard', ['menu' => 'barang'])

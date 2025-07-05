@@ -132,6 +132,7 @@
                                     <th scope="col" class="text-center">Tanggal Transaksi</th>
                                     <th scope="col" class="text-center">Waktu</th>
                                     <th scope="col" class="text-center">Nama Kendaraan</th>
+                                    <th scope="col" class="text-center">Jenis Kendaraan</th>
                                     <th scope="col" class="text-center">No Polisi</th>
                                     <th scope="col" class="text-center">Nama Peminjam</th>
                                     <th scope="col" class="text-center">Status Peminjam</th>
@@ -148,6 +149,7 @@
                                     <td class="text-center">{{ $transaksi->tanggal_transaksi }}</td>
                                     <td class="text-center">{{ $transaksi->waktu }}</td>
                                     <td class="text-center">{{ $transaksi->kendaraan->namaKendaraan ?? '-' }}</td>
+                                    <td class="text-center">{{ $transaksi->kendaraan->jenisKendaraan ?? '-' }}</td>
                                     <td class="text-center">{{ $transaksi->kendaraan->nomorPolisi ?? '-' }}</td>
                                     <td class="text-center">{{ $transaksi->nama_pegawai }} </td>
                                     <td class="text-center">{{ $transaksi->status_pegawai }} </td>
