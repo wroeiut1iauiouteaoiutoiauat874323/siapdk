@@ -16,6 +16,7 @@ class DataBarang extends Model
         'namaBarang',
         'jumlahTotal',
         'jumlahTersedia',
+        'kode'
     ];
 
     public function transaksiBarang()

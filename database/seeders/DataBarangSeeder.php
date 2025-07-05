@@ -9,144 +9,46 @@ class DataBarangSeeder extends Seeder
 {
     public function run()
     {
-        DataBarang::create([
-            'jenisBarangPersediaan' => 'ATK',
-            'namaBarang' => 'Pulpen',
-            'jumlahTotal' => 10000,
-            'jumlahTersedia' => 10000,
-        ]);
+        $barangs = [
+            ['ATK', 'Pulpen'],
+            ['Elektronik', 'Proyektor'],
+            ['ATK', 'Pensil'],
+            ['ATK', 'Penghapus'],
+            ['ATK', 'Spidol'],
+            ['Elektronik', 'Laptop'],
+            ['Elektronik', 'Printer'],
+            ['ATK', 'Kertas A4'],
+            ['ATK', 'Map'],
+            ['ATK', 'Stabilo'],
+            ['Elektronik', 'Scanner'],
+            ['Elektronik', 'Monitor'],
+            ['ATK', 'Penggaris'],
+            ['ATK', 'Binder Clip'],
+            ['ATK', 'Sticky Notes'],
+            ['Elektronik', 'Speaker'],
+            ['Elektronik', 'Kamera'],
+            ['ATK', 'Lakban'],
+            ['ATK', 'Amplop'],
+            ['Elektronik', 'Modem'],
+        ];
 
-        DataBarang::create([
-            'jenisBarangPersediaan' => 'Elektronik',
-            'namaBarang' => 'Proyektor',
-            'jumlahTotal' => 10000,
-            'jumlahTersedia' => 10000,
-        ]);
+        // Membuat kode unik base36 dengan panjang 7 digit, diawali huruf 'B', dan memastikan tidak kembar
+        $usedCodes = [];
+        foreach ($barangs as $index => $barang) {
+            do {
+            $unique = uniqid('', true) . random_int(1000, 9999);
+            $kodeBase36 = strtoupper(str_pad(base_convert(crc32($unique), 10, 36), 7, '0', STR_PAD_LEFT));
+            $kode = 'B' . $kodeBase36;
+            } while (in_array($kode, $usedCodes));
+            $usedCodes[] = $kode;
 
-        DataBarang::create([
-            'jenisBarangPersediaan' => 'ATK',
-            'namaBarang' => 'Pensil',
+            DataBarang::create([
+            'kode' => $kode,
+            'jenisBarangPersediaan' => $barang[0],
+            'namaBarang' => $barang[1],
             'jumlahTotal' => 10000,
             'jumlahTersedia' => 10000,
-        ]);
-
-        DataBarang::create([
-            'jenisBarangPersediaan' => 'ATK',
-            'namaBarang' => 'Penghapus',
-            'jumlahTotal' => 10000,
-            'jumlahTersedia' => 10000,
-        ]);
-
-        DataBarang::create([
-            'jenisBarangPersediaan' => 'ATK',
-            'namaBarang' => 'Spidol',
-            'jumlahTotal' => 10000,
-            'jumlahTersedia' => 10000,
-        ]);
-
-        DataBarang::create([
-            'jenisBarangPersediaan' => 'Elektronik',
-            'namaBarang' => 'Laptop',
-            'jumlahTotal' => 10000,
-            'jumlahTersedia' => 10000,
-        ]);
-
-        DataBarang::create([
-            'jenisBarangPersediaan' => 'Elektronik',
-            'namaBarang' => 'Printer',
-            'jumlahTotal' => 10000,
-            'jumlahTersedia' => 10000,
-        ]);
-
-        DataBarang::create([
-            'jenisBarangPersediaan' => 'ATK',
-            'namaBarang' => 'Kertas A4',
-            'jumlahTotal' => 10000,
-            'jumlahTersedia' => 10000,
-        ]);
-
-        DataBarang::create([
-            'jenisBarangPersediaan' => 'ATK',
-            'namaBarang' => 'Map',
-            'jumlahTotal' => 10000,
-            'jumlahTersedia' => 10000,
-        ]);
-
-        DataBarang::create([
-            'jenisBarangPersediaan' => 'ATK',
-            'namaBarang' => 'Stabilo',
-            'jumlahTotal' => 10000,
-            'jumlahTersedia' => 10000,
-        ]);
-
-        DataBarang::create([
-            'jenisBarangPersediaan' => 'Elektronik',
-            'namaBarang' => 'Scanner',
-            'jumlahTotal' => 10000,
-            'jumlahTersedia' => 10000,
-        ]);
-
-        DataBarang::create([
-            'jenisBarangPersediaan' => 'Elektronik',
-            'namaBarang' => 'Monitor',
-            'jumlahTotal' => 10000,
-            'jumlahTersedia' => 10000,
-        ]);
-
-        DataBarang::create([
-            'jenisBarangPersediaan' => 'ATK',
-            'namaBarang' => 'Penggaris',
-            'jumlahTotal' => 10000,
-            'jumlahTersedia' => 10000,
-        ]);
-
-        DataBarang::create([
-            'jenisBarangPersediaan' => 'ATK',
-            'namaBarang' => 'Binder Clip',
-            'jumlahTotal' => 10000,
-            'jumlahTersedia' => 10000,
-        ]);
-
-        DataBarang::create([
-            'jenisBarangPersediaan' => 'ATK',
-            'namaBarang' => 'Sticky Notes',
-            'jumlahTotal' => 10000,
-            'jumlahTersedia' => 10000,
-        ]);
-
-        DataBarang::create([
-            'jenisBarangPersediaan' => 'Elektronik',
-            'namaBarang' => 'Speaker',
-            'jumlahTotal' => 10000,
-            'jumlahTersedia' => 10000,
-        ]);
-
-        DataBarang::create([
-            'jenisBarangPersediaan' => 'Elektronik',
-            'namaBarang' => 'Kamera',
-            'jumlahTotal' => 10000,
-            'jumlahTersedia' => 10000,
-        ]);
-
-        DataBarang::create([
-            'jenisBarangPersediaan' => 'ATK',
-            'namaBarang' => 'Lakban',
-            'jumlahTotal' => 10000,
-            'jumlahTersedia' => 10000,
-        ]);
-
-        DataBarang::create([
-            'jenisBarangPersediaan' => 'ATK',
-            'namaBarang' => 'Amplop',
-            'jumlahTotal' => 10000,
-            'jumlahTersedia' => 10000,
-        ]);
-
-        DataBarang::create([
-            'jenisBarangPersediaan' => 'Elektronik',
-            'namaBarang' => 'Modem',
-            'jumlahTotal' => 10000,
-            'jumlahTersedia' => 10000,
-        ]);
+            ]);
+        }
     }
 }

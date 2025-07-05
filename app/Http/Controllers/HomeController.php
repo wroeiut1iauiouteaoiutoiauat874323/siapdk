@@ -40,7 +40,9 @@ class HomeController extends Controller
                         $data_user = DataPegawai::all();
                         $data_barang = DataBarang::all();
                         $key = request()->input('search');
-                        $datanya = DataBarang::where('namaBarang', 'like', '%' . $key . '%')->paginate(15);
+                        $datanya = DataBarang::where('namaBarang', 'like', '%' . $key . '%')
+                            ->orderBy('namaBarang')
+                            ->paginate(15);
                         return view('dashboard', [
                             'status' => $_COOKIE['status'],
                             'nama' => $_COOKIE['nama'],
@@ -49,7 +51,7 @@ class HomeController extends Controller
                             'tanggal' => $_COOKIE['tanggal'],
                             'menu' => $menu,
                             'datanya' => $datanya
-                        ], compact('data_user'));
+                        ], compact('data_user', 'data_barang'));
                     }
                     if($menu == 'kendaraan'){
                         $data_user = DataPegawai::all();
@@ -70,12 +72,14 @@ class HomeController extends Controller
                         $data_user = DataPegawai::all();
                         $data_barang = DataBarang::all();
                         $key = request()->input('search');
-                        $datanya = TransaksiBarang::with(['barang', 'pegawai'])
-                            ->whereHas('barang', function ($query) use ($key) {
-                                $query->where('namaBarang', 'like', "%{$key}%");
+                        $datanya = TransaksiBarang::where(function ($query) use ($key) {
+                                $query->whereHas('barang', function ($q) use ($key) {
+                                    $q->where('namaBarang', 'like', "%{$key}%");
+                                })
+                                ->orWhere('nama_pegawai', 'like', "%{$key}%");
                             })
-                            ->orWhere('nama_pegawai', 'like', "%{$key}%")
                             ->orderByDesc('tanggal_transaksi')
+                            ->orderByDesc('waktu')
                             ->paginate(15);
                         return view('dashboard', [
                             'status' => $_COOKIE['status'],

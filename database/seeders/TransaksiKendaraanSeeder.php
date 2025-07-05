@@ -10,7 +10,17 @@ class TransaksiKendaraanSeeder extends Seeder
     public function run()
     {
 
-        // Tambahan 30 data dengan tanggal_transaksi random dan jenisTransaksi serta statusTransaksi yang konsisten
+        // Membuat kode unik base36 dengan panjang 12 digit, diawali huruf 'T', dan memastikan tidak kembar
+        $usedCodes = [];
+        function generateKodeUnik12($usedCodes, $prefix = 'TK', $length = 12) {
+            do {
+            $unique = uniqid('', true) . random_int(1000, 9999);
+            $kodeBase36 = strtoupper(str_pad(base_convert(crc32($unique), 10, 36), $length, '0', STR_PAD_LEFT));
+            $kode = $prefix . $kodeBase36;
+            } while (in_array($kode, $usedCodes));
+            return $kode;
+        }
+
         for ($i = 0; $i < 30; $i++) {
             $id = rand(1, 10);
 
@@ -28,6 +38,9 @@ class TransaksiKendaraanSeeder extends Seeder
             $jenisTransaksi = 'Keluar';
             }
 
+            $kode = generateKodeUnik12($usedCodes);
+            $usedCodes[] = $kode;
+
             TransaksiKendaraan::create([
             'idDataKendaraan' => $id,
             'nama_pegawai' => fake()->name(),
@@ -36,6 +49,7 @@ class TransaksiKendaraanSeeder extends Seeder
             'jenisTransaksi' => $jenisTransaksi,
             'statusTransaksi' => $statusTransaksi,
             'waktu' => now()->subDays(rand(0, 365))->subMinutes(rand(0, 1440)),
+            'kode' => $kode,
             ]);
         }
 

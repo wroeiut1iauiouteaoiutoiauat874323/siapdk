@@ -85,6 +85,13 @@ class prosesController extends Controller
         $barang->jenisBarangPersediaan = $request->jenisBarangPersediaan;
         $barang->jumlahTotal = $request->jumlahTotal;
         $barang->jumlahTersedia = $request->jumlahTotal;
+        // Membuat kode unik base36 dengan panjang 7 digit, diawali huruf 'B', dan memastikan tidak kembar
+        do {
+            $unique = uniqid('', true) . random_int(1000, 9999);
+            $kodeBase36 = strtoupper(str_pad(base_convert(crc32($unique), 10, 36), 7, '0', STR_PAD_LEFT));
+            $kode = 'B' . $kodeBase36;
+        } while (DataBarang::where('kode', $kode)->exists());
+        $barang->kode = $kode;
         $barang->save();
         return redirect()->route('dashboard', ['menu' => 'barang'])
             ->with('success', 'Data barang berhasil disimpan.');
@@ -109,28 +116,10 @@ class prosesController extends Controller
             return back()->withErrors($validator)->withInput();
         }
 
-        // Cek apakah nama barang dan kategori sudah ada (kecuali untuk barang ini sendiri)
-        $exists = DataBarang::where('namaBarang', $request->namaBarang)
-            ->where('jenisBarangPersediaan', $request->jenisBarangPersediaan)
-            ->where('id', '!=', $id)
-            ->exists();
-
-        if ($exists) {
-            return back()->withErrors(['namaBarang' => 'Nama barang dengan kategori tersebut sudah ada.'])->withInput();
-        }
-
         $barang = DataBarang::findOrFail($id);
-
-        // Update jumlahTersedia jika jumlahTotal berubah
-        $selisih = $request->jumlahTotal - $barang->jumlahTotal;
-        $barang->jumlahTotal = $request->jumlahTotal;
-        $barang->jumlahTersedia += $selisih;
-        if ($barang->jumlahTersedia < 0) {
-            $barang->jumlahTersedia = 0;
-        }
-
         $barang->namaBarang = $request->namaBarang;
         $barang->jenisBarangPersediaan = $request->jenisBarangPersediaan;
+        $barang->jumlahTotal = $request->jumlahTotal;
         $barang->save();
 
         return redirect()->route('dashboard', ['menu' => 'barang'])

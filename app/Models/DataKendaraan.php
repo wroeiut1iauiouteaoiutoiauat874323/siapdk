@@ -16,6 +16,7 @@ class DataKendaraan extends Model
         'namaKendaraan',
         'nomorPolisi',
         'status',
+        'kode'
     ];
 
     public function transaksiKendaraan()
