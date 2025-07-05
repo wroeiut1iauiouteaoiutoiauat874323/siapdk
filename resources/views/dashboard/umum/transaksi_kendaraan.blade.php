@@ -1,12 +1,15 @@
-<div class="container py-4">
+<div class="container-fluid py-4 px-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h4 class="fw-bold text-primary mb-0">Data Transaksi Kendaraan</h4>
-        <form action="{{ route('dashboard.search', ['menu' => 'tkendaraan']) }}" method="GET" class="d-flex me-3">
-            <input type="text" name="search" class="form-control me-2" placeholder="Cari transaksi..." value="">
-            <button type="submit" class="btn btn-primary">
-                <i class="bi bi-search"></i>
-            </button>
-        </form>
+        <div class="d-flex flex-column align-items-end me-3" style="min-width: 320px;">
+            <form action="{{ route('dashboard.search', ['menu' => 'tkendaraan']) }}" method="GET" class="d-flex align-items-center w-100 mb-1">
+                <input type="text" name="search" class="form-control me-2" placeholder="Cari transaksi..." value="" style="min-width:180px;">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-search"></i>
+                </button>
+            </form>
+            <small class="text-muted">Cari berdasarkan kode, nama, jenis, nomor polisi, atau ciri kendaraan atau nama peminjam</small>
+        </div>
         <a href="" class="btn btn-success shadow-sm px-4 py-2">
             <i class="bi bi-plus-circle me-1"></i> Tambah Transaksi
         </a>
@@ -125,6 +128,7 @@
                             <thead>
                                 <tr>
                                     <th scope="col" class="text-center">No</th>
+                                    <th scope="col" class="text-center">Kode</th>
                                     <th scope="col" class="text-center">Tanggal Transaksi</th>
                                     <th scope="col" class="text-center">Waktu</th>
                                     <th scope="col" class="text-center">Nama Kendaraan</th>
@@ -140,6 +144,7 @@
                                 @forelse($datanya as $transaksi)
                                 <tr>
                                     <td class="text-center">{{ $loop->iteration + ($datanya->currentPage() - 1) * $datanya->perPage() }}</td>
+                                    <td class="text-center">{{ $transaksi->kode }}</td>
                                     <td class="text-center">{{ $transaksi->tanggal_transaksi }}</td>
                                     <td class="text-center">{{ $transaksi->waktu }}</td>
                                     <td class="text-center">{{ $transaksi->kendaraan->namaKendaraan ?? '-' }}</td>
