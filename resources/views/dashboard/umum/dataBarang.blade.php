@@ -69,23 +69,23 @@
                         <table class="table table-hover align-middle mb-0">
                             <thead>
                                 <tr>
-                                    <th scope="col">No</th>
-                                    <th scope="col">Nama Barang</th>
-                                    <th scope="col">Kategori</th>
-                                    <th scope="col">Jumlah Total</th>
-                                    <th scope="col">Jumlah Tersedia</th>
-                                    <th scope="col">Aksi</th>
+                                    <th scope="col" class="text-center">No</th>
+                                    <th scope="col" class="text-center">Nama Barang</th>
+                                    <th scope="col" class="text-center">Kategori</th>
+                                    <th scope="col" class="text-center">Jumlah Total</th>
+                                    <th scope="col" class="text-center">Jumlah Tersedia</th>
+                                    <th scope="col" class="text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse($datanya as $barang)
                                 <tr>
-                                    <td>{{ $barang->id }}</td>
-                                    <td>{{ $barang->namaBarang }}</td>
-                                    <td>{{ $barang->jenisBarangPersediaan }}</td>
-                                    <td>{{ $barang->jumlahTotal }}</td>
-                                    <td>{{ $barang->jumlahTersedia }}</td>
-                                    <td>
+                                    <td class="text-center">{{ $barang->id }}</td>
+                                    <td class="text-center">{{ $barang->namaBarang }}</td>
+                                    <td class="text-center">{{ $barang->jenisBarangPersediaan }}</td>
+                                    <td class="text-center">{{ $barang->jumlahTotal }}</td>
+                                    <td class="text-center">{{ $barang->jumlahTersedia }}</td>
+                                    <td class="text-center">
                                     <!-- Tombol Edit -->
                                     <a href="#" class="btn btn-warning btn-sm btn-action" title="Edit" data-bs-toggle="modal" data-bs-target="#modalEditBarang{{ $barang->id }}">
                                         <i class="bi bi-pencil"></i>

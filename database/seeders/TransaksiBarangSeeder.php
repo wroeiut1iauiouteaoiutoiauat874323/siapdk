@@ -19,7 +19,8 @@ class TransaksiBarangSeeder extends Seeder
             'jumlahPinjam' => rand(10, 20),
             'tanggal_transaksi' => now()->subDays(rand(0, 365))->subMinutes(rand(0, 1440)),
             'statusTransaksi' =>  'Dipinjam',
-            ]);
+            'waktu' => now()->subDays(rand(0, 365))->subMinutes(rand(0, 1440)),
+            ])->save();
         }
         for ($i = 0; $i < 10; $i++) {
             TransaksiBarang::create([
@@ -30,7 +31,8 @@ class TransaksiBarangSeeder extends Seeder
             'jumlahPinjam' => rand(1, 2),
             'tanggal_transaksi' => now()->subDays(rand(0, 365))->subMinutes(rand(0, 1440)),
             'statusTransaksi' => 'Dikembalikan',
-            ]);
+            'waktu' => now()->subDays(rand(0, 365))->subMinutes(rand(0, 1440)),
+            ])->save();
         }
     }
 }

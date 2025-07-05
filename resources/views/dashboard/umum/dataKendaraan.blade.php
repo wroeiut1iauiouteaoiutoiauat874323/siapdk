@@ -32,16 +32,9 @@
                             <input type="text" class="form-control" id="jenisKendaraan" name="jenisKendaraan" required>
                         </div>
                         <div class="mb-3">
-                            <label for="nomorPolisi" class="form-label">Nomor Polisi</label>
+                            <label for="nomorPolisi" class="form-label">Nomor Polisi atau Ciri Kendaraan</label>
                             <input type="text" class="form-control" id="nomorPolisi" name="nomorPolisi" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="statusKendaraan" class="form-label">Status</label>
-                            <select class="form-select" id="statusKendaraan" name="statusKendaraan" required>
-                                <option value="" disabled selected>Pilih status</option>
-                                <option value="Tersedia">Tersedia</option>
-                                <option value="Tidak Tersedia">Tidak Tersedia</option>
-                            </select>
+                            <small class="form-text text-muted">Jika tidak ada nomor polisi, isi dengan ciri-ciri kendaraan.</small>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -74,23 +67,23 @@
                         <table class="table table-hover align-middle mb-0">
                             <thead>
                                 <tr>
-                                    <th scope="col">No</th>
-                                    <th scope="col">Nama Kendaraan</th>
-                                    <th scope="col">Jenis</th>
-                                    <th scope="col">Nomor Polisi</th>
-                                    <th scope="col">Status</th>
-                                    <th scope="col">Aksi</th>
+                                    <th scope="col" class="text-center">No</th>
+                                    <th scope="col" class="text-center">Nama Kendaraan</th>
+                                    <th scope="col" class="text-center">Jenis</th>
+                                    <th scope="col" class="text-center">Nomor Polisi</th>
+                                    <th scope="col" class="text-center">Status</th>
+                                    <th scope="col" class="text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse($datanya as $kendaraan)
                                 <tr>
-                                    <td>{{ $kendaraan->id }}</td>
-                                    <td>{{ $kendaraan->namaKendaraan }}</td>
-                                    <td>{{ $kendaraan->jenisKendaraan }}</td>
-                                    <td>{{ $kendaraan->nomorPolisi }}</td>
-                                    <td>{{ $kendaraan->status }}</td>
-                                    <td>
+                                    <td class="text-center">{{ $kendaraan->id }}</td>
+                                    <td class="text-center">{{ $kendaraan->namaKendaraan }}</td>
+                                    <td class="text-center">{{ $kendaraan->jenisKendaraan }}</td>
+                                    <td class="text-center">{{ $kendaraan->nomorPolisi }}</td>
+                                    <td class="text-center">{{ $kendaraan->status }}</td>
+                                    <td class="text-center">
                                     <!-- Tombol Edit -->
                                     <a href="#" class="btn btn-warning btn-sm btn-action" title="Edit" data-bs-toggle="modal" data-bs-target="#modalEditKendaraan{{ $kendaraan->id }}">
                                         <i class="bi bi-pencil"></i>
@@ -116,15 +109,9 @@
                                                             <input type="text" class="form-control" id="jenisKendaraan{{ $kendaraan->id }}" name="jenisKendaraan" value="{{ $kendaraan->jenisKendaraan }}" required>
                                                         </div>
                                                         <div class="mb-3">
-                                                            <label for="nomorPolisi{{ $kendaraan->id }}" class="form-label">Nomor Polisi</label>
+                                                            <label for="nomorPolisi{{ $kendaraan->id }}" class="form-label">Nomor Polisi atau Ciri Kendaraan</label>
                                                             <input type="text" class="form-control" id="nomorPolisi{{ $kendaraan->id }}" name="nomorPolisi" value="{{ $kendaraan->nomorPolisi }}" required>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="statusKendaraan{{ $kendaraan->id }}" class="form-label">Status</label>
-                                                            <select class="form-select" id="statusKendaraan{{ $kendaraan->id }}" name="statusKendaraan" required>
-                                                                <option value="Tersedia" {{ $kendaraan->status == 'Tersedia' ? 'selected' : '' }}>Tersedia</option>
-                                                                <option value="Tidak Tersedia" {{ $kendaraan->status == 'Tidak Tersedia' ? 'selected' : '' }}>Tidak Tersedia</option>
-                                                            </select>
+                                                            <small class="form-text text-muted">Jika tidak ada nomor polisi, isi dengan ciri-ciri kendaraan.</small>
                                                         </div>
                                                     </div>
                                                     <div class="modal-footer">

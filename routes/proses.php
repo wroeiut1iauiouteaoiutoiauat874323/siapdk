@@ -25,6 +25,7 @@ Route::post('/transaksi_barang/store', [prosesController::class, 'transaksi_bara
 Route::post('/transaksi_barang/{id}/edit', [prosesController::class, 'transaksi_barang_edit'])->name('transaksi_barang.edit');
 Route::delete('/transaksi_barang/{id}/delete', [prosesController::class, 'transaksi_barang_destroy'])->name('transaksi_barang.hapus');
 // End transaksi Barang
+
 // Start Transaksi Kendaraan
 Route::post('/transaksi_kendaraan/store', [prosesController::class, 'transaksi_kendaraan_store'])->name('transaksi_kendaraan.store');
 Route::post('/transaksi_kendaraan/{id}/edit', [prosesController::class, 'transaksi_kendaraan_edit'])->name('transaksi_kendaraan.edit');

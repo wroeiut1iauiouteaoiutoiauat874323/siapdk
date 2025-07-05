@@ -35,6 +35,7 @@ class TransaksiKendaraanSeeder extends Seeder
             'tanggal_transaksi' => now()->subDays(rand(0, 365))->subMinutes(rand(0, 1440)),
             'jenisTransaksi' => $jenisTransaksi,
             'statusTransaksi' => $statusTransaksi,
+            'waktu' => now()->subDays(rand(0, 365))->subMinutes(rand(0, 1440)),
             ]);
         }
 

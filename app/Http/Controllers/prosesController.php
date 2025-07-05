@@ -137,11 +137,11 @@ class prosesController extends Controller
         $validator = Validator::make($request->all(), [
             'namaKendaraan' => 'required|string|max:255',
             'jenisKendaraan' => 'required|string|max:100',
-            'nomorPolisi' => 'required|string|max:20',
+            'nomorPolisi' => 'required|string|max:100',
         ], [
             'namaKendaraan.required' => 'Nama kendaraan wajib diisi.',
             'jenisKendaraan.required' => 'Jenis kendaraan wajib diisi.',
-            'nomorPolisi.required' => 'Nomor polisi wajib diisi.',
+            'nomorPolisi.required' => 'Nomor polisi atau ciri wajib diisi.',
         ]);
 
         if ($validator->fails()) {
@@ -152,6 +152,7 @@ class prosesController extends Controller
         $kendaraan->namaKendaraan = $request->namaKendaraan;
         $kendaraan->jenisKendaraan = $request->jenisKendaraan;
         $kendaraan->nomorPolisi = $request->nomorPolisi;
+        $kendaraan->status = 'Tersedia';
         $kendaraan->save();
 
         return redirect()->route('dashboard', ['menu' => 'kendaraan'])
@@ -163,13 +164,11 @@ class prosesController extends Controller
         $validator = Validator::make($request->all(), [
             'namaKendaraan' => 'required|string|max:255',
             'jenisKendaraan' => 'required|string|max:100',
-            'nomorPolisi' => 'required|string|max:20',
-            'statusKendaraan' => 'required|string|max:50',
+            'nomorPolisi' => 'required|string|max:100',
         ], [
             'namaKendaraan.required' => 'Nama kendaraan wajib diisi.',
             'jenisKendaraan.required' => 'Jenis kendaraan wajib diisi.',
-            'nomorPolisi.required' => 'Nomor polisi wajib diisi.',
-            'statusKendaraan.required' => 'Status wajib diisi.',
+            'nomorPolisi.required' => 'Nomor polisi atau ciri wajib diisi.',
         ]);
 
         if ($validator->fails()) {
@@ -180,7 +179,6 @@ class prosesController extends Controller
         $kendaraan->namaKendaraan = $request->namaKendaraan;
         $kendaraan->jenisKendaraan = $request->jenisKendaraan;
         $kendaraan->nomorPolisi = $request->nomorPolisi;
-        $kendaraan->status = $request->statusKendaraan;
         $kendaraan->save();
 
         return redirect()->route('dashboard', ['menu' => 'kendaraan'])
@@ -245,6 +243,7 @@ class prosesController extends Controller
         $transaksi->jenisTransaksi = $request->jenisTransaksi;
         $transaksi->jumlahPinjam = $request->jumlahPinjam;
         $transaksi->tanggal_transaksi = $request->tanggal_transaksi;
+        $transaksi->waktu = $request->waktu_transaksi;
         $transaksi->statusTransaksi = $statusTransaksi;
         $transaksi->save();
 
@@ -314,5 +313,75 @@ class prosesController extends Controller
         }
         return redirect()->route('dashboard', ['menu' => 'tbarang'])
             ->with('success', 'Transaksi barang berhasil dihapus.');
+    }
+
+    public function transaksi_kendaraan_store(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'nama_pegawai' => 'required|string|max:255',
+            'status_pegawai' => 'required|string|max:100',
+            'nama_kendaraan' => 'required',
+            'jenisTransaksi' => 'required|in:Masuk,Keluar',
+            'tanggal_transaksi' => 'required|date',
+        ], [
+            'nama_pegawai.required' => 'Nama pegawai wajib diisi.',
+            'status_pegawai.required' => 'Status pegawai wajib diisi.',
+            'nama_kendaraan.required' => 'Nama kendaraan wajib dipilih.',
+            'nama_kendaraan.exists' => 'Kendaraan yang dipilih tidak ditemukan.',
+            'jenisTransaksi.required' => 'Jenis transaksi wajib dipilih.',
+            'jumlahPinjam.required' => 'Jumlah wajib diisi.',
+            'jumlahPinjam.integer' => 'Jumlah harus berupa angka.',
+            'jumlahPinjam.min' => 'Jumlah minimal 1.',
+            'tanggal_transaksi.required' => 'Tanggal transaksi wajib diisi.',
+            'tanggal_transaksi.date' => 'Tanggal transaksi tidak valid.',
+        ]);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        $statusTransaksi = $request->jenisTransaksi === 'masuk' ? 'Dikembalikan' : 'Dipinjam';
+        // Ambil idDataKendaraan berdasarkan namaKendaraan dan nomorPolisi
+        $kendaraan = DataKendaraan::where('namaKendaraan', $request->nama_kendaraan)
+            ->where('nomorPolisi', $request->nomor_polisi)
+            ->first();
+
+        if (!$kendaraan) {
+            return back()->withErrors(['nama_kendaraan' => 'Kendaraan atau plat nomor tidak sinkron.'])->withInput();
+        }
+
+        // Logika validasi status kendaraan sesuai jenis transaksi
+        if (strtolower($request->jenisTransaksi) === 'keluar') {
+            // Jika ingin meminjam, kendaraan harus tersedia
+            if ($kendaraan->status !== 'Tersedia') {
+            return back()->withErrors(['nama_kendaraan' => 'Kendaraan tidak tersedia untuk dipinjam.'])->withInput();
+            }
+        } elseif (strtolower($request->jenisTransaksi) === 'masuk') {
+            // Jika ingin mengembalikan, kendaraan harus tidak tersedia
+            if ($kendaraan->status === 'Tersedia') {
+            return back()->withErrors(['nama_kendaraan' => 'Kendaraan sudah tersedia, tidak perlu dikembalikan.'])->withInput();
+            }
+        }
+
+        $transaksi = new TransaksiKendaraan();
+        $transaksi->nama_pegawai = $request->nama_pegawai;
+        $transaksi->status_pegawai = $request->status_pegawai;
+        $transaksi->idDataKendaraan = $kendaraan->id;
+        $transaksi->jenisTransaksi = $request->jenisTransaksi;
+        $transaksi->tanggal_transaksi = $request->tanggal_transaksi;
+        $transaksi->statusTransaksi = $statusTransaksi;
+        $transaksi->save();
+
+        // Update status kendaraan
+        if (strtolower($request->jenisTransaksi) === 'keluar') {
+            $kendaraan->status = 'Tidak Tersedia';
+            $kendaraan->save();
+        } elseif (strtolower($request->jenisTransaksi) === 'masuk') {
+            $kendaraan->status = 'Tersedia';
+            $kendaraan->save();
+        }
+
+        return redirect()->route('dashboard', ['menu' => 'tkendaraan'])
+            ->with('success', 'Transaksi kendaraan berhasil disimpan.');
     }
 }

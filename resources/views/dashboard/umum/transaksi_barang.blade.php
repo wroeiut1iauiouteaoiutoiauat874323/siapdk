@@ -64,6 +64,11 @@
                         <label for="tanggalTransaksi" class="form-label">Tanggal Transaksi</label>
                         <input type="date" class="form-control" id="tanggalTransaksi" name="tanggal_transaksi" required>
                     </div>
+                    <div class="mb-3">
+                        <label for="waktuTransaksi" class="form-label">Waktu Transaksi</label>
+                        <input type="time" class="form-control" id="waktuTransaksi" name="waktu_transaksi" required step="1">
+                        <small class="text-muted">Format 24 jam (contoh: 14:30)</small>
+                    </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -95,29 +100,31 @@
                         <table class="table table-hover align-middle mb-0">
                             <thead>
                                 <tr>
-                                    <th scope="col">No</th>
-                                    <th scope="col">Tanggal Transaksi</th>
-                                    <th scope="col">Nama Barang</th>
-                                    <th scope="col">Nama Peminjam</th>
-                                    <th scope="col">Status Peminjam</th>
-                                    <th scope="col">Jenis Transaksi</th>
-                                    <th scope="col">Jumlah</th>
-                                    <th scope="col">Status</th>
-                                    <th scope="col">Aksi</th>
+                                    <th scope="col" class="text-center">No</th>
+                                    <th scope="col" class="text-center">Tanggal Transaksi</th>
+                                    <th scope="col" class="text-center">Waktu</th>
+                                    <th scope="col" class="text-center">Nama Barang</th>
+                                    <th scope="col" class="text-center">Nama Peminjam</th>
+                                    <th scope="col" class="text-center">Status Peminjam</th>
+                                    <th scope="col" class="text-center">Jenis Transaksi</th>
+                                    <th scope="col" class="text-center">Jumlah</th>
+                                    <th scope="col" class="text-center">Status</th>
+                                    <th scope="col" class="text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse($datanya as $transaksi)
                                 <tr>
-                                    <td>{{ $loop->iteration + ($datanya->currentPage() - 1) * $datanya->perPage() }}</td>
-                                    <td>{{ $transaksi->tanggal_transaksi }}</td>
-                                    <td>{{ $transaksi->barang->namaBarang ?? '-' }}</td>
-                                    <td>{{ $transaksi->nama_pegawai }} </td>
-                                    <td>{{ $transaksi->status_pegawai }} </td>
-                                    <td>{{ $transaksi->jenisTransaksi }}</td>
-                                    <td>{{ $transaksi->jumlahPinjam }}</td>
-                                    <td>{{ $transaksi->statusTransaksi }}</td>
-                                    <td>
+                                    <td class="text-center">{{ $loop->iteration + ($datanya->currentPage() - 1) * $datanya->perPage() }}</td>
+                                    <td class="text-center">{{ $transaksi->tanggal_transaksi }}</td>
+                                    <td class="text-center">{{ $transaksi->waktu }}</td>
+                                    <td class="text-center">{{ $transaksi->barang->namaBarang ?? '-' }}</td>
+                                    <td class="text-center">{{ $transaksi->nama_pegawai }} </td>
+                                    <td class="text-center">{{ $transaksi->status_pegawai }} </td>
+                                    <td class="text-center">{{ $transaksi->jenisTransaksi }}</td>
+                                    <td class="text-center">{{ $transaksi->jumlahPinjam }}</td>
+                                    <td class="text-center">{{ $transaksi->statusTransaksi }}</td>
+                                    <td class="text-center">
                                     <!-- Tombol Edit -->
                                     <a href="#" class="btn btn-warning btn-sm btn-action" title="Edit" data-bs-toggle="modal" data-bs-target="#modalEditTransaksi{{ $transaksi->id }}">
                                         <i class="bi bi-pencil"></i>
