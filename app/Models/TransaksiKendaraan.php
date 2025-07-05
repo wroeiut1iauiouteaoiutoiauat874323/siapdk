@@ -16,7 +16,6 @@ class TransaksiKendaraan extends Model
         'idDataKendaraan',
         'jenisTransaksi',
         'jumlahPinjam',
-        'statusTransaksi',
         'nama_pegawai',
         'status_pegawai',
         'waktu',

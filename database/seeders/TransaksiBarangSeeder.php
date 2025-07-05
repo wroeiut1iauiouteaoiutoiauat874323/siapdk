@@ -56,7 +56,6 @@ class TransaksiBarangSeeder extends Seeder
             'jenisTransaksi' => $jenisTransaksi,
             'jumlahPinjam' => $jumlahPinjam,
             'tanggal_transaksi' => now()->subDays(rand(0, 365))->subMinutes(rand(0, 1440)),
-            'statusTransaksi' => $jenisTransaksi === 'Keluar' ? 'Dipinjam' : 'Dikembalikan',
             'waktu' => now()->subDays(rand(0, 365))->subMinutes(rand(0, 1440)),
             'alasan' => fake()->sentence(),
             ]);

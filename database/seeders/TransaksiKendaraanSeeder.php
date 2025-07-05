@@ -30,11 +30,9 @@ class TransaksiKendaraanSeeder extends Seeder
             ->first();
 
             // Jika terakhir Dipinjam, maka berikutnya Dikembalikan, dan sebaliknya
-            if ($lastTransaksi && $lastTransaksi->statusTransaksi === 'Dipinjam') {
-            $statusTransaksi = 'Dikembalikan';
+            if ($lastTransaksi && $lastTransaksi->jenisTransaksi === 'Keluar') {
             $jenisTransaksi = 'Masuk';
             } else {
-            $statusTransaksi = 'Dipinjam';
             $jenisTransaksi = 'Keluar';
             }
 
@@ -47,7 +45,6 @@ class TransaksiKendaraanSeeder extends Seeder
             'status_pegawai' => collect(['PNS', 'PPPK', 'CPNS', 'CPPPK', 'Honorer'])->random(),
             'tanggal_transaksi' => now()->subDays(rand(0, 365))->subMinutes(rand(0, 1440)),
             'jenisTransaksi' => $jenisTransaksi,
-            'statusTransaksi' => $statusTransaksi,
             'waktu' => now()->subDays(rand(0, 365))->subMinutes(rand(0, 1440)),
             'kode' => $kode,
             'alasan' => fake()->sentence(),

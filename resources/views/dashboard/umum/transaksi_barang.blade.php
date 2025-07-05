@@ -8,7 +8,7 @@
                     <i class="bi bi-search"></i>
                 </button>
             </form>
-            <small class="text-muted">Cari berdasarkan kode, nama barang, kategori, atau nama peminjam</small>
+            <small class="text-muted">Cari berdasarkan kode, nama barang, kategori, atau nama</small>
         </div>
         <a href="" class="btn btn-success shadow-sm px-4 py-2">
             <i class="bi bi-plus-circle me-1"></i> Tambah Transaksi
@@ -38,13 +38,13 @@
                     </div>
                     <div class="modal-body">
                         <div class="mb-3">
-                        <label for="namaPegawai" class="form-label">Nama Peminjam</label>
+                        <label for="namaPegawai" class="form-label">Nama</label>
                         <input type="text" class="form-control" id="namaPegawai" name="nama_pegawai" required>
                     </div>
                     <div class="mb-3">
-                        <label for="statusPegawai" class="form-label">Status Pegawai</label>
+                        <label for="statusPegawai" class="form-label">Status</label>
                         <select class="form-select" id="statusPegawai" name="status_pegawai" required>
-                            <option value="" disabled selected>Pilih status pegawai</option>
+                            <option value="" disabled selected>Pilih Status</option>
                             <option value="PNS">PNS</option>
                             <option value="PPPK">PPPK</option>
                             <option value="CPNS">CPNS</option>
@@ -54,12 +54,25 @@
                     </div>
                     <div class="mb-3">
                         <label for="namaBarang" class="form-label">Nama Barang</label>
-                        <select class="form-select" id="nama_barang" name="nama_barang" required>
-                            <option value="" disabled selected>Pilih barang</option>
+                        <input list="listBarang" class="form-control" id="namaBarang" name="nama_barang" placeholder="Ketik atau pilih barang..." required>
+                        <datalist id="listBarang">
                             @foreach($data_barang->sortBy('namaBarang') as $barang)
-                                <option value="{{ $barang->id }}">{{ $barang->namaBarang }}</option>
+                                <option value="{{ $barang->namaBarang }}">{{ $barang->namaBarang }}</option>
                             @endforeach
-                        </select>
+                        </datalist>
+                        <small class="text-muted">Ketik nama barang atau pilih dari daftar.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="jenisBarangPersediaan" class="form-label">Kategori</label>
+                        <input list="listKategori" class="form-control" id="jenisBarangPersediaan" name="jenisBarangPersediaan" placeholder="Ketik atau pilih kategori..." required>
+                        <datalist id="listKategori">
+                            @foreach($data_barang->unique('jenisBarangPersediaan')->sortBy('jenisBarangPersediaan') as $barang)
+                                @if($barang->jenisBarangPersediaan)
+                                    <option value="{{ $barang->jenisBarangPersediaan }}">{{ $barang->jenisBarangPersediaan }}</option>
+                                @endif
+                            @endforeach
+                        </datalist>
+                        <small class="text-muted">Ketik kategori atau pilih dari daftar.</small>
                     </div>
                     <div class="mb-3">
                         <label for="jenisTransaksi" class="form-label">Jenis Transaksi</label>
@@ -83,7 +96,7 @@
                         <small class="text-muted">Format 24 jam (contoh: 14:30)</small>
                     </div>
                     <div class="mb-3">
-                        <label for="alasanTransaksi" class="form-label">Alasan</label>
+                        <label for="alasanTransaksi" class="form-label">Keterangan</label>
                         <textarea class="form-control" id="alasanTransaksi" name="alasan" rows="2" required></textarea>
                     </div>
                     </div>
@@ -123,11 +136,10 @@
                                     <th scope="col" class="text-center">Waktu</th>
                                     <th scope="col" class="text-center">Nama Barang</th>
                                     <th scope="col" class="text-center">Kategori</th>
-                                    <th scope="col" class="text-center">Nama Peminjam</th>
-                                    <th scope="col" class="text-center">Status Peminjam</th>
+                                    <th scope="col" class="text-center">Nama</th>
+                                    <th scope="col" class="text-center">Status</th>
                                     <th scope="col" class="text-center">Jenis Transaksi</th>
                                     <th scope="col" class="text-center">Jumlah</th>
-                                    <th scope="col" class="text-center">Status</th>
                                     <th scope="col" style="width: 135px; padding-left:50px">Aksi</th>
                                 </tr>
                             </thead>
@@ -144,7 +156,6 @@
                                     <td class="text-center">{{ $transaksi->status_pegawai }} </td>
                                     <td class="text-center">{{ $transaksi->jenisTransaksi }}</td>
                                     <td class="text-center">{{ $transaksi->jumlahPinjam }}</td>
-                                    <td class="text-center">{{ $transaksi->statusTransaksi }}</td>
                                     <td>
                                     <!-- Tombol Lihat Alasan -->
                                     <button type="button" class="btn btn-info btn-sm btn-action" title="Lihat Alasan" data-bs-toggle="modal" data-bs-target="#modalAlasanTransaksi{{ $transaksi->id }}">
@@ -156,7 +167,7 @@
                                         <div class="modal-dialog">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title" id="modalAlasanTransaksiLabel{{ $transaksi->id }}">Alasan Transaksi</h5>
+                                                    <h5 class="modal-title" id="modalAlasanTransaksiLabel{{ $transaksi->id }}">Keterangan Transaksi</h5>
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
                                                 </div>
                                                 <div class="modal-body">
@@ -185,57 +196,68 @@
                                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
                                                     </div>
                                                     <div class="modal-body">
-                                                    <div class="mb-3">
-                                                        <label for="namaPegawai{{ $transaksi->id }}" class="form-label">Nama Peminjam</label>
-                                                        <input type="text" class="form-control" id="namaPegawai{{ $transaksi->id }}" name="nama_pegawai" value="{{ $transaksi->nama_pegawai }}" required>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="statusPegawai{{ $transaksi->id }}" class="form-label">Status Pegawai</label>
-                                                        <select class="form-select" id="statusPegawai{{ $transaksi->id }}" name="status_pegawai" required>
-                                                            <option value="" disabled {{ !$transaksi->status_pegawai ? 'selected' : '' }}>Pilih status pegawai</option>
-                                                            <option value="PNS" {{ $transaksi->status_pegawai == 'PNS' ? 'selected' : '' }}>PNS</option>
-                                                            <option value="PPPK" {{ $transaksi->status_pegawai == 'PPPK' ? 'selected' : '' }}>PPPK</option>
-                                                            <option value="CPNS" {{ $transaksi->status_pegawai == 'CPNS' ? 'selected' : '' }}>CPNS</option>
-                                                            <option value="CPPPK" {{ $transaksi->status_pegawai == 'CPPPK' ? 'selected' : '' }}>CPPPK</option>
-                                                            <option value="Honorer" {{ $transaksi->status_pegawai == 'Honorer' ? 'selected' : '' }}>Honorer</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="namaBarang{{ $transaksi->id }}" class="form-label">Nama Barang</label>
-                                                        <select class="form-select" id="namaBarang{{ $transaksi->id }}" name="nama_barang" required>
-                                                            <option value="{{ $transaksi->idDataBarang }}" selected>{{ $transaksi->barang->namaBarang ?? '-' }}</option>
-                                                            @foreach($data_barang->sortBy('namaBarang') as $barang)
-                                                                @if($barang->id != $transaksi->idDataBarang)
-                                                                    <option value="{{ $barang->id }}">{{ $barang->namaBarang }}</option>
-                                                                @endif
-                                                            @endforeach
-                                                        </select>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="jenisTransaksi{{ $transaksi->id }}" class="form-label">Jenis Transaksi</label>
-                                                        <select class="form-select" id="jenisTransaksi{{ $transaksi->id }}" name="jenisTransaksi" required>
-                                                            <option value="" disabled {{ !$transaksi->jenisTransaksi ? 'selected' : '' }}>Pilih jenis transaksi</option>
-                                                            <option value="Masuk" {{ $transaksi->jenisTransaksi == 'Masuk' ? 'selected' : '' }}>Masuk</option>
-                                                            <option value="Keluar" {{ $transaksi->jenisTransaksi == 'Keluar' ? 'selected' : '' }}>Keluar</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="jumlahPinjam{{ $transaksi->id }}" class="form-label">Jumlah</label>
-                                                        <input type="number" class="form-control" id="jumlahPinjam{{ $transaksi->id }}" name="jumlahPinjam" value="{{ $transaksi->jumlahPinjam }}" min="1" required>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="tanggalTransaksi{{ $transaksi->id }}" class="form-label">Tanggal Transaksi</label>
-                                                        <input type="date" class="form-control" id="tanggalTransaksi{{ $transaksi->id }}" name="tanggal_transaksi" value="{{ $transaksi->tanggal_transaksi }}" required>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="waktuTransaksi{{ $transaksi->id }}" class="form-label">Waktu Transaksi</label>
-                                                        <input type="time" class="form-control" id="waktuTransaksi{{ $transaksi->id }}" name="waktu_transaksi" value="{{ $transaksi->waktu }}" required step="1">
-                                                        <small class="text-muted">Format 24 jam (contoh: 14:30)</small>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="alasanTransaksi{{ $transaksi->id }}" class="form-label">Alasan</label>
-                                                        <textarea class="form-control" id="alasanTransaksi{{ $transaksi->id }}" name="alasan" rows="2" required>{{ $transaksi->alasan }}</textarea>
-                                                    </div>
+                                                        <div class="mb-3">
+                                                            <label for="namaPegawai{{ $transaksi->id }}" class="form-label">Nama</label>
+                                                            <input type="text" class="form-control" id="namaPegawai{{ $transaksi->id }}" name="nama_pegawai" value="{{ $transaksi->nama_pegawai }}" required>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="statusPegawai{{ $transaksi->id }}" class="form-label">Status</label>
+                                                            <select class="form-select" id="statusPegawai{{ $transaksi->id }}" name="status_pegawai" required>
+                                                                <option value="" disabled {{ !$transaksi->status_pegawai ? 'selected' : '' }}>Pilih Status</option>
+                                                                <option value="PNS" {{ $transaksi->status_pegawai == 'PNS' ? 'selected' : '' }}>PNS</option>
+                                                                <option value="PPPK" {{ $transaksi->status_pegawai == 'PPPK' ? 'selected' : '' }}>PPPK</option>
+                                                                <option value="CPNS" {{ $transaksi->status_pegawai == 'CPNS' ? 'selected' : '' }}>CPNS</option>
+                                                                <option value="CPPPK" {{ $transaksi->status_pegawai == 'CPPPK' ? 'selected' : '' }}>CPPPK</option>
+                                                                <option value="Honorer" {{ $transaksi->status_pegawai == 'Honorer' ? 'selected' : '' }}>Honorer</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="namaBarang{{ $transaksi->id }}" class="form-label">Nama Barang</label>
+                                                            <input list="listBarangEdit{{ $transaksi->id }}" class="form-control" id="namaBarang{{ $transaksi->id }}" name="nama_barang" value="{{ $transaksi->barang->namaBarang ?? '' }}" required>
+                                                            <datalist id="listBarangEdit{{ $transaksi->id }}">
+                                                                @foreach($data_barang->sortBy('namaBarang') as $barang)
+                                                                    <option value="{{ $barang->namaBarang }}">{{ $barang->namaBarang }}</option>
+                                                                @endforeach
+                                                            </datalist>
+                                                            <small class="text-muted">Ketik nama barang atau pilih dari daftar.</small>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="jenisBarangPersediaanEdit{{ $transaksi->id }}" class="form-label">Kategori</label>
+                                                            <input list="listKategoriEdit{{ $transaksi->id }}" class="form-control" id="jenisBarangPersediaanEdit{{ $transaksi->id }}" name="jenisBarangPersediaan" value="{{ $transaksi->barang->jenisBarangPersediaan ?? '' }}" required>
+                                                            <datalist id="listKategoriEdit{{ $transaksi->id }}">
+                                                                @foreach($data_barang->unique('jenisBarangPersediaan')->sortBy('jenisBarangPersediaan') as $barang)
+                                                                    @if($barang->jenisBarangPersediaan)
+                                                                        <option value="{{ $barang->jenisBarangPersediaan }}">{{ $barang->jenisBarangPersediaan }}</option>
+                                                                    @endif
+                                                                @endforeach
+                                                            </datalist>
+                                                            <small class="text-muted">Ketik kategori atau pilih dari daftar.</small>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="jenisTransaksi{{ $transaksi->id }}" class="form-label">Jenis Transaksi</label>
+                                                            <select class="form-select" id="jenisTransaksi{{ $transaksi->id }}" name="jenisTransaksi" required>
+                                                                <option value="" disabled {{ !$transaksi->jenisTransaksi ? 'selected' : '' }}>Pilih jenis transaksi</option>
+                                                                <option value="Masuk" {{ $transaksi->jenisTransaksi == 'Masuk' ? 'selected' : '' }}>Masuk</option>
+                                                                <option value="Keluar" {{ $transaksi->jenisTransaksi == 'Keluar' ? 'selected' : '' }}>Keluar</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="jumlahPinjam{{ $transaksi->id }}" class="form-label">Jumlah</label>
+                                                            <input type="number" class="form-control" id="jumlahPinjam{{ $transaksi->id }}" name="jumlahPinjam" value="{{ $transaksi->jumlahPinjam }}" min="1" required>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="tanggalTransaksi{{ $transaksi->id }}" class="form-label">Tanggal Transaksi</label>
+                                                            <input type="date" class="form-control" id="tanggalTransaksi{{ $transaksi->id }}" name="tanggal_transaksi" value="{{ $transaksi->tanggal_transaksi }}" required>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="waktuTransaksi{{ $transaksi->id }}" class="form-label">Waktu Transaksi</label>
+                                                            <input type="time" class="form-control" id="waktuTransaksi{{ $transaksi->id }}" name="waktu_transaksi" value="{{ $transaksi->waktu }}" required step="1">
+                                                            <small class="text-muted">Format 24 jam (contoh: 14:30)</small>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="alasanTransaksi{{ $transaksi->id }}" class="form-label">Keterangan</label>
+                                                            <textarea class="form-control" id="alasanTransaksi{{ $transaksi->id }}" name="alasan" rows="2" required>{{ $transaksi->alasan }}</textarea>
+                                                        </div>
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>

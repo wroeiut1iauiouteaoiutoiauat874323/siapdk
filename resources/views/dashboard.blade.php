@@ -152,6 +152,8 @@
     @include('dashboard.umum.transaksi_barang')
 @elseif ($menu == 'tkendaraan')
     @include('dashboard.umum.transaksi_kendaraan')
+@elseif ($menu == 'dpegawai')
+    @include('dashboard.admin.data_pegawai')
 @endif
 
 <!-- Bootstrap JS and dependencies -->

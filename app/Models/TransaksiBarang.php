@@ -16,7 +16,6 @@ class TransaksiBarang extends Model
         'idDataBarang',
         'jenisTransaksi',
         'jumlahPinjam',
-        'statusTransaksi',
         'nama_pegawai',
         'status_pegawai',
         'waktu',

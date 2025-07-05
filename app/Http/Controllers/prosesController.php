@@ -289,10 +289,11 @@ class prosesController extends Controller
 
     public function transaksi_barang_store(Request $request)
     {
+
         $validator = Validator::make($request->all(), [
             'nama_pegawai' => 'required|string|max:255',
             'status_pegawai' => 'required|string|max:100',
-            'nama_barang' => 'required|integer|exists:data_barang,id',
+            'nama_barang' => 'required',
             'jenisTransaksi' => 'required|in:Masuk,Keluar',
             'jumlahPinjam' => 'required|integer|min:1',
             'tanggal_transaksi' => 'required|date',
@@ -300,7 +301,6 @@ class prosesController extends Controller
             'nama_pegawai.required' => 'Nama pegawai wajib diisi.',
             'status_pegawai.required' => 'Status pegawai wajib diisi.',
             'nama_barang.required' => 'Nama barang wajib dipilih.',
-            'nama_barang.exists' => 'Barang yang dipilih tidak ditemukan.',
             'jenisTransaksi.required' => 'Jenis transaksi wajib dipilih.',
             'jumlahPinjam.required' => 'Jumlah wajib diisi.',
             'jumlahPinjam.integer' => 'Jumlah harus berupa angka.',
@@ -318,36 +318,49 @@ class prosesController extends Controller
             return back()->withErrors($validator)->withInput();
         }
         // Ambil data barang
-        $barang = DataBarang::findOrFail($request->nama_barang);
+        $barang = DataBarang::where('namaBarang', $request->nama_barang)
+            ->where('jenisBarangPersediaan', $request->jenisBarangPersediaan)
+            ->first();
 
         // Pastikan field jumlahTersedia sudah ada di tabel data_barang
         if ($request->jenisTransaksi === 'Masuk') {
-            // Jika input masuk lebih dari stok, error salah input
-            if ($request->jumlahPinjam > $barang->jumlahTersedia) {
-                return back()->withErrors(['jumlahPinjam' => 'Input jumlah masuk tidak boleh lebih dari stok yang tersedia.'])->withInput();
+            if (!$barang) {
+                // Jika barang belum ada, buat data barang baru
+                $barang = new DataBarang();
+                $barang->namaBarang = $request->input('namaBarang', $request->nama_barang);
+                $barang->jenisBarangPersediaan = $request->input('jenisBarangPersediaan', $request->jenisBarangPersediaan);
+                $barang->jumlahTotal = $request->jumlahPinjam;
+                $barang->jumlahTersedia = $request->jumlahPinjam;
+                // Membuat kode unik base36 dengan panjang 7 digit, diawali huruf 'B', dan memastikan tidak kembar
+                do {
+                    $unique = uniqid('', true) . random_int(1000, 9999);
+                    $kodeBase36 = strtoupper(str_pad(base_convert(crc32($unique), 10, 36), 7, '0', STR_PAD_LEFT));
+                    $kode = 'B' . $kodeBase36;
+                } while (DataBarang::where('kode', $kode)->exists());
+                $barang->kode = $kode;
+                $barang->save();
             }
             // Tambah jumlahTersedia
+            $barang->jumlahTotal += $request->jumlahPinjam;
             $barang->jumlahTersedia += $request->jumlahPinjam;
         } elseif ($request->jenisTransaksi === 'Keluar') {
-            // Kurangi jumlahTersedia, cek stok cukup
-            if ($barang->jumlahTersedia < $request->jumlahPinjam) {
-                return back()->withErrors(['jumlahPinjam' => 'Stok barang tidak mencukupi.'])->withInput();
-            }
             $barang->jumlahTersedia -= $request->jumlahPinjam;
+            $barang->jumlahTotal += $request->jumlahPinjam;
         }
         $barang->save();
 
-        $statusTransaksi = $request->jenisTransaksi === 'Masuk' ? 'Dikembalikan' : 'Dipinjam';
-
+        // Cari idDataBarang yang namaBarang dan jenisBarangPersediaan sama
+        $idDataBarangCek = DataBarang::where('namaBarang', $request->nama_barang)
+            ->where('jenisBarangPersediaan', $request->jenisBarangPersediaan)
+            ->value('id');
         $transaksi = new TransaksiBarang();
         $transaksi->nama_pegawai = $request->nama_pegawai;
         $transaksi->status_pegawai = $request->status_pegawai;
-        $transaksi->idDataBarang = $request->nama_barang;
+        $transaksi->idDataBarang = $idDataBarangCek;
         $transaksi->jenisTransaksi = $request->jenisTransaksi;
         $transaksi->jumlahPinjam = $request->jumlahPinjam;
         $transaksi->tanggal_transaksi = $request->tanggal_transaksi;
         $transaksi->waktu = $request->waktu_transaksi;
-        $transaksi->statusTransaksi = $statusTransaksi;
         if ($request->filled('alasan')) {
             $transaksi->alasan = $request->alasan;
         }
@@ -368,7 +381,8 @@ class prosesController extends Controller
         $validator = Validator::make($request->all(), [
             'nama_pegawai' => 'required|string|max:255',
             'status_pegawai' => 'required|string|max:100',
-            'nama_barang' => 'required|integer|exists:data_barang,id',
+            'nama_barang' => 'required',
+            'jenisBarangPersediaan' => 'required',
             'jenisTransaksi' => 'required|in:Masuk,Keluar',
             'jumlahPinjam' => 'required|integer|min:1',
             'tanggal_transaksi' => 'required|date',
@@ -376,7 +390,7 @@ class prosesController extends Controller
             'nama_pegawai.required' => 'Nama pegawai wajib diisi.',
             'status_pegawai.required' => 'Status pegawai wajib diisi.',
             'nama_barang.required' => 'Nama barang wajib dipilih.',
-            'nama_barang.exists' => 'Barang yang dipilih tidak ditemukan.',
+            'jenisBarangPersediaan.required' => 'Kategori barang wajib dipilih.',
             'jenisTransaksi.required' => 'Jenis transaksi wajib dipilih.',
             'jumlahPinjam.required' => 'Jumlah wajib diisi.',
             'jumlahPinjam.integer' => 'Jumlah harus berupa angka.',
@@ -385,57 +399,82 @@ class prosesController extends Controller
             'tanggal_transaksi.date' => 'Tanggal transaksi tidak valid.',
         ]);
 
-        // Tambahan validasi agar jumlahPinjam tidak boleh minus
-        if ($request->jumlahPinjam < 1) {
-            return back()->withErrors(['jumlahPinjam' => 'Jumlah tidak boleh kurang dari 1.'])->withInput();
-        }
-
         if ($validator->fails()) {
             return back()->withErrors($validator)->withInput();
         }
 
-        // Ambil data barang lama dan transaksi lama
         $transaksi = TransaksiBarang::findOrFail($id);
-        $barangLama = DataBarang::findOrFail($transaksi->idDataBarang);
-        $barangBaru = DataBarang::findOrFail($request->nama_barang);
+        $barangLama = DataBarang::find($transaksi->idDataBarang);
 
-        // Kembalikan stok barang lama jika barang diganti atau jumlah berubah
-        if ($transaksi->jenisTransaksi === 'Masuk') {
-            $barangLama->jumlahTersedia -= $transaksi->jumlahPinjam;
-        } elseif ($transaksi->jenisTransaksi === 'Keluar') {
-            $barangLama->jumlahTersedia += $transaksi->jumlahPinjam;
+        // Kembalikan stok barang lama sesuai jenis transaksi lama
+        if ($barangLama) {
+            if ($transaksi->jenisTransaksi === 'Masuk') {
+                $barangLama->jumlahTersedia -= $transaksi->jumlahPinjam;
+                $barangLama->jumlahTotal -= $transaksi->jumlahPinjam;
+                if ($barangLama->jumlahTersedia < 0) $barangLama->jumlahTersedia = 0;
+                if ($barangLama->jumlahTotal < 0) $barangLama->jumlahTotal = 0;
+            } elseif ($transaksi->jenisTransaksi === 'Keluar') {
+                $barangLama->jumlahTersedia += $transaksi->jumlahPinjam;
+                $barangLama->jumlahTotal -= $transaksi->jumlahPinjam;
+                if ($barangLama->jumlahTersedia > $barangLama->jumlahTotal) {
+                    $barangLama->jumlahTersedia = $barangLama->jumlahTotal;
+                }
+                if ($barangLama->jumlahTotal < 0) $barangLama->jumlahTotal = 0;
+            }
+            $barangLama->save();
         }
-        $barangLama->save();
+
+        // Ambil barang baru berdasarkan nama dan kategori
+        $barangBaru = DataBarang::where('namaBarang', $request->nama_barang)
+            ->where('jenisBarangPersediaan', $request->jenisBarangPersediaan)
+            ->first();
+
+        // Jika barang tidak ditemukan, buat baru (hanya untuk transaksi Masuk)
+        if (!$barangBaru && $request->jenisTransaksi === 'Masuk') {
+            $barangBaru = new DataBarang();
+            $barangBaru->namaBarang = $request->nama_barang;
+            $barangBaru->jenisBarangPersediaan = $request->jenisBarangPersediaan;
+            $barangBaru->jumlahTotal = $request->jumlahPinjam;
+            $barangBaru->jumlahTersedia = $request->jumlahPinjam;
+            // Membuat kode unik base36 dengan panjang 7 digit, diawali huruf 'B', dan memastikan tidak kembar
+            do {
+                $unique = uniqid('', true) . random_int(1000, 9999);
+                $kodeBase36 = strtoupper(str_pad(base_convert(crc32($unique), 10, 36), 7, '0', STR_PAD_LEFT));
+                $kode = 'B' . $kodeBase36;
+            } while (DataBarang::where('kode', $kode)->exists());
+            $barangBaru->kode = $kode;
+            $barangBaru->save();
+        }
+
+        // Validasi stok untuk transaksi keluar
+        if ($request->jenisTransaksi === 'Keluar') {
+            if (!$barangBaru || $barangBaru->jumlahTersedia < $request->jumlahPinjam) {
+                return back()->withErrors(['jumlahPinjam' => 'Stok barang tidak mencukupi.'])->withInput();
+            }
+        }
 
         // Update stok barang baru sesuai transaksi baru
-        if ($request->jenisTransaksi === 'Masuk') {
-            if ($request->jumlahPinjam > $barangBaru->jumlahTersedia) {
-            return back()->withErrors(['jumlahPinjam' => 'Input jumlah masuk tidak boleh lebih dari stok yang tersedia.'])->withInput();
+        if ($barangBaru) {
+            if ($request->jenisTransaksi === 'Masuk') {
+                $barangBaru->jumlahTotal += $request->jumlahPinjam;
+                $barangBaru->jumlahTersedia += $request->jumlahPinjam;
+            } elseif ($request->jenisTransaksi === 'Keluar') {
+                $barangBaru->jumlahTersedia -= $request->jumlahPinjam;
+                $barangBaru->jumlahTotal += $request->jumlahPinjam;
+                if ($barangBaru->jumlahTersedia < 0) $barangBaru->jumlahTersedia = 0;
             }
-            $barangBaru->jumlahTersedia += $request->jumlahPinjam;
-        } elseif ($request->jenisTransaksi === 'Keluar') {
-            if ($barangBaru->jumlahTersedia < $request->jumlahPinjam) {
-            return back()->withErrors(['jumlahPinjam' => 'Stok barang tidak mencukupi.'])->withInput();
-            }
-            $barangBaru->jumlahTersedia -= $request->jumlahPinjam;
+            $barangBaru->save();
         }
-        $barangBaru->save();
 
-        $statusTransaksi = $request->jenisTransaksi === 'Masuk' ? 'Dikembalikan' : 'Dipinjam';
-
+        // Update transaksi
         $transaksi->nama_pegawai = $request->nama_pegawai;
         $transaksi->status_pegawai = $request->status_pegawai;
-        $transaksi->idDataBarang = $request->nama_barang;
+        $transaksi->idDataBarang = $barangBaru ? $barangBaru->id : null;
         $transaksi->jenisTransaksi = $request->jenisTransaksi;
         $transaksi->jumlahPinjam = $request->jumlahPinjam;
         $transaksi->tanggal_transaksi = $request->tanggal_transaksi;
         $transaksi->waktu = $request->waktu_transaksi;
-        $transaksi->statusTransaksi = $statusTransaksi;
-        if ($request->filled('alasan')) {
-            $transaksi->alasan = $request->alasan;
-        } else {
-            $transaksi->alasan = null; // Atau bisa diisi dengan string kosong
-        }
+        $transaksi->alasan = $request->filled('alasan') ? $request->alasan : null;
         $transaksi->save();
 
         return redirect()->route('dashboard', ['menu' => 'tbarang'])
@@ -452,10 +491,12 @@ class prosesController extends Controller
             if ($transaksi->jenisTransaksi === 'Masuk') {
             // Jika transaksi masuk dihapus, stok dikurangi
             $barang->jumlahTersedia -= $transaksi->jumlahPinjam;
+            $barang->jumlahTotal -= $transaksi->jumlahPinjam;
             if ($barang->jumlahTersedia < 0) $barang->jumlahTersedia = 0;
             } elseif ($transaksi->jenisTransaksi === 'Keluar') {
             // Jika transaksi keluar dihapus, stok dikembalikan
             $barang->jumlahTersedia += $transaksi->jumlahPinjam;
+            $barang->jumlahTotal += $transaksi->jumlahPinjam;
             }
             $barang->save();
         }
@@ -501,7 +542,6 @@ class prosesController extends Controller
             return back()->withErrors($validator)->withInput();
         }
 
-        $statusTransaksi = $request->jenisTransaksi === 'masuk' ? 'Dikembalikan' : 'Dipinjam';
         // Ambil idDataKendaraan berdasarkan namaKendaraan dan nomorPolisi
         $kendaraan = DataKendaraan::where('namaKendaraan', $request->nama_kendaraan)
             ->where('nomorPolisi', $request->nomor_polisi)
@@ -551,7 +591,6 @@ class prosesController extends Controller
         $transaksi->idDataKendaraan = $kendaraan->id;
         $transaksi->jenisTransaksi = $request->jenisTransaksi;
         $transaksi->tanggal_transaksi = $request->tanggal_transaksi;
-        $transaksi->statusTransaksi = $statusTransaksi;
         $transaksi->kode = $kode;
         $transaksi->alasan = $request->alasan ?? null; // Jika alasan tidak diisi, set null
         // Jika ada waktu transaksi, simpan juga
@@ -618,15 +657,12 @@ class prosesController extends Controller
             $kendaraanLama->save();
         }
 
-        $statusTransaksi = strtolower($request->jenisTransaksi) === 'masuk' ? 'Dikembalikan' : 'Dipinjam';
-
         // Update data transaksi
         $transaksi->nama_pegawai = $request->nama_pegawai;
         $transaksi->status_pegawai = $request->status_pegawai;
         $transaksi->idDataKendaraan = $kendaraanBaru->id;
         $transaksi->jenisTransaksi = $request->jenisTransaksi;
         $transaksi->tanggal_transaksi = $request->tanggal_transaksi;
-        $transaksi->statusTransaksi = $statusTransaksi;
         if ($request->filled('waktu_transaksi')) {
             $transaksi->waktu = $request->waktu_transaksi;
         } else {

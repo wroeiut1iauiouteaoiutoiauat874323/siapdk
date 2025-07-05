@@ -8,7 +8,7 @@
                     <i class="bi bi-search"></i>
                 </button>
             </form>
-            <small class="text-muted">Cari berdasarkan kode, nama, jenis, nomor polisi, atau ciri kendaraan atau nama peminjam</small>
+            <small class="text-muted">Cari berdasarkan kode, nama, jenis, nomor polisi, atau ciri kendaraan atau nwama</small>
         </div>
         <a href="" class="btn btn-success shadow-sm px-4 py-2">
             <i class="bi bi-plus-circle me-1"></i> Tambah Transaksi
@@ -40,13 +40,13 @@
                     </div>
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label for="namaPegawai" class="form-label">Nama Peminjam</label>
+                            <label for="namaPegawai" class="form-label">Nama</label>
                             <input type="text" class="form-control" id="namaPegawai" name="nama_pegawai" required>
                         </div>
                         <div class="mb-3">
-                            <label for="statusPegawai" class="form-label">Status Pegawai</label>
+                            <label for="statusPegawai" class="form-label">Status</label>
                             <select class="form-select" id="statusPegawai" name="status_pegawai" required>
-                                <option value="" disabled selected>Pilih status pegawai</option>
+                                <option value="" disabled selected>Pilih Status</option>
                                 <option value="PNS">PNS</option>
                                 <option value="PPPK">PPPK</option>
                                 <option value="CPNS">CPNS</option>
@@ -138,10 +138,9 @@
                                     <th scope="col" class="text-center">Nama Kendaraan</th>
                                     <th scope="col" class="text-center">Jenis Kendaraan</th>
                                     <th scope="col" class="text-center">No Polisi</th>
-                                    <th scope="col" class="text-center">Nama Peminjam</th>
-                                    <th scope="col" class="text-center">Status Peminjam</th>
-                                    <th scope="col" class="text-center">Jenis Transaksi</th>
+                                    <th scope="col" class="text-center">Nama</th>
                                     <th scope="col" class="text-center">Status</th>
+                                    <th scope="col" class="text-center">Jenis Transaksi</th>
                                     <th scope="col" style="width: 135px; padding-left:50px">Aksi</th>
                                 </tr>
                             </thead>
@@ -158,7 +157,6 @@
                                     <td class="text-center">{{ $transaksi->nama_pegawai }} </td>
                                     <td class="text-center">{{ $transaksi->status_pegawai }} </td>
                                     <td class="text-center">{{ $transaksi->jenisTransaksi }}</td>
-                                    <td class="text-center">{{ $transaksi->statusTransaksi }}</td>
                                     <td>
                                     <!-- Tombol Lihat Alasan -->
                                     <button type="button" class="btn btn-info btn-sm btn-action" title="Lihat Alasan" data-bs-toggle="modal" data-bs-target="#modalAlasanTransaksi{{ $transaksi->id }}">
@@ -198,13 +196,13 @@
                                                     </div>
                                                     <div class="modal-body">
                                                         <div class="mb-3">
-                                                            <label for="namaPegawai{{ $transaksi->id }}" class="form-label">Nama Peminjam</label>
+                                                            <label for="namaPegawai{{ $transaksi->id }}" class="form-label">Nama</label>
                                                             <input type="text" class="form-control" id="namaPegawai{{ $transaksi->id }}" name="nama_pegawai" value="{{ $transaksi->nama_pegawai }}" required>
                                                         </div>
                                                         <div class="mb-3">
-                                                            <label for="statusPegawai{{ $transaksi->id }}" class="form-label">Status Pegawai</label>
+                                                            <label for="statusPegawai{{ $transaksi->id }}" class="form-label">Status</label>
                                                             <select class="form-select" id="statusPegawai{{ $transaksi->id }}" name="status_pegawai" required>
-                                                                <option value="" disabled {{ !$transaksi->status_pegawai ? 'selected' : '' }}>Pilih status pegawai</option>
+                                                                <option value="" disabled {{ !$transaksi->status_pegawai ? 'selected' : '' }}>Pilih Status</option>
                                                                 <option value="PNS" {{ $transaksi->status_pegawai == 'PNS' ? 'selected' : '' }}>PNS</option>
                                                                 <option value="PPPK" {{ $transaksi->status_pegawai == 'PPPK' ? 'selected' : '' }}>PPPK</option>
                                                                 <option value="CPNS" {{ $transaksi->status_pegawai == 'CPNS' ? 'selected' : '' }}>CPNS</option>
