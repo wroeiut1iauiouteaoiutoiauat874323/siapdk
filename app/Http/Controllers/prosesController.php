@@ -442,4 +442,98 @@ class prosesController extends Controller
         return redirect()->route('dashboard', ['menu' => 'tkendaraan'])
             ->with('success', 'Transaksi kendaraan berhasil dihapus.' . (($kendaraan && $jumlahTransaksi == 1) ? ' Data kendaraan terkait juga dihapus.' : ''));
     }
+
+    public function data_pegawai_store(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'nip'      => 'required|numeric|unique:data_pegawai,nipPegawai',
+            'nama'     => 'required|string|max:255',
+            'jabatan'  => 'required|string|max:100',
+            'password' => [
+            'required',
+            'string',
+            'min:8',
+            'regex:/[a-z]/',      // huruf kecil
+            'regex:/[A-Z]/',      // huruf kapital
+            'regex:/[0-9]/',      // angka
+            'regex:/[\W_]/',      // simbol
+            ],
+        ], [
+            'nip.required'        => 'NIP Pegawai wajib diisi.',
+            'nip.numeric'         => 'NIP Pegawai harus berupa angka.',
+            'nip.unique'          => 'NIP Pegawai sudah terdaftar.',
+            'nama.required'       => 'Nama pegawai wajib diisi.',
+            'jabatan.required'    => 'Jabatan pegawai wajib diisi.',
+            'password.required'   => 'Password wajib diisi.',
+            'password.min'        => 'Password minimal 8 karakter.',
+            'password.confirmed'  => 'Konfirmasi password tidak cocok.',
+            'password.regex'      => 'Password harus mengandung huruf kecil, huruf kapital, angka, dan simbol.',
+        ]);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        $pegawai = new DataPegawai();
+        $pegawai->nipPegawai = $request->nip;
+        $pegawai->namaPegawai = $request->nama;
+        $pegawai->status = $request->statusPegawai;
+        $pegawai->jabatan = $request->jabatan;
+        $pegawai->password = Hash::make($request->password);
+        $pegawai->save();
+
+        return redirect()->route('dashboard', ['menu' => 'dpegawai'])
+            ->with('success', 'Data pegawai berhasil ditambahkan.');
+    }
+
+    public function data_pegawai_edit(Request $request, $id)
+    {
+        $pegawai = DataPegawai::findOrFail($id);
+
+        $validator = Validator::make($request->all(), [
+            'nip'      => 'required|numeric|unique:data_pegawai,nipPegawai,' . $pegawai->id,
+            'nama'     => 'required|string|max:255',
+            'jabatan'  => 'required|string|max:100',
+            'password' => [
+            'nullable',
+            'string',
+            'min:8',
+            'regex:/[a-z]/',      // huruf kecil
+            'regex:/[A-Z]/',      // huruf kapital
+            'regex:/[0-9]/',      // angka
+            'regex:/[\W_]/',      // simbol
+            ],
+        ], [
+            'nip.required'        => 'NIP Pegawai wajib diisi.',
+            'nip.numeric'         => 'NIP Pegawai harus berupa angka.',
+            'nip.unique'          => 'NIP Pegawai sudah terdaftar.',
+            'nama.required'       => 'Nama pegawai wajib diisi.',
+            'jabatan.required'    => 'Jabatan pegawai wajib diisi.',
+            'password.min'        => 'Password minimal 8 karakter.',
+            'password.regex'      => 'Password harus mengandung huruf kecil, huruf kapital, angka, dan simbol.',
+        ]);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        $pegawai->nipPegawai = $request->nip;
+        $pegawai->namaPegawai = $request->nama;
+        $pegawai->password = Hash::make($request->password);
+        $pegawai->status = $request->statusPegawai;
+        $pegawai->jabatan = $request->jabatan;
+        $pegawai->save();
+
+        return redirect()->route('dashboard', ['menu' => 'dpegawai'])
+            ->with('success', 'Data pegawai berhasil diperbarui.');
+    }
+
+    public function data_pegawai_destroy($id)
+    {
+        $pegawai = DataPegawai::findOrFail($id);
+        $pegawai->delete();
+
+        return redirect()->route('dashboard', ['menu' => 'dpegawai'])
+            ->with('success', 'Data pegawai berhasil dihapus.');
+    }
 }

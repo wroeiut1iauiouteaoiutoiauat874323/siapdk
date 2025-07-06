@@ -57,6 +57,13 @@
                             <input type="text" class="form-control" id="jabatan" name="jabatan" required placeholder="Masukkan jabatan">
                         </div>
                         <div class="mb-3">
+                            <label for="statusPegawai" class="form-label">Status Akun</label>
+                            <select class="form-select" id="statusPegawai" name="statusPegawai" required>
+                                <option value="umum">Umum</option>
+                                <option value="bukanumum" selected>Pegawai</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
                             <label for="password" class="form-label">Password</label>
                             <input type="text" class="form-control" id="password" name="password" placeholder="Silahkan isikan password akun">
                             <small class="text-muted">Isi dengan minimal 8 karakter ada huruf kecil, kapital, angka dan simbol</small>
@@ -102,38 +109,45 @@
                                     <td class="text-center">{{ $pegawai->nipPegawai }}</td>
                                     <td class="text-center">{{ $pegawai->jabatan }}</td>
                                     <td>
-                                        <!-- Tombol Edit -->
-                                        <a href="#" class="btn btn-warning btn-sm btn-action" title="Edit" data-bs-toggle="modal" data-bs-target="#modalEditPegawai">
+                                       <!-- Tombol Edit -->
+                                        <a href="#" class="btn btn-warning btn-sm btn-action" title="Edit" data-bs-toggle="modal" data-bs-target="#modalEditPegawai{{ $pegawai->id }}">
                                             <i class="bi bi-pencil"></i>
                                         </a>
 
                                         <!-- Modal Edit Pegawai -->
-                                        <div class="modal fade" id="modalEditPegawai" tabindex="-1" aria-labelledby="modalEditPegawaiLabel" aria-hidden="true">
+                                        <div class="modal fade" id="modalEditPegawai{{ $pegawai->id }}" tabindex="-1" aria-labelledby="modalEditPegawaiLabel{{ $pegawai->id }}" aria-hidden="true">
                                             <div class="modal-dialog">
                                                 <div class="modal-content">
                                                     <form action="{{ route('proses.data_pegawai.edit', $pegawai->id) }}" method="POST">
                                                         @csrf
                                                         <div class="modal-header">
-                                                            <h5 class="modal-title" id="modalEditPegawaiLabel">Edit Pegawai</h5>
+                                                            <h5 class="modal-title" id="modalEditPegawaiLabel{{ $pegawai->id }}">Edit Pegawai</h5>
                                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
                                                         </div>
                                                         <div class="modal-body">
                                                             <div class="mb-3">
-                                                                <label for="nama" class="form-label">Nama</label>
-                                                                <input type="text" class="form-control" id="nama" name="nama" value="{{ $pegawai->namaPegawai }}" required>
+                                                                <label for="nama{{ $pegawai->id }}" class="form-label">Nama</label>
+                                                                <input type="text" class="form-control" id="nama{{ $pegawai->id }}" name="nama" value="{{ $pegawai->namaPegawai }}" required>
                                                             </div>
                                                             <div class="mb-3">
-                                                                <label for="nip" class="form-label">NIP</label>
-                                                                <input type="text" class="form-control" id="nip" name="nip" value="{{ $pegawai->nipPegawai }}" required>
+                                                                <label for="nip{{ $pegawai->id }}" class="form-label">NIP</label>
+                                                                <input type="text" class="form-control" id="nip{{ $pegawai->id }}" name="nip" value="{{ $pegawai->nipPegawai }}" required>
                                                             </div>
                                                             <div class="mb-3">
-                                                                <label for="jabatan" class="form-label">Jabatan</label>
-                                                                <input type="text" class="form-control" id="jabatan" name="jabatan" value="{{ $pegawai->jabatan }}" required>
+                                                                <label for="jabatan{{ $pegawai->id }}" class="form-label">Jabatan</label>
+                                                                <input type="text" class="form-control" id="jabatan{{ $pegawai->id }}" name="jabatan" value="{{ $pegawai->jabatan }}" required>
                                                             </div>
                                                             <div class="mb-3">
-                                                                <label for="password" class="form-label">Password</label>
-                                                                <input type="text" class="form-control" id="password" name="password" placeholder="Kosongkan jika tidak ingin mengubah password">
-                                                                <small class="text-muted">Isi hanya jika ingin mengganti password pegawai ini.</small>
+                                                                <label for="statusPegawai{{ $pegawai->id }}" class="form-label">Status Akun</label>
+                                                                <select class="form-select" id="statusPegawai{{ $pegawai->id }}" name="statusPegawai" required>
+                                                                    <option value="umum" {{ $pegawai->status == 'umum' ? 'selected' : '' }}>Umum</option>
+                                                                    <option value="bukanumum" {{ $pegawai->status == 'bukanumum' ? 'selected' : '' }}>Pegawai</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label for="password{{ $pegawai->id }}" class="form-label">Password</label>
+                                                                <input type="text" class="form-control" id="password{{ $pegawai->id }}" name="password" placeholder="Kosongkan jika tidak ingin mengubah password">
+                                                                <small class="text-muted">Isi jika ingin mengubah password. Minimal 8 karakter ada huruf kecil, kapital, angka dan simbol</small>
                                                             </div>
                                                         </div>
                                                         <div class="modal-footer">
