@@ -55,18 +55,17 @@ class prosesController extends Controller
 
     public function transaksi_barang_store(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
             'nama_pegawai' => 'required|string|max:255',
             'status_pegawai' => 'required|string|max:100',
             'nama_barang' => 'required|string|max:255',
             'jenisBarangPersediaan' => 'required|string|max:100',
             'jenisTransaksi' => 'required|in:Masuk,Keluar',
-            'jumlahPinjam' => 'required|integer|min:1',
             'tanggal_transaksi' => 'required|date',
             'waktu_transaksi' => 'nullable|date_format:H:i:s',
             'alasan' => 'nullable|string|max:255',
             'lokasiBarang' => 'required|string|max:100',
+            'kode_barang' => 'nullable|string|max:20',
         ], [
             'nama_pegawai.required' => 'Nama pegawai wajib diisi.',
             'status_pegawai.required' => 'Status pegawai wajib diisi.',
@@ -74,9 +73,6 @@ class prosesController extends Controller
             'jenisBarangPersediaan.required' => 'Kategori barang wajib dipilih.',
             'jenisTransaksi.required' => 'Jenis transaksi wajib dipilih.',
             'jenisTransaksi.in' => 'Jenis transaksi harus Masuk atau Keluar.',
-            'jumlahPinjam.required' => 'Jumlah wajib diisi.',
-            'jumlahPinjam.integer' => 'Jumlah harus berupa angka.',
-            'jumlahPinjam.min' => 'Jumlah minimal 1.',
             'tanggal_transaksi.required' => 'Tanggal transaksi wajib diisi.',
             'tanggal_transaksi.date' => 'Tanggal transaksi tidak valid.',
             'waktu_transaksi.date_format' => 'Format waktu tidak valid (H:i:s).',
@@ -86,61 +82,55 @@ class prosesController extends Controller
         if ($validator->fails()) {
             return back()->withErrors($validator)->withInput();
         }
-        // Ambil data barang
-        $baranginput = DataBarang::where('namaBarang', $request->nama_barang)
-            ->where('jenisBarangPersediaan', $request->jenisBarangPersediaan)
-            ->where('lokasi', $request->input('lokasiBarang'))
-            ->first();
 
-        // Pastikan field jumlahTersedia sudah ada di tabel data_barang
-        if ($request->jenisTransaksi === 'Masuk') {
-            if (!$baranginput) {
-            //     // Jika barang belum ada, buat data barang baru
-                $barang = new DataBarang();
-                $barang->namaBarang = $request->input('namaBarang', $request->nama_barang);
-                $barang->jenisBarangPersediaan = $request->input('jenisBarangPersediaan', $request->jenisBarangPersediaan);
-                $barang->jumlahTotal = $request->jumlahPinjam;
-                $barang->lokasi = $request->input('lokasiBarang');
-                // Membuat kode unik base36 dengan panjang 7 digit, diawali huruf 'B', dan memastikan tidak kembar
-                do {
-                    $unique = uniqid('', true) . random_int(1000, 9999);
-                    $kodeBase36 = strtoupper(str_pad(base_convert(crc32($unique), 10, 36), 7, '0', STR_PAD_LEFT));
-                    $kode = 'B' . $kodeBase36;
-                } while (DataBarang::where('kode', $kode)->exists());
-                $barang->kode = $kode;
-                $barang->save();
-            }else{
-            // Tambah jumlahTotal
-            $baranginput->jumlahTotal += $request->jumlahPinjam;
-            $baranginput->save();
-            }
-        } elseif ($request->jenisTransaksi === 'Keluar') {
-            $baranginput->jumlahTotal += $request->jumlahPinjam;
-            $baranginput->save();
+        // Cari barang berdasarkan kode_barang jika ada, jika tidak berdasarkan nama, jenis, lokasi
+        if ($request->filled('kode_barang')) {
+            $barang = DataBarang::where('kode', $request->kode_barang)->first();
+        } else {
+            $barang = DataBarang::where('namaBarang', $request->nama_barang)
+                ->where('jenisBarangPersediaan', $request->jenisBarangPersediaan)
+                ->where('lokasi', $request->lokasiBarang)
+                ->first();
         }
 
-        // Cari idDataBarang yang namaBarang dan jenisBarangPersediaan sama
-        $idDataBarangCek = DataBarang::where('namaBarang', $request->nama_barang)
-            ->where('jenisBarangPersediaan', $request->jenisBarangPersediaan)
-            ->where('lokasi', $request->input('lokasiBarang'))
-            ->value('id');
-        $transaksi = new TransaksiBarang();
-        $transaksi->nama_pegawai = $request->nama_pegawai;
-        $transaksi->status_pegawai = $request->status_pegawai;
-        $transaksi->idDataBarang = $idDataBarangCek;
-        $transaksi->jenisTransaksi = $request->jenisTransaksi;
-        $transaksi->jumlahPinjam = $request->jumlahPinjam;
-        $transaksi->tanggal_transaksi = $request->tanggal_transaksi;
-        $transaksi->waktu = $request->waktu_transaksi;
-        if ($request->filled('alasan')) {
-            $transaksi->alasan = $request->alasan;
+        // Jika transaksi Masuk dan barang tidak ada, buat baru
+        if (!$barang && strtolower($request->jenisTransaksi) === 'masuk') {
+            $barang = new DataBarang();
+            $barang->namaBarang = $request->nama_barang;
+            $barang->jenisBarangPersediaan = $request->jenisBarangPersediaan;
+            $barang->lokasi = $request->lokasiBarang;
+            // Membuat kode unik base36 dengan panjang 7 digit, diawali huruf 'B', dan memastikan tidak kembar
+            do {
+                $unique = uniqid('', true) . random_int(1000, 9999);
+                $kodeBase36 = strtoupper(str_pad(base_convert(crc32($unique), 10, 36), 7, '0', STR_PAD_LEFT));
+                $kode = 'B' . $kodeBase36;
+            } while (DataBarang::where('kode', $kode)->exists());
+            $barang->kode = $kode;
+            $barang->save();
+        } elseif (!$barang) {
+            // Jika transaksi keluar dan barang tidak ditemukan
+            return back()->withErrors(['kode_barang' => 'Barang tidak ditemukan untuk transaksi keluar.'])->withInput();
         }
+
         // Membuat kode unik transaksi barang, format: TB + 8 digit acak base36, pastikan unik
         do {
             $unique = uniqid('', true) . random_int(1000, 9999);
             $kodeTransaksi = 'TB' . strtoupper(str_pad(base_convert(crc32($unique), 10, 36), 8, '0', STR_PAD_LEFT));
         } while (TransaksiBarang::where('kode', $kodeTransaksi)->exists());
+
+        $transaksi = new TransaksiBarang();
+        $transaksi->nama_pegawai = $request->nama_pegawai;
+        $transaksi->status_pegawai = $request->status_pegawai;
+        $transaksi->idDataBarang = $barang->id;
+        $transaksi->jenisTransaksi = $request->jenisTransaksi;
+        $transaksi->tanggal_transaksi = $request->tanggal_transaksi;
+        $transaksi->waktu = $request->filled('waktu_transaksi') ? $request->waktu_transaksi : now()->format('H:i:s');
+        $transaksi->lokasi = $request->lokasiBarang;
         $transaksi->kode = $kodeTransaksi;
+        $transaksi->kode_barang = $barang->kode;
+        if ($request->filled('alasan')) {
+            $transaksi->alasan = $request->alasan;
+        }
         $transaksi->save();
 
         return redirect()->route('dashboard', ['menu' => 'tbarang'])
@@ -249,34 +239,45 @@ class prosesController extends Controller
     {
         $transaksi = TransaksiBarang::findOrFail($id);
 
-        // Kembalikan stok barang jika transaksi dihapus
+        // Hitung jumlah transaksi terkait barang ini
         $barang = DataBarang::find($transaksi->idDataBarang);
+        $jumlahTransaksi = 0;
         if ($barang) {
-            if ($transaksi->jenisTransaksi === 'Masuk') {
-                // Jika transaksi masuk dihapus, stok dikurangi
-                $barang->jumlahTotal -= $transaksi->jumlahPinjam;
-                if ($barang->jumlahTotal < 0) $barang->jumlahTotal = 0;
-            } elseif ($transaksi->jenisTransaksi === 'Keluar') {
-                // Jika transaksi keluar dihapus, stok dikembalikan
-                $barang->jumlahTotal += $transaksi->jumlahPinjam;
-            }
-            $barang->save();
+            $jumlahTransaksi = TransaksiBarang::where('idDataBarang', $barang->id)->count();
         }
 
+        // Simpan lokasi transaksi yang akan dihapus
+        $lokasiTransaksiDihapus = $transaksi->lokasi;
+
         $transaksi->delete();
+
+        // Jika jumlah transaksi tinggal 1 (yang baru saja dihapus), hapus juga data barangnya
+        if ($barang && $jumlahTransaksi == 1) {
+            $barang->delete();
+        } elseif ($barang) {
+            // Jika masih ada transaksi lain, kembalikan lokasi barang ke lokasi transaksi terakhir
+            $transaksiTerakhir = TransaksiBarang::where('idDataBarang', $barang->id)
+            ->orderByDesc('tanggal_transaksi')
+            ->orderByDesc('waktu')
+            ->first();
+            if ($transaksiTerakhir) {
+            $barang->lokasi = $transaksiTerakhir->lokasi;
+            $barang->save();
+            }
+        }
 
         // Update urutan id transaksi (reindex id)
         $transaksis = TransaksiBarang::orderBy('id')->get();
         $newId = 1;
         foreach ($transaksis as $t) {
             if ($t->id != $newId) {
-                // Update id only if different
-                TransaksiBarang::where('id', $t->id)->update(['id' => $newId]);
+            // Update id only if different
+            TransaksiBarang::where('id', $t->id)->update(['id' => $newId]);
             }
             $newId++;
         }
         return redirect()->route('dashboard', ['menu' => 'tbarang'])
-            ->with('success', 'Transaksi barang berhasil dihapus.');
+            ->with('success', 'Transaksi barang berhasil dihapus.' . (($barang && $jumlahTransaksi == 1) ? ' Data barang terkait juga dihapus.' : ''));
     }
 
     public function transaksi_kendaraan_store(Request $request)
@@ -447,33 +448,44 @@ class prosesController extends Controller
     {
         $transaksi = TransaksiKendaraan::findOrFail($id);
 
-        // Kembalikan status kendaraan jika transaksi dihapus
+        // Hitung jumlah transaksi terkait kendaraan ini
         $kendaraan = DataKendaraan::find($transaksi->idDataKendaraan);
+        $jumlahTransaksi = 0;
+        if ($kendaraan) {
+            $jumlahTransaksi = TransaksiKendaraan::where('idDataKendaraan', $kendaraan->id)->count();
+        }
+
+        // Kembalikan status kendaraan jika transaksi dihapus
         if ($kendaraan) {
             if ($transaksi->jenisTransaksi === 'Keluar') {
-                // Jika transaksi keluar dihapus, kendaraan harus tersedia
-                $kendaraan->status = 'Tersedia';
+            // Jika transaksi keluar dihapus, kendaraan harus tersedia
+            $kendaraan->status = 'Tersedia';
             } elseif ($transaksi->jenisTransaksi === 'Masuk') {
-                // Jika transaksi masuk dihapus, kendaraan harus tidak tersedia
-                $kendaraan->status = 'Tidak Tersedia';
+            // Jika transaksi masuk dihapus, kendaraan harus tidak tersedia
+            $kendaraan->status = 'Tidak Tersedia';
             }
             $kendaraan->save();
         }
 
         $transaksi->delete();
 
+        // Jika jumlah transaksi tinggal 1 (yang baru saja dihapus), hapus juga data kendaraannya
+        if ($kendaraan && $jumlahTransaksi == 1) {
+            $kendaraan->delete();
+        }
+
         // Update urutan id transaksi (reindex id)
         $transaksis = TransaksiKendaraan::orderBy('id')->get();
         $newId = 1;
         foreach ($transaksis as $t) {
             if ($t->id != $newId) {
-                // Update id only if different
-                TransaksiKendaraan::where('id', $t->id)->update(['id' => $newId]);
+            // Update id only if different
+            TransaksiKendaraan::where('id', $t->id)->update(['id' => $newId]);
             }
             $newId++;
         }
 
         return redirect()->route('dashboard', ['menu' => 'tkendaraan'])
-            ->with('success', 'Transaksi kendaraan berhasil dihapus.');
+            ->with('success', 'Transaksi kendaraan berhasil dihapus.' . (($kendaraan && $jumlahTransaksi == 1) ? ' Data kendaraan terkait juga dihapus.' : ''));
     }
 }

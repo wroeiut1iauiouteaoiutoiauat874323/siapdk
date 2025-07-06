@@ -20,7 +20,8 @@ class TransaksiKendaraan extends Model
         'status_pegawai',
         'waktu',
         'kode',
-        'alasan'
+        'alasan',
+        'lokasi',
     ];
 
     public function kendaraan()

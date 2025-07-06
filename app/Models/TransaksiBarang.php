@@ -20,7 +20,8 @@ class TransaksiBarang extends Model
         'status_pegawai',
         'waktu',
         'kode',
-        'alasan'
+        'alasan',
+        'lokasi',
     ];
 
     public function barang()

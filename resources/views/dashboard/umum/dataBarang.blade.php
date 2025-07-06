@@ -35,7 +35,6 @@
                                     <th scope="col" class="text-center">Kode</th>
                                     <th scope="col" class="text-center">Nama Barang</th>
                                     <th scope="col" class="text-center">Kategori</th>
-                                    <th scope="col" class="text-center">Jumlah Total</th>
                                     <th scope="col" class="text-center">Lokasi</th>
                                 </tr>
                             </thead>
@@ -46,7 +45,6 @@
                                     <td class="text-center">{{ $barang->kode }}</td>
                                     <td class="text-center">{{ $barang->namaBarang }}</td>
                                     <td class="text-center">{{ $barang->jenisBarangPersediaan }}</td>
-                                    <td class="text-center">{{ $barang->jumlahTotal }}</td>
                                     <td class="text-center">{{ $barang->lokasi }}</td>
                                 @empty
                                 <tr>

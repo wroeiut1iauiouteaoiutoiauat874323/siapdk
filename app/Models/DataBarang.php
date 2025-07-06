@@ -14,7 +14,6 @@ class DataBarang extends Model
     protected $fillable = [
         'jenisBarangPersediaan',
         'namaBarang',
-        'jumlahTotal',
         'kode',
         'lokasi'
     ];

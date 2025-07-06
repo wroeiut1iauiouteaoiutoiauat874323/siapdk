@@ -53,6 +53,16 @@
                         </select>
                     </div>
                     <div class="mb-3">
+                        <label for="kodeBarang" class="form-label">Kode Barang</label>
+                        <input list="listKodeBarang" class="form-control" id="kodeBarang" name="kode_barang" placeholder="Ketik atau pilih kode barang..." required>
+                        <datalist id="listKodeBarang">
+                            @foreach($data_barang->sortBy('kode') as $barang)
+                                <option value="{{ $barang->kode }}">{{ $barang->kode }} - {{ $barang->namaBarang }}</option>
+                            @endforeach
+                        </datalist>
+                        <small class="text-muted">Ketik kode barang atau pilih dari daftar.</small>
+                    </div>
+                    <div class="mb-3">
                         <label for="namaBarang" class="form-label">Nama Barang</label>
                         <input list="listBarang" class="form-control" id="namaBarang" name="nama_barang" placeholder="Ketik atau pilih barang..." required>
                         <datalist id="listBarang">
@@ -94,10 +104,6 @@
                             <option value="Masuk">Masuk</option>
                             <option value="Keluar">Keluar</option>
                         </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="jumlahPinjam" class="form-label">Jumlah</label>
-                        <input type="number" class="form-control" id="jumlahPinjam" name="jumlahPinjam" min="1" required>
                     </div>
                     <div class="mb-3">
                         <label for="tanggalTransaksi" class="form-label">Tanggal Transaksi</label>
@@ -153,7 +159,6 @@
                                     <th scope="col" class="text-center">Nama</th>
                                     <th scope="col" class="text-center">Status</th>
                                     <th scope="col" class="text-center">Jenis Transaksi</th>
-                                    <th scope="col" class="text-center">Jumlah</th>
                                     <th scope="col" style="width: 135px; padding-left:50px">Aksi</th>
                                 </tr>
                             </thead>
@@ -170,7 +175,6 @@
                                     <td class="text-center">{{ $transaksi->nama_pegawai }} </td>
                                     <td class="text-center">{{ $transaksi->status_pegawai }} </td>
                                     <td class="text-center">{{ $transaksi->jenisTransaksi }}</td>
-                                    <td class="text-center">{{ $transaksi->jumlahPinjam }}</td>
                                     <td>
                                     <!-- Tombol Lihat Alasan -->
                                     <button type="button" class="btn btn-info btn-sm btn-action" title="Lihat Alasan" data-bs-toggle="modal" data-bs-target="#modalAlasanTransaksi{{ $transaksi->id }}">
@@ -190,7 +194,7 @@
                                                     {{ $transaksi->alasan }}
                                                     <hr>
                                                     <strong>Lokasi:</strong><br>
-                                                    {{ $transaksi->barang->lokasi ?? '-' }}
+                                                    {{ $transaksi->transaksi->lokasi ?? '-' }}
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
@@ -259,10 +263,6 @@
                                                                 <option value="Masuk" {{ $transaksi->jenisTransaksi == 'Masuk' ? 'selected' : '' }}>Masuk</option>
                                                                 <option value="Keluar" {{ $transaksi->jenisTransaksi == 'Keluar' ? 'selected' : '' }}>Keluar</option>
                                                             </select>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="jumlahPinjam{{ $transaksi->id }}" class="form-label">Jumlah</label>
-                                                            <input type="number" class="form-control" id="jumlahPinjam{{ $transaksi->id }}" name="jumlahPinjam" value="{{ $transaksi->jumlahPinjam }}" min="1" required>
                                                         </div>
                                                         <div class="mb-3">
                                                             <label for="lokasiBarang{{ $transaksi->id }}" class="form-label">Lokasi</label>
