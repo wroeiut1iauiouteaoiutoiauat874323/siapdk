@@ -43,7 +43,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="6" class="text-center text-muted py-4">Belum ada data kendaraan.</td>
+                                    <td colspan="9" class="text-center text-muted py-4">Belum ada data kendaraan.</td>
                                 </tr>
                                 @endforelse
                                 <tr>

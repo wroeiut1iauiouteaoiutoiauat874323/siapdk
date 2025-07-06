@@ -101,6 +101,8 @@ class TransaksiBarangSeeder extends Seeder
             ->where('jenisBarangPersediaan', $jenisBarangPersediaan)
             ->first();
 
+            $lokasinya = collect(['Gedung A', 'Gedung B', 'Gedung C'])->random();
+
             if ($dataBarangBaru) {
             // Jika sudah ada, tambahkan jumlahTotal
             $dataBarangBaru->jumlahTotal += $jumlahPinjam;
@@ -112,7 +114,7 @@ class TransaksiBarangSeeder extends Seeder
                 'jenisBarangPersediaan' => $jenisBarangPersediaan,
                 'jumlahTotal' => $jumlahPinjam,
                 'kode' => 'B' . strtoupper(str_pad(base_convert(crc32(uniqid('', true) . random_int(1000, 9999)), 10, 36), 7, '0', STR_PAD_LEFT)),
-                'lokasi' => collect(['Gedung A', 'Gedung B', 'Gedung C'])->random(),
+                'lokasi' => $lokasinya
             ]);
             }
 
@@ -133,6 +135,7 @@ class TransaksiBarangSeeder extends Seeder
             'tanggal_transaksi' => now()->subDays(rand(0, 365))->subMinutes(rand(0, 1440)),
             'waktu' => now()->subDays(rand(0, 365))->subMinutes(rand(0, 1440)),
             'alasan' => fake()->sentence(),
+            'lokasi' => $lokasinya
             ]);
         }
     }

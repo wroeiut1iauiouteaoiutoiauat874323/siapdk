@@ -41,7 +41,7 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="namaPegawai" class="form-label">Nama</label>
-                            <input type="text" class="form-control" id="namaPegawai" name="nama_pegawai" required>
+                            <input type="text" class="form-control" id="namaPegawai" name="nama_pegawai" required placeholder="Masukkan nama pegawai">
                         </div>
                         <div class="mb-3">
                             <label for="statusPegawai" class="form-label">Status</label>
@@ -55,22 +55,62 @@
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label for="namaKendaraan" class="form-label">Nama Kendaraan</label>
-                            <select class="form-select" id="nama_kendaraan" name="nama_kendaraan" required>
-                                <option value="" disabled selected>Pilih kendaraan</option>
-                                @foreach($data_kendaraan->unique('namaKendaraan')->sortBy('namaKendaraan') as $kendaraan)
-                                    <option value="{{ $kendaraan->namaKendaraan }}" data-nopol="{{ $kendaraan->nomorPolisi }}">{{ $kendaraan->namaKendaraan }}</option>
+                            <label for="kode" class="form-label">Kode Kendaraan</label>
+                            <input list="listKode" class="form-control" id="kode" name="kode" placeholder="Ketik atau pilih kode..." value="{{ old('kode') }}">
+                            <datalist id="listKode">
+                                @foreach($data_kendaraan->unique('kode')->sortBy('kode') as $kendaraan)
+                                    @if($kendaraan->kode)
+                                        <option value="{{ $kendaraan->kode }}">{{ $kendaraan->kode }}</option>
+                                    @endif
                                 @endforeach
-                            </select>
+                            </datalist>
+                            <small class="text-muted">Ketik kode atau pilih dari daftar. Jika menambah kendaraan baru, biarkan kosong.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="namaKendaraan" class="form-label">Nama Kendaraan</label>
+                            <input list="listKendaraan" class="form-control" id="namaKendaraan" name="nama_kendaraan" placeholder="Ketik atau pilih kendaraan..." required>
+                            <datalist id="listKendaraan">
+                                @foreach($data_kendaraan->unique('namaKendaraan')->sortBy('namaKendaraan') as $kendaraan)
+                                    <option value="{{ $kendaraan->namaKendaraan }}">{{ $kendaraan->namaKendaraan }}</option>
+                                @endforeach
+                            </datalist>
+                            <small class="text-muted">Ketik nama kendaraan atau pilih dari daftar.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="jenisKendaraan" class="form-label">Jenis Kendaraan</label>
+                            <input list="listJenisKendaraan" class="form-control" id="jenisKendaraan" name="jenis_kendaraan" placeholder="Ketik atau pilih jenis kendaraan..." required>
+                            <datalist id="listJenisKendaraan">
+                                @foreach($data_kendaraan->unique('jenisKendaraan')->sortBy('jenisKendaraan') as $kendaraan)
+                                    @if($kendaraan->jenisKendaraan)
+                                        <option value="{{ $kendaraan->jenisKendaraan }}">{{ $kendaraan->jenisKendaraan }}</option>
+                                    @endif
+                                @endforeach
+                            </datalist>
+                            <small class="text-muted">Ketik jenis kendaraan atau pilih dari daftar.</small>
                         </div>
                         <div class="mb-3">
                             <label for="nomorPolisi" class="form-label">Nomor Polisi atau Ciri Kendaraan</label>
-                            <select class="form-select" id="nomorPolisi" name="nomor_polisi" required>
-                                <option value="{{ $kendaraan->nomorPolisi }}" disabled selected>Pilih nomor polisi</option>
-                                @foreach($data_kendaraan->sortBy('nomorPolisi') as $kendaraan)
-                                    <option value="{{ $kendaraan->nomorPolisi }}">{{ $kendaraan->nomorPolisi }}</option>
+                            <input list="listNopol" class="form-control" id="nomorPolisi" name="nomor_polisi" placeholder="Ketik atau pilih nomor polisi..." required>
+                            <datalist id="listNopol">
+                                @foreach($data_kendaraan->unique('nomorPolisi')->sortBy('nomorPolisi') as $kendaraan)
+                                    @if($kendaraan->nomorPolisi)
+                                        <option value="{{ $kendaraan->nomorPolisi }}">{{ $kendaraan->nomorPolisi }}</option>
+                                    @endif
                                 @endforeach
-                            </select>
+                            </datalist>
+                            <small class="text-muted">Ketik nomor polisi atau pilih dari daftar.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="lokasiKendaraan" class="form-label">Lokasi Kendaraan</label>
+                            <input list="listLokasi" class="form-control" id="lokasiKendaraan" name="lokasi" placeholder="Ketik atau pilih lokasi kendaraan..." required>
+                            <datalist id="listLokasi">
+                                @foreach($data_kendaraan->unique('lokasi')->sortBy('lokasi') as $kendaraan)
+                                    @if($kendaraan->lokasi)
+                                        <option value="{{ $kendaraan->lokasi }}">{{ $kendaraan->lokasi }}</option>
+                                    @endif
+                                @endforeach
+                            </datalist>
+                            <small class="text-muted">Ketik lokasi atau pilih dari daftar.</small>
                         </div>
                         <div class="mb-3">
                             <label for="jenisTransaksi" class="form-label">Jenis Transaksi</label>
@@ -90,8 +130,8 @@
                             <small class="text-muted">Format 24 jam (contoh: 14:30)</small>
                         </div>
                         <div class="mb-3">
-                            <label for="alasan" class="form-label">Alasan Transaksi</label>
-                            <textarea class="form-control" id="alasan" name="alasan" rows="3" placeholder="Masukkan alasan" required></textarea>
+                            <label for="alasan" class="form-label">Keterangan Transaksi</label>
+                            <textarea class="form-control" id="alasan" name="alasan" rows="3" placeholder="Masukkan Keterangan Transaksi" required></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -138,7 +178,7 @@
                                     <th scope="col" class="text-center">Kode Kendaraan</th>
                                     <th scope="col" class="text-center">Nama Kendaraan</th>
                                     <th scope="col" class="text-center">Jenis Kendaraan</th>
-                                    <th scope="col" class="text-center">No Polisi</th>
+                                    <th scope="col" class="text-center">No Polisi atau Ciri Kendaraan</th>
                                     <th scope="col" class="text-center">Nama</th>
                                     <th scope="col" class="text-center">Status</th>
                                     <th scope="col" class="text-center">Jenis Transaksi</th>
@@ -174,7 +214,7 @@
                                                 </div>
                                                 <div class="modal-body">
                                                     <p><strong>Keterangan:</strong> {{ $transaksi->alasan ?? 'Tidak ada keterangan yang diberikan.' }}</p>
-                                                    <p><strong>Lokasi:</strong> {{ $transaksi->kendaraan->lokasi ?? '-' }}</p>
+                                                    <p><strong>Lokasi:</strong> {{ $transaksi->lokasi ?? '-' }}</p>
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
@@ -214,31 +254,61 @@
                                                             </select>
                                                         </div>
                                                         <div class="mb-3">
-                                                            <label for="namaKendaraan{{ $transaksi->id }}" class="form-label">Nama Kendaraan</label>
-                                                            <select class="form-select" id="namaKendaraan{{ $transaksi->id }}" name="nama_kendaraan" required>
-                                                                <option value="{{ $transaksi->kendaraan->namaKendaraan ?? '' }}" selected>{{ $transaksi->kendaraan->namaKendaraan ?? '-' }}</option>
-                                                                @foreach($data_kendaraan->unique('namaKendaraan')->sortBy('namaKendaraan') as $kendaraan)
-                                                                    @if($kendaraan->namaKendaraan != ($transaksi->kendaraan->namaKendaraan ?? ''))
-                                                                        <option value="{{ $kendaraan->namaKendaraan }}">{{ $kendaraan->namaKendaraan }}</option>
+                                                            <label for="kode{{ $transaksi->id }}" class="form-label">Kode Kendaraan</label>
+                                                            <input list="listKodeEdit{{ $transaksi->id }}" class="form-control" id="kode{{ $transaksi->id }}" name="kode" value="{{ $transaksi->kendaraan->kode ?? '' }}" placeholder="Ketik atau pilih kode..." disabled>
+                                                            <datalist id="listKodeEdit{{ $transaksi->id }}">
+                                                                @foreach($data_kendaraan->unique('kode')->sortBy('kode') as $kendaraan)
+                                                                    @if($kendaraan->kode)
+                                                                        <option value="{{ $kendaraan->kode }}">{{ $kendaraan->kode }}</option>
                                                                     @endif
                                                                 @endforeach
-                                                            </select>
+                                                            </datalist>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="namaKendaraan{{ $transaksi->id }}" class="form-label">Nama Kendaraan</label>
+                                                            <input list="listKendaraanEdit{{ $transaksi->id }}" class="form-control" id="namaKendaraan{{ $transaksi->id }}" name="nama_kendaraan" value="{{ $transaksi->kendaraan->namaKendaraan ?? '' }}" placeholder="Ketik atau pilih kendaraan..." required disabled>
+                                                            <datalist id="listKendaraanEdit{{ $transaksi->id }}">
+                                                                @foreach($data_kendaraan->unique('namaKendaraan')->sortBy('namaKendaraan') as $kendaraan)
+                                                                    <option value="{{ $kendaraan->namaKendaraan }}">{{ $kendaraan->namaKendaraan }}</option>
+                                                                @endforeach
+                                                            </datalist>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="jenisKendaraan{{ $transaksi->id }}" class="form-label">Jenis Kendaraan</label>
+                                                            <input list="listJenisKendaraanEdit{{ $transaksi->id }}" class="form-control" id="jenisKendaraan{{ $transaksi->id }}" name="jenis_kendaraan" value="{{ $transaksi->kendaraan->jenisKendaraan ?? '' }}" placeholder="Ketik atau pilih jenis kendaraan..." required disabled>
+                                                            <datalist id="listJenisKendaraanEdit{{ $transaksi->id }}">
+                                                                @foreach($data_kendaraan->unique('jenisKendaraan')->sortBy('jenisKendaraan') as $kendaraan)
+                                                                    @if($kendaraan->jenisKendaraan)
+                                                                        <option value="{{ $kendaraan->jenisKendaraan }}">{{ $kendaraan->jenisKendaraan }}</option>
+                                                                    @endif
+                                                                @endforeach
+                                                            </datalist>
                                                         </div>
                                                         <div class="mb-3">
                                                             <label for="nomorPolisi{{ $transaksi->id }}" class="form-label">Nomor Polisi atau Ciri Kendaraan</label>
-                                                            <select class="form-select" id="nomorPolisi{{ $transaksi->id }}" name="nomor_polisi" required>
-                                                                <option value="{{ $transaksi->kendaraan->nomorPolisi ?? '' }}" selected>{{ $transaksi->kendaraan->nomorPolisi ?? '-' }}</option>
-                                                                @foreach($data_kendaraan->sortBy('nomorPolisi') as $kendaraan)
-                                                                    @if($kendaraan->nomorPolisi != ($transaksi->kendaraan->nomorPolisi ?? ''))
+                                                            <input list="listNopolEdit{{ $transaksi->id }}" class="form-control" id="nomorPolisi{{ $transaksi->id }}" name="nomor_polisi" value="{{ $transaksi->kendaraan->nomorPolisi ?? '' }}" placeholder="Ketik atau pilih nomor polisi..." required disabled>
+                                                            <datalist id="listNopolEdit{{ $transaksi->id }}">
+                                                                @foreach($data_kendaraan->unique('nomorPolisi')->sortBy('nomorPolisi') as $kendaraan)
+                                                                    @if($kendaraan->nomorPolisi)
                                                                         <option value="{{ $kendaraan->nomorPolisi }}">{{ $kendaraan->nomorPolisi }}</option>
                                                                     @endif
                                                                 @endforeach
-                                                            </select>
+                                                            </datalist>
                                                         </div>
-
+                                                        <div class="mb-3">
+                                                            <label for="lokasiKendaraan{{ $transaksi->id }}" class="form-label">Lokasi Kendaraan</label>
+                                                            <input list="listLokasiEdit{{ $transaksi->id }}" class="form-control" id="lokasiKendaraan{{ $transaksi->id }}" name="lokasi" value="{{ $transaksi->lokasi ?? '' }}" placeholder="Ketik atau pilih lokasi kendaraan..." required>
+                                                            <datalist id="listLokasiEdit{{ $transaksi->id }}">
+                                                                @foreach($data_kendaraan->unique('lokasi')->sortBy('lokasi') as $kendaraan)
+                                                                    @if($kendaraan->lokasi)
+                                                                        <option value="{{ $kendaraan->lokasi }}">{{ $kendaraan->lokasi }}</option>
+                                                                    @endif
+                                                                @endforeach
+                                                            </datalist>
+                                                        </div>
                                                         <div class="mb-3">
                                                             <label for="jenisTransaksi{{ $transaksi->id }}" class="form-label">Jenis Transaksi</label>
-                                                            <select class="form-select" id="jenisTransaksi{{ $transaksi->id }}" name="jenisTransaksi" required>
+                                                            <select class="form-select" id="jenisTransaksi{{ $transaksi->id }}" name="jenisTransaksi" required disabled>
                                                                 <option value="" disabled {{ !$transaksi->jenisTransaksi ? 'selected' : '' }}>Pilih jenis transaksi</option>
                                                                 <option value="Keluar" {{ $transaksi->jenisTransaksi == 'Keluar' ? 'selected' : '' }}>Keluar</option>
                                                                 <option value="Masuk" {{ $transaksi->jenisTransaksi == 'Masuk' ? 'selected' : '' }}>Masuk</option>
@@ -254,7 +324,7 @@
                                                             <small class="text-muted">Format 24 jam (contoh: 14:30)</small>
                                                         </div>
                                                         <div class="mb-3">
-                                                            <label for="alasan{{ $transaksi->id }}" class="form-label">Alasan Transaksi</label>
+                                                            <label for="alasan{{ $transaksi->id }}" class="form-label">Keterangan Transaksi</label>
                                                             <textarea class="form-control" id="alasan{{ $transaksi->id }}" name="alasan" rows="3" required>{{ $transaksi->alasan }}</textarea>
                                                         </div>
                                                     </div>
@@ -277,7 +347,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="9" class="text-center text-muted py-4">Belum ada data transaksi kendaraan.</td>
+                                    <td colspan="12" class="text-center text-muted py-4">Belum ada data transaksi kendaraan.</td>
                                 </tr>
                                 @endforelse
                                 <tr>

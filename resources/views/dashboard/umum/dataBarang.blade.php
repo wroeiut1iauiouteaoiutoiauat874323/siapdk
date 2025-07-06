@@ -50,7 +50,7 @@
                                     <td class="text-center">{{ $barang->lokasi }}</td>
                                 @empty
                                 <tr>
-                                    <td colspan="6" class="text-center text-muted py-4">Belum ada data barang.</td>
+                                    <td colspan="9" class="text-center text-muted py-4">Belum ada data barang.</td>
                                 </tr>
                                 @endforelse
                                 <tr>

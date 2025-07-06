@@ -59,26 +59,29 @@ class prosesController extends Controller
         $validator = Validator::make($request->all(), [
             'nama_pegawai' => 'required|string|max:255',
             'status_pegawai' => 'required|string|max:100',
-            'nama_barang' => 'required',
+            'nama_barang' => 'required|string|max:255',
+            'jenisBarangPersediaan' => 'required|string|max:100',
             'jenisTransaksi' => 'required|in:Masuk,Keluar',
             'jumlahPinjam' => 'required|integer|min:1',
             'tanggal_transaksi' => 'required|date',
+            'waktu_transaksi' => 'nullable|date_format:H:i:s',
+            'alasan' => 'nullable|string|max:255',
+            'lokasiBarang' => 'required|string|max:100',
         ], [
             'nama_pegawai.required' => 'Nama pegawai wajib diisi.',
             'status_pegawai.required' => 'Status pegawai wajib diisi.',
             'nama_barang.required' => 'Nama barang wajib dipilih.',
+            'jenisBarangPersediaan.required' => 'Kategori barang wajib dipilih.',
             'jenisTransaksi.required' => 'Jenis transaksi wajib dipilih.',
+            'jenisTransaksi.in' => 'Jenis transaksi harus Masuk atau Keluar.',
             'jumlahPinjam.required' => 'Jumlah wajib diisi.',
             'jumlahPinjam.integer' => 'Jumlah harus berupa angka.',
             'jumlahPinjam.min' => 'Jumlah minimal 1.',
             'tanggal_transaksi.required' => 'Tanggal transaksi wajib diisi.',
             'tanggal_transaksi.date' => 'Tanggal transaksi tidak valid.',
+            'waktu_transaksi.date_format' => 'Format waktu tidak valid (H:i:s).',
+            'lokasiBarang.required' => 'Lokasi barang wajib diisi.',
         ]);
-
-        // Tambahan validasi agar jumlahPinjam tidak boleh minus
-        if ($request->jumlahPinjam < 1) {
-            return back()->withErrors(['jumlahPinjam' => 'Jumlah tidak boleh kurang dari 1.'])->withInput();
-        }
 
         if ($validator->fails()) {
             return back()->withErrors($validator)->withInput();
@@ -154,17 +157,25 @@ class prosesController extends Controller
             'jenisTransaksi' => 'required|in:Masuk,Keluar',
             'jumlahPinjam' => 'required|integer|min:1',
             'tanggal_transaksi' => 'required|date',
+            'waktu_transaksi' => 'nullable|date_format:H:i:s',
+            'alasan' => 'nullable|string|max:255',
+            'lokasi' => 'required|string|max:100',
         ], [
             'nama_pegawai.required' => 'Nama pegawai wajib diisi.',
             'status_pegawai.required' => 'Status pegawai wajib diisi.',
             'nama_barang.required' => 'Nama barang wajib dipilih.',
             'jenisBarangPersediaan.required' => 'Kategori barang wajib dipilih.',
             'jenisTransaksi.required' => 'Jenis transaksi wajib dipilih.',
+            'jenisTransaksi.in' => 'Jenis transaksi harus Masuk atau Keluar.',
             'jumlahPinjam.required' => 'Jumlah wajib diisi.',
             'jumlahPinjam.integer' => 'Jumlah harus berupa angka.',
             'jumlahPinjam.min' => 'Jumlah minimal 1.',
             'tanggal_transaksi.required' => 'Tanggal transaksi wajib diisi.',
             'tanggal_transaksi.date' => 'Tanggal transaksi tidak valid.',
+            'waktu_transaksi.date_format' => 'Format waktu tidak valid (H:i:s).',
+            'lokasi.required' => 'Lokasi barang wajib diisi.',
+            'lokasi.string' => 'Lokasi barang harus berupa teks.',
+            'lokasi.max' => 'Lokasi barang maksimal 100 karakter.',
         ]);
 
         if ($validator->fails()) {
@@ -271,70 +282,93 @@ class prosesController extends Controller
     public function transaksi_kendaraan_store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'nama_pegawai' => 'required|string|max:255',
-            'status_pegawai' => 'required|string|max:100',
-            'nama_kendaraan' => 'required',
-            'jenisTransaksi' => 'required|in:Masuk,Keluar',
+            'nama_pegawai'      => 'required|string|max:255',
+            'status_pegawai'    => 'required|string|max:100',
+            'nama_kendaraan'    => 'required|string|max:255',
+            'nomor_polisi'      => 'required|string|max:50',
+            'jenis_kendaraan'   => 'required|string|max:100',
+            'lokasi'            => 'required|string|max:100',
+            'jenisTransaksi'    => 'required|in:Masuk,Keluar',
             'tanggal_transaksi' => 'required|date',
+            // 'waktu_transaksi' optional
+            // 'alasan' optional
         ], [
-            'nama_pegawai.required' => 'Nama pegawai wajib diisi.',
-            'status_pegawai.required' => 'Status pegawai wajib diisi.',
-            'nama_kendaraan.required' => 'Nama kendaraan wajib dipilih.',
-            'nama_kendaraan.exists' => 'Kendaraan yang dipilih tidak ditemukan.',
-            'jenisTransaksi.required' => 'Jenis transaksi wajib dipilih.',
-            'jumlahPinjam.required' => 'Jumlah wajib diisi.',
-            'jumlahPinjam.integer' => 'Jumlah harus berupa angka.',
-            'jumlahPinjam.min' => 'Jumlah minimal 1.',
+            'nama_pegawai.required'      => 'Nama pegawai wajib diisi.',
+            'nama_pegawai.string'        => 'Nama pegawai harus berupa teks.',
+            'nama_pegawai.max'           => 'Nama pegawai maksimal 255 karakter.',
+            'status_pegawai.required'    => 'Status pegawai wajib diisi.',
+            'status_pegawai.string'      => 'Status pegawai harus berupa teks.',
+            'status_pegawai.max'         => 'Status pegawai maksimal 100 karakter.',
+            'nama_kendaraan.required'    => 'Nama kendaraan wajib diisi.',
+            'nama_kendaraan.string'      => 'Nama kendaraan harus berupa teks.',
+            'nama_kendaraan.max'         => 'Nama kendaraan maksimal 255 karakter.',
+            'nomor_polisi.required'      => 'Nomor polisi wajib diisi.',
+            'nomor_polisi.string'        => 'Nomor polisi harus berupa teks.',
+            'nomor_polisi.max'           => 'Nomor polisi maksimal 50 karakter.',
+            'jenis_kendaraan.required'   => 'Jenis kendaraan wajib diisi.',
+            'jenis_kendaraan.string'     => 'Jenis kendaraan harus berupa teks.',
+            'jenis_kendaraan.max'        => 'Jenis kendaraan maksimal 100 karakter.',
+            'lokasi.required'            => 'Lokasi kendaraan wajib diisi.',
+            'lokasi.string'              => 'Lokasi kendaraan harus berupa teks.',
+            'lokasi.max'                 => 'Lokasi kendaraan maksimal 100 karakter.',
+            'jenisTransaksi.required'    => 'Jenis transaksi wajib dipilih.',
+            'jenisTransaksi.in'          => 'Jenis transaksi harus Masuk atau Keluar.',
             'tanggal_transaksi.required' => 'Tanggal transaksi wajib diisi.',
-            'tanggal_transaksi.date' => 'Tanggal transaksi tidak valid.',
+            'tanggal_transaksi.date'     => 'Tanggal transaksi tidak valid.',
         ]);
 
         if ($validator->fails()) {
             return back()->withErrors($validator)->withInput();
         }
 
-        // Ambil idDataKendaraan berdasarkan namaKendaraan dan nomorPolisi
-        $kendaraan = DataKendaraan::where('namaKendaraan', $request->nama_kendaraan)
-            ->where('nomorPolisi', $request->nomor_polisi)
-            ->first();
-
-        if (!$kendaraan) {
-            return back()->withErrors(['nama_kendaraan' => 'Kendaraan atau plat nomor tidak sinkron.'])->withInput();
-        }
-
-        // Logika validasi status kendaraan sesuai jenis transaksi
-        if (strtolower($request->jenisTransaksi) === 'keluar') {
-            // Jika ingin meminjam, kendaraan harus tersedia
-            if ($kendaraan->status !== 'Tersedia') {
-            return back()->withErrors(['nama_kendaraan' => 'Kendaraan tidak tersedia untuk dipinjam.'])->withInput();
+        if ($request->filled('kode')) {
+            $kendaraan = DataKendaraan::where('kode', $request->kode)->first();
+            if (strtolower($request->jenisTransaksi) === 'masuk') {
+                if ($kendaraan) {
+                    if ($kendaraan->status === 'Tersedia') {
+                        return back()->withErrors(['nama_kendaraan' => 'Kendaraan sudah tersedia, Mohon Periksa Kembali.'])->withInput();
+                    }
+                    // Jika transaksi masuk dan ada kode, ubah status jadi Tersedia
+                    $kendaraan->status = 'Tersedia';
+                    $kendaraan->lokasi = $request->lokasi;
+                    $kendaraan->save();
+                } else {
+                    // Jika transaksi masuk dan tidak ada kode, tambah data baru
+                    $kendaraan = new DataKendaraan();
+                    $kendaraan->namaKendaraan = $request->nama_kendaraan;
+                    $kendaraan->nomorPolisi = $request->nomor_polisi;
+                    $kendaraan->jenisKendaraan = $request->jenis_kendaraan;
+                    $kendaraan->status = 'Tersedia';
+                    $kendaraan->lokasi = $request->lokasi;
+                    // Membuat kode unik base36 dengan panjang 7 digit, diawali huruf 'K', dan memastikan tidak kembar
+                    do {
+                        $unique = uniqid('', true) . random_int(1000, 9999);
+                        $kodeBase36 = strtoupper(str_pad(base_convert(crc32($unique), 10, 36), 7, '0', STR_PAD_LEFT));
+                        $kode = 'K' . $kodeBase36;
+                    } while (DataKendaraan::where('kode', $kode)->exists());
+                    $kendaraan->kode = $kode;
+                    $kendaraan->save();
+                }
+            } elseif (strtolower($request->jenisTransaksi) === 'keluar') {
+                if (!$kendaraan) {
+                    return back()->withErrors(['kode' => 'Kode kendaraan tidak ditemukan untuk transaksi keluar.'])->withInput();
+                }
+                if ($kendaraan->status === 'Tidak Tersedia') {
+                    return back()->withErrors(['nama_kendaraan' => 'Kendaraan tidak tersedia, Mohon Periksa Kembali.'])->withInput();
+                }
+                // Jika transaksi keluar, ubah status jadi Tidak Tersedia
+                $kendaraan->status = 'Tidak Tersedia';
+                $kendaraan->save();
             }
-        } elseif (strtolower($request->jenisTransaksi) === 'masuk') {
-            // Jika ingin mengembalikan, kendaraan harus tidak tersedia
-            if ($kendaraan->status === 'Tersedia') {
-            return back()->withErrors(['nama_kendaraan' => 'Kendaraan sudah tersedia, tidak perlu dikembalikan.'])->withInput();
-            }
         }
 
-        // Validasi apakah data kendaraan ditemukan
-        if (!$kendaraan) {
-            return back()->withErrors(['nama_kendaraan' => 'Data kendaraan tidak ditemukan atau tidak sesuai.'])->withInput();
-        }
-        // Jika ingin meminjam, kendaraan harus tersedia
-        if ($kendaraan->keterangan !== 'Ada') {
-        return back()->withErrors(['nama_kendaraan' => 'Kendaraan tidak tersedia untuk dipinjam.'])->withInput();
-        }
-        // Membuat kode unik base36 dengan panjang 12 digit, diawali huruf 'TK', dan memastikan tidak kembar
-        $usedCodes = [];
-        function generateKodeUnik12($usedCodes, $prefix = 'TK', $length = 12) {
-            do {
+
+
+        // Membuat kode unik transaksi kendaraan, format: TK + 12 digit acak base36, pastikan unik
+        do {
             $unique = uniqid('', true) . random_int(1000, 9999);
-            $kodeBase36 = strtoupper(str_pad(base_convert(crc32($unique), 10, 36), $length, '0', STR_PAD_LEFT));
-            $kode = $prefix . $kodeBase36;
-            } while (in_array($kode, $usedCodes));
-            return $kode;
-        }
-
-        $kode = generateKodeUnik12($usedCodes);
+            $kodeTransaksi = 'TK' . strtoupper(str_pad(base_convert(crc32($unique), 10, 36), 12, '0', STR_PAD_LEFT));
+        } while (TransaksiKendaraan::where('kode', $kodeTransaksi)->exists());
 
         $transaksi = new TransaksiKendaraan();
         $transaksi->nama_pegawai = $request->nama_pegawai;
@@ -342,24 +376,19 @@ class prosesController extends Controller
         $transaksi->idDataKendaraan = $kendaraan->id;
         $transaksi->jenisTransaksi = $request->jenisTransaksi;
         $transaksi->tanggal_transaksi = $request->tanggal_transaksi;
-        $transaksi->kode = $kode;
-        $transaksi->alasan = $request->alasan ?? null; // Jika alasan tidak diisi, set null
-        // Jika ada waktu transaksi, simpan juga
-        if ($request->filled('waktu_transaksi')) {
-            $transaksi->waktu = $request->waktu_transaksi;
-        } else {
-            $transaksi->waktu = Carbon::now()->format('H:i:s'); // Atau bisa diisi dengan waktu sekarang
-        }
+        $transaksi->kode = $kodeTransaksi;
+        $transaksi->lokasi = $request->lokasi;
+        $transaksi->alasan = $request->alasan ?? null;
+        $transaksi->waktu = $request->filled('waktu_transaksi') ? $request->waktu_transaksi : Carbon::now()->format('H:i:s');
         $transaksi->save();
 
         // Update status kendaraan
         if (strtolower($request->jenisTransaksi) === 'keluar') {
             $kendaraan->status = 'Tidak Tersedia';
-            $kendaraan->save();
         } elseif (strtolower($request->jenisTransaksi) === 'masuk') {
             $kendaraan->status = 'Tersedia';
-            $kendaraan->save();
         }
+        $kendaraan->save();
 
         return redirect()->route('dashboard', ['menu' => 'tkendaraan'])
             ->with('success', 'Transaksi kendaraan berhasil disimpan.');
@@ -368,18 +397,10 @@ class prosesController extends Controller
     public function transaksi_kendaraan_edit(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'nama_pegawai' => 'required|string|max:255',
-            'status_pegawai' => 'required|string|max:100',
-            'nama_kendaraan' => 'required',
-            'jenisTransaksi' => 'required|in:Masuk,Keluar',
+            'nama_pegawai'      => 'required|string|max:255',
+            'status_pegawai'    => 'required|string|max:100',
+            'lokasi'            => 'required|string|max:100',
             'tanggal_transaksi' => 'required|date',
-        ], [
-            'nama_pegawai.required' => 'Nama pegawai wajib diisi.',
-            'status_pegawai.required' => 'Status pegawai wajib diisi.',
-            'nama_kendaraan.required' => 'Nama kendaraan wajib dipilih.',
-            'jenisTransaksi.required' => 'Jenis transaksi wajib dipilih.',
-            'tanggal_transaksi.required' => 'Tanggal transaksi wajib diisi.',
-            'tanggal_transaksi.date' => 'Tanggal transaksi tidak valid.',
         ]);
 
         if ($validator->fails()) {
@@ -387,52 +408,36 @@ class prosesController extends Controller
         }
 
         $transaksi = TransaksiKendaraan::findOrFail($id);
+        $kendaraan = DataKendaraan::findOrFail($transaksi->idDataKendaraan);
 
-        // Ambil kendaraan lama dan barug
-        $kendaraanLama = DataKendaraan::find($transaksi->idDataKendaraan);
-        $kendaraanBaru = DataKendaraan::where('namaKendaraan', $request->nama_kendaraan)
-            ->where('nomorPolisi', $request->nomor_polisi)
-            ->first();
-
-        if (!$kendaraanBaru) {
-            return back()->withErrors(['nama_kendaraan' => 'Kendaraan atau plat nomor tidak sinkron.'])->withInput();
-        }
-
-        // Jika kendaraan diganti, kembalikan status kendaraan lama
-        if ($kendaraanLama && $kendaraanLama->id !== $kendaraanBaru->id) {
-            if ($transaksi->jenisTransaksi === 'Keluar') {
-                $kendaraanLama->status = 'Tersedia';
-            } elseif ($transaksi->jenisTransaksi === 'Masuk') {
-                $kendaraanLama->status = 'Tidak Tersedia';
+        // Jika jenis transaksi diubah
+        if (strtolower($transaksi->jenisTransaksi) !== strtolower($request->jenisTransaksi)) {
+            if (strtolower($request->jenisTransaksi) === 'keluar') {
+                if ($kendaraan->status === 'Tidak Tersedia') {
+                    return back()->withErrors(['nama_kendaraan' => 'Kendaraan tidak tersedia, Mohon Periksa Kembali.'])->withInput();
+                }
+                $kendaraan->status = 'Tidak Tersedia';
+            } elseif (strtolower($request->jenisTransaksi) === 'masuk') {
+                if ($kendaraan->status === 'Tersedia') {
+                    return back()->withErrors(['nama_kendaraan' => 'Kendaraan sudah tersedia, Mohon Periksa Kembali.'])->withInput();
+                }
+                $kendaraan->status = 'Tersedia';
+                $kendaraan->lokasi = $request->lokasi;
             }
-            $kendaraanLama->save();
+            $kendaraan->save();
         }
+
+        $kendaraan->lokasi = $request->lokasi;
+        $kendaraan->save();
 
         // Update data transaksi
         $transaksi->nama_pegawai = $request->nama_pegawai;
         $transaksi->status_pegawai = $request->status_pegawai;
-        $transaksi->idDataKendaraan = $kendaraanBaru->id;
-        $transaksi->jenisTransaksi = $request->jenisTransaksi;
         $transaksi->tanggal_transaksi = $request->tanggal_transaksi;
-        if ($request->filled('waktu_transaksi')) {
-            $transaksi->waktu = $request->waktu_transaksi;
-        } else {
-            $transaksi->waktu = Carbon::now()->format('H:i:s');
-        }
-        if ($request->filled('alasan')) {
-            $transaksi->alasan = $request->alasan;
-        } else {
-            $transaksi->alasan = null;
-        }
+        $transaksi->alasan = $request->alasan ?? null;
+        $transaksi->lokasi = $request->lokasi;
+        $transaksi->waktu = $request->filled('waktu_transaksi') ? $request->waktu_transaksi : $transaksi->waktu;
         $transaksi->save();
-
-        // Update status kendaraan baru
-        if (strtolower($request->jenisTransaksi) === 'keluar') {
-            $kendaraanBaru->status = 'Tidak Tersedia';
-        } elseif (strtolower($request->jenisTransaksi) === 'masuk') {
-            $kendaraanBaru->status = 'Tersedia';
-        }
-        $kendaraanBaru->save();
 
         return redirect()->route('dashboard', ['menu' => 'tkendaraan'])
             ->with('success', 'Transaksi kendaraan berhasil diperbarui.');

@@ -39,7 +39,7 @@
                     <div class="modal-body">
                         <div class="mb-3">
                         <label for="namaPegawai" class="form-label">Nama</label>
-                        <input type="text" class="form-control" id="namaPegawai" name="nama_pegawai" required>
+                        <input type="text" class="form-control" id="namaPegawai" name="nama_pegawai" required placeholder="Masukkan nama pegawai">
                     </div>
                     <div class="mb-3">
                         <label for="statusPegawai" class="form-label">Status</label>
@@ -74,6 +74,19 @@
                         </datalist>
                         <small class="text-muted">Ketik kategori atau pilih dari daftar.</small>
                     </div>
+
+                    <div class="mb-3">
+                        <label for="lokasiBarang" class="form-label">Lokasi</label>
+                        <input list="listLokasi" class="form-control" id="lokasiBarang" name="lokasiBarang" placeholder="Ketik atau pilih lokasi..." required>
+                        <datalist id="listLokasi">
+                            @foreach($data_barang->unique('lokasi')->sortBy('lokasi') as $barang)
+                                @if($barang->lokasi)
+                                    <option value="{{ $barang->lokasi }}">{{ $barang->lokasi }}</option>
+                                @endif
+                            @endforeach
+                        </datalist>
+                        <small class="text-muted">Ketik lokasi atau pilih dari daftar.</small>
+                    </div>
                     <div class="mb-3">
                         <label for="jenisTransaksi" class="form-label">Jenis Transaksi</label>
                         <select class="form-select" id="jenisTransaksi" name="jenisTransaksi" required>
@@ -87,11 +100,6 @@
                         <input type="number" class="form-control" id="jumlahPinjam" name="jumlahPinjam" min="1" required>
                     </div>
                     <div class="mb-3">
-                        <label for="lokasiBarang" class="form-label">Lokasi</label>
-                        <input type="text" class="form-control" id="lokasiBarang" name="lokasiBarang" required>
-                        <small class="text-muted">Masukkan lokasi barang.</small>
-                    </div>
-                    <div class="mb-3">
                         <label for="tanggalTransaksi" class="form-label">Tanggal Transaksi</label>
                         <input type="date" class="form-control" id="tanggalTransaksi" name="tanggal_transaksi" required>
                     </div>
@@ -101,8 +109,8 @@
                         <small class="text-muted">Format 24 jam (contoh: 14:30)</small>
                     </div>
                     <div class="mb-3">
-                        <label for="alasanTransaksi" class="form-label">Keterangan</label>
-                        <textarea class="form-control" id="alasanTransaksi" name="alasan" rows="2" required></textarea>
+                        <label for="alasanTransaksi" class="form-label">Keterangan Transaksi</label>
+                        <textarea class="form-control" id="alasanTransaksi" name="alasan" rows="2" placeholder="Masukkan Keterangan Transaksi" required></textarea>
                     </div>
                     </div>
                     <div class="modal-footer">
@@ -294,7 +302,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="6" class="text-center text-muted py-4">Belum ada data transaksi.</td>
+                                    <td colspan="12" class="text-center text-muted py-4">Belum ada data transaksi.</td>
                                 </tr>
                                 @endforelse
                                 <tr>
