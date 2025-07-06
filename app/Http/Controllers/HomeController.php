@@ -114,7 +114,9 @@ class HomeController extends Controller
                                 $query->whereHas('kendaraan', function ($q) use ($key) {
                                     $q->where('namaKendaraan', 'like', '%' . $key . '%')
                                       ->orWhere('jenisKendaraan', 'like', '%' . $key . '%')
-                                      ->orWhere('nomorPolisi', 'like', '%' . $key . '%');
+                                      ->orWhere('nomorPolisi', 'like', '%' . $key . '%')
+                                      ->orWhere('kode', 'like', '%' . $key . '%')
+                                      ->orWhere('lokasi', 'like', '%' . $key . '%');
                                 })
                                 ->orWhere('kode', 'like', '%' . $key . '%')
                                 ->orWhere('nama_pegawai', 'like', "%{$key}%");

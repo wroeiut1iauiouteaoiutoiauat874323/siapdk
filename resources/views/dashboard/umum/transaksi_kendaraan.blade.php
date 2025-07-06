@@ -132,9 +132,10 @@
                             <thead>
                                 <tr>
                                     <th scope="col" class="text-center">No</th>
-                                    <th scope="col" class="text-center">Kode</th>
+                                    <th scope="col" class="text-center">Kode Transaksi</th>
                                     <th scope="col" class="text-center">Tanggal Transaksi</th>
                                     <th scope="col" class="text-center">Waktu</th>
+                                    <th scope="col" class="text-center">Kode Kendaraan</th>
                                     <th scope="col" class="text-center">Nama Kendaraan</th>
                                     <th scope="col" class="text-center">Jenis Kendaraan</th>
                                     <th scope="col" class="text-center">No Polisi</th>
@@ -151,6 +152,7 @@
                                     <td class="text-center">{{ $transaksi->kode }}</td>
                                     <td class="text-center">{{ $transaksi->tanggal_transaksi }}</td>
                                     <td class="text-center">{{ $transaksi->waktu }}</td>
+                                    <td class="text-center">{{ $transaksi->kendaraan->kode ?? '-' }}</td>
                                     <td class="text-center">{{ $transaksi->kendaraan->namaKendaraan ?? '-' }}</td>
                                     <td class="text-center">{{ $transaksi->kendaraan->jenisKendaraan ?? '-' }}</td>
                                     <td class="text-center">{{ $transaksi->kendaraan->nomorPolisi ?? '-' }}</td>
@@ -162,16 +164,17 @@
                                     <button type="button" class="btn btn-info btn-sm btn-action" title="Lihat Alasan" data-bs-toggle="modal" data-bs-target="#modalAlasanTransaksi{{ $transaksi->id }}">
                                         <i class="bi bi-info-circle"></i>
                                     </button>
-                                    <!-- Modal Alasan Transaksi -->
+                                    <!-- Modal Keterangan Transaksi -->
                                     <div class="modal fade" id="modalAlasanTransaksi{{ $transaksi->id }}" tabindex="-1" aria-labelledby="modalAlasanTransaksiLabel{{ $transaksi->id }}" aria-hidden="true">
                                         <div class="modal-dialog">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title" id="modalAlasanTransaksiLabel{{ $transaksi->id }}">Alasan Transaksi</h5>
+                                                    <h5 class="modal-title" id="modalAlasanTransaksiLabel{{ $transaksi->id }}">Keterangan Transaksi</h5>
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    <p>{{ $transaksi->alasan ?? 'Tidak ada alasan yang diberikan.' }}</p>
+                                                    <p><strong>Keterangan:</strong> {{ $transaksi->alasan ?? 'Tidak ada keterangan yang diberikan.' }}</p>
+                                                    <p><strong>Lokasi:</strong> {{ $transaksi->kendaraan->lokasi ?? '-' }}</p>
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
