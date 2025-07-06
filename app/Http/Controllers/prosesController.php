@@ -53,240 +53,6 @@ class prosesController extends Controller
 
     }
 
-    public function data_barang_store(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'namaBarang' => 'required|string|max:255',
-            'jenisBarangPersediaan' => 'required|string|max:100',
-            'jumlahTotal' => 'required|integer|min:1',
-        ], [
-            'namaBarang.required' => 'Nama barang wajib diisi.',
-            'jenisBarangPersediaan.required' => 'Kategori wajib diisi.',
-            'jumlahTotal.required' => 'Jumlah total wajib diisi.',
-            'jumlahTotal.integer' => 'Jumlah total harus berupa angka.',
-            'jumlahTotal.min' => 'Jumlah total minimal 1.',
-        ]);
-
-        if ($validator->fails()) {
-            return back()->withErrors($validator)->withInput();
-        }
-
-        // Cek apakah nama barang dan kategori sudah ada
-        $exists = DataBarang::where('namaBarang', $request->namaBarang)
-            ->where('jenisBarangPersediaan', $request->jenisBarangPersediaan)
-            ->exists();
-
-        if ($exists) {
-            return back()->withErrors(['namaBarang' => 'Nama barang dengan kategori tersebut sudah ada.'])->withInput();
-        }
-
-        $barang = new DataBarang();
-        $barang->namaBarang = $request->namaBarang;
-        $barang->jenisBarangPersediaan = $request->jenisBarangPersediaan;
-        $barang->jumlahTotal = $request->jumlahTotal;
-        $barang->jumlahTersedia = $request->jumlahTotal;
-        // Membuat kode unik base36 dengan panjang 7 digit, diawali huruf 'B', dan memastikan tidak kembar
-        do {
-            $unique = uniqid('', true) . random_int(1000, 9999);
-            $kodeBase36 = strtoupper(str_pad(base_convert(crc32($unique), 10, 36), 7, '0', STR_PAD_LEFT));
-            $kode = 'B' . $kodeBase36;
-        } while (DataBarang::where('kode', $kode)->exists());
-        $barang->kode = $kode;
-        $barang->save();
-        return redirect()->route('dashboard', ['menu' => 'barang'])
-            ->with('success', 'Data barang berhasil disimpan.');
-    }
-
-
-    public function data_barang_edit(Request $request, $id)
-    {
-        $validator = Validator::make($request->all(), [
-            'namaBarang' => 'required|string|max:255',
-            'jenisBarangPersediaan' => 'required|string|max:100',
-            'jumlahTotal' => 'required|integer|min:1',
-        ], [
-            'namaBarang.required' => 'Nama barang wajib diisi.',
-            'jenisBarangPersediaan.required' => 'Kategori wajib diisi.',
-            'jumlahTotal.required' => 'Jumlah total wajib diisi.',
-            'jumlahTotal.integer' => 'Jumlah total harus berupa angka.',
-            'jumlahTotal.min' => 'Jumlah total minimal 1.',
-        ]);
-        if ($validator->fails()) {
-            return back()->withErrors($validator)->withInput();
-        }
-
-        $barang = DataBarang::findOrFail($id);
-        $jumlahTotalLama = $barang->jumlahTotal;
-        $jumlahTersediaLama = $barang->jumlahTersedia;
-        $jumlahTotalBaru = $request->jumlahTotal;
-
-        // Hitung selisih perubahan total
-        $selisih = $jumlahTotalBaru - $jumlahTotalLama;
-
-        // Jika dikurangi, pastikan jumlahTersedia tidak lebih besar dari jumlahTotal baru
-        if ($selisih < 0) {
-            // Jika pengurangan menyebabkan jumlah tersedia menjadi 0, error
-            if ($jumlahTersediaLama + $selisih <= 0) {
-            return back()->withErrors(['jumlahTotal' => 'Jumlah total tidak boleh dikurangi sehingga barang tersedia menjadi 0 atau kurang.'])->withInput();
-            }
-        }
-
-        // Update jumlahTersedia sesuai perubahan jumlahTotal
-        $barang->jumlahTotal = $jumlahTotalBaru;
-        $barang->namaBarang = $request->namaBarang;
-        $barang->jenisBarangPersediaan = $request->jenisBarangPersediaan;
-
-        // Jika jumlahTotal bertambah, tambahkan ke jumlahTersedia
-        if ($selisih > 0) {
-            $barang->jumlahTersedia += $selisih;
-        }
-        // Jika jumlahTotal berkurang, kurangi jumlahTersedia dengan selisih
-        elseif ($selisih < 0) {
-            $barang->jumlahTersedia += $selisih; // selisih negatif, jadi mengurangi
-            if ($barang->jumlahTersedia < 0) {
-            $barang->jumlahTersedia = 0;
-            }
-        }
-
-        $barang->save();
-
-        return redirect()->route('dashboard', ['menu' => 'barang'])
-            ->with('success', 'Data barang berhasil diperbarui.');
-    }
-
-    public function data_barang_destroy($id)
-    {
-        // Cek apakah barang sudah digunakan di transaksi
-        $transaksiCount = TransaksiBarang::where('idDataBarang', $id)->count();
-        if ($transaksiCount > 0) {
-            return redirect()->route('dashboard', ['menu' => 'barang'])
-            ->withErrors(['error' => 'Data barang tidak dapat dihapus karena sudah digunakan pada transaksi.']);
-        }
-
-        $barang = DataBarang::findOrFail($id);
-        $barang->delete();
-
-        return redirect()->route('dashboard', ['menu' => 'barang'])
-            ->with('success', 'Data barang berhasil dihapus.');
-    }
-
-    public function data_kendaraan_store(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'namaKendaraan' => 'required|string|max:255',
-            'jenisKendaraan' => 'required|string|max:100',
-            'nomorPolisi' => 'required|string|max:100',
-        ], [
-            'namaKendaraan.required' => 'Nama kendaraan wajib diisi.',
-            'jenisKendaraan.required' => 'Jenis kendaraan wajib diisi.',
-            'nomorPolisi.required' => 'Nomor polisi atau ciri wajib diisi.',
-        ]);
-
-        if ($validator->fails()) {
-            return back()->withErrors($validator)->withInput();
-        }
-
-        // Cek apakah nama kendaraan dan nomor polisi sudah ada
-        $exists = DataKendaraan::where('namaKendaraan', $request->namaKendaraan)
-            ->where('nomorPolisi', $request->nomorPolisi)
-            ->exists();
-
-        if ($exists) {
-            return back()->withErrors(['namaKendaraan' => 'Nama kendaraan dengan nomor polisi tersebut sudah ada.'])->withInput();
-        }
-
-        $kendaraan = new DataKendaraan();
-        $kendaraan->namaKendaraan = $request->namaKendaraan;
-        $kendaraan->jenisKendaraan = $request->jenisKendaraan;
-        $kendaraan->nomorPolisi = $request->nomorPolisi;
-        // Jika ada alasanKendaraan, gabungkan dengan keterangan
-        if ($request->filled('alasanKendaraan')) {
-            $kendaraan->keterangan = trim($request->keterangan . ' ' . $request->alasanKendaraan);
-        } else {
-            $kendaraan->keterangan = $request->keterangan;
-        }
-        // Jika ingin meminjam, kendaraan harus tersedia
-        if ($request->keterangan !== 'Ada') {
-            $kendaraan->status = 'Tidak Tersedia';
-        } else{
-            $kendaraan->status = 'Tersedia';
-        }
-        // Membuat kode unik base36 dengan panjang 7 digit, diawali huruf 'K', dan memastikan tidak kembar
-        do {
-            $unique = uniqid('', true) . random_int(1000, 9999);
-            $kodeBase36 = strtoupper(str_pad(base_convert(crc32($unique), 10, 36), 7, '0', STR_PAD_LEFT));
-            $kode = 'K' . $kodeBase36;
-        } while (DataKendaraan::where('kode', $kode)->exists());
-        $kendaraan->kode = $kode;
-        $kendaraan->save();
-
-        return redirect()->route('dashboard', ['menu' => 'kendaraan'])
-            ->with('success', 'Data kendaraan berhasil disimpan.');
-    }
-
-    public function data_kendaraan_edit(Request $request, $id)
-    {
-        $validator = Validator::make($request->all(), [
-            'namaKendaraan' => 'required|string|max:255',
-            'jenisKendaraan' => 'required|string|max:100',
-            'nomorPolisi' => 'required|string|max:100',
-        ], [
-            'namaKendaraan.required' => 'Nama kendaraan wajib diisi.',
-            'jenisKendaraan.required' => 'Jenis kendaraan wajib diisi.',
-            'nomorPolisi.required' => 'Nomor polisi atau ciri wajib diisi.',
-        ]);
-        if ($validator->fails()) {
-            return back()->withErrors($validator)->withInput();
-        }
-
-        // Cek apakah nama kendaraan dan nomor polisi sudah ada (kecuali untuk data ini sendiri)
-        $exists = DataKendaraan::where('namaKendaraan', $request->namaKendaraan)
-            ->where('nomorPolisi', $request->nomorPolisi)
-            ->where('id', '!=', $id)
-            ->exists();
-
-        if ($exists) {
-            return back()->withErrors(['namaKendaraan' => 'Nama kendaraan dengan nomor polisi tersebut sudah ada.'])->withInput();
-        }
-
-        $kendaraan = DataKendaraan::findOrFail($id);
-        $kendaraan->namaKendaraan = $request->namaKendaraan;
-        $kendaraan->jenisKendaraan = $request->jenisKendaraan;
-        $kendaraan->nomorPolisi = $request->nomorPolisi;
-        // Jika ada alasanKendaraan, gabungkan dengan keterangan
-        if ($request->filled('alasanKendaraan')) {
-            $kendaraan->keterangan = trim($request->keterangan . ' ' . $request->alasanKendaraan);
-        } else {
-            $kendaraan->keterangan = $request->keterangan;
-        }
-        // Jika ingin meminjam, kendaraan harus tersedia
-        if ($request->keterangan !== 'Ada') {
-            $kendaraan->status = 'Tidak Tersedia';
-        } else{
-            $kendaraan->status = 'Tersedia';
-        }
-        $kendaraan->save();
-
-        return redirect()->route('dashboard', ['menu' => 'kendaraan'])
-            ->with('success', 'Data kendaraan berhasil diperbarui.');
-    }
-
-    public function data_kendaraan_destroy($id)
-    {
-        // Cek apakah kendaraan sudah digunakan di transaksi
-        $transaksiCount = TransaksiKendaraan::where('idDataKendaraan', $id)->count();
-        if ($transaksiCount > 0) {
-            return redirect()->route('dashboard', ['menu' => 'kendaraan'])
-            ->withErrors(['error' => 'Data kendaraan tidak dapat dihapus karena sudah digunakan pada transaksi.']);
-        }
-
-        $kendaraan = DataKendaraan::findOrFail($id);
-        $kendaraan->delete();
-
-        return redirect()->route('dashboard', ['menu' => 'kendaraan'])
-            ->with('success', 'Data kendaraan berhasil dihapus.');
-    }
-
     public function transaksi_barang_store(Request $request)
     {
 
@@ -318,19 +84,20 @@ class prosesController extends Controller
             return back()->withErrors($validator)->withInput();
         }
         // Ambil data barang
-        $barang = DataBarang::where('namaBarang', $request->nama_barang)
+        $baranginput = DataBarang::where('namaBarang', $request->nama_barang)
             ->where('jenisBarangPersediaan', $request->jenisBarangPersediaan)
+            ->where('lokasi', $request->input('lokasiBarang'))
             ->first();
 
         // Pastikan field jumlahTersedia sudah ada di tabel data_barang
         if ($request->jenisTransaksi === 'Masuk') {
-            if (!$barang) {
-                // Jika barang belum ada, buat data barang baru
+            if (!$baranginput) {
+            //     // Jika barang belum ada, buat data barang baru
                 $barang = new DataBarang();
                 $barang->namaBarang = $request->input('namaBarang', $request->nama_barang);
                 $barang->jenisBarangPersediaan = $request->input('jenisBarangPersediaan', $request->jenisBarangPersediaan);
                 $barang->jumlahTotal = $request->jumlahPinjam;
-                $barang->jumlahTersedia = $request->jumlahPinjam;
+                $barang->lokasi = $request->input('lokasiBarang');
                 // Membuat kode unik base36 dengan panjang 7 digit, diawali huruf 'B', dan memastikan tidak kembar
                 do {
                     $unique = uniqid('', true) . random_int(1000, 9999);
@@ -339,19 +106,20 @@ class prosesController extends Controller
                 } while (DataBarang::where('kode', $kode)->exists());
                 $barang->kode = $kode;
                 $barang->save();
+            }else{
+            // Tambah jumlahTotal
+            $baranginput->jumlahTotal += $request->jumlahPinjam;
+            $baranginput->save();
             }
-            // Tambah jumlahTersedia
-            $barang->jumlahTotal += $request->jumlahPinjam;
-            $barang->jumlahTersedia += $request->jumlahPinjam;
         } elseif ($request->jenisTransaksi === 'Keluar') {
-            $barang->jumlahTersedia -= $request->jumlahPinjam;
-            $barang->jumlahTotal += $request->jumlahPinjam;
+            $baranginput->jumlahTotal += $request->jumlahPinjam;
+            $baranginput->save();
         }
-        $barang->save();
 
         // Cari idDataBarang yang namaBarang dan jenisBarangPersediaan sama
         $idDataBarangCek = DataBarang::where('namaBarang', $request->nama_barang)
             ->where('jenisBarangPersediaan', $request->jenisBarangPersediaan)
+            ->where('lokasi', $request->input('lokasiBarang'))
             ->value('id');
         $transaksi = new TransaksiBarang();
         $transaksi->nama_pegawai = $request->nama_pegawai;
@@ -409,16 +177,10 @@ class prosesController extends Controller
         // Kembalikan stok barang lama sesuai jenis transaksi lama
         if ($barangLama) {
             if ($transaksi->jenisTransaksi === 'Masuk') {
-                $barangLama->jumlahTersedia -= $transaksi->jumlahPinjam;
                 $barangLama->jumlahTotal -= $transaksi->jumlahPinjam;
-                if ($barangLama->jumlahTersedia < 0) $barangLama->jumlahTersedia = 0;
                 if ($barangLama->jumlahTotal < 0) $barangLama->jumlahTotal = 0;
             } elseif ($transaksi->jenisTransaksi === 'Keluar') {
-                $barangLama->jumlahTersedia += $transaksi->jumlahPinjam;
                 $barangLama->jumlahTotal -= $transaksi->jumlahPinjam;
-                if ($barangLama->jumlahTersedia > $barangLama->jumlahTotal) {
-                    $barangLama->jumlahTersedia = $barangLama->jumlahTotal;
-                }
                 if ($barangLama->jumlahTotal < 0) $barangLama->jumlahTotal = 0;
             }
             $barangLama->save();
@@ -427,6 +189,7 @@ class prosesController extends Controller
         // Ambil barang baru berdasarkan nama dan kategori
         $barangBaru = DataBarang::where('namaBarang', $request->nama_barang)
             ->where('jenisBarangPersediaan', $request->jenisBarangPersediaan)
+            ->where('lokasi', $request->input('lokasi'))
             ->first();
 
         // Jika barang tidak ditemukan, buat baru (hanya untuk transaksi Masuk)
@@ -435,7 +198,7 @@ class prosesController extends Controller
             $barangBaru->namaBarang = $request->nama_barang;
             $barangBaru->jenisBarangPersediaan = $request->jenisBarangPersediaan;
             $barangBaru->jumlahTotal = $request->jumlahPinjam;
-            $barangBaru->jumlahTersedia = $request->jumlahPinjam;
+            $barangBaru->lokasi = $request->input('lokasi');
             // Membuat kode unik base36 dengan panjang 7 digit, diawali huruf 'B', dan memastikan tidak kembar
             do {
                 $unique = uniqid('', true) . random_int(1000, 9999);
@@ -446,22 +209,12 @@ class prosesController extends Controller
             $barangBaru->save();
         }
 
-        // Validasi stok untuk transaksi keluar
-        if ($request->jenisTransaksi === 'Keluar') {
-            if (!$barangBaru || $barangBaru->jumlahTersedia < $request->jumlahPinjam) {
-                return back()->withErrors(['jumlahPinjam' => 'Stok barang tidak mencukupi.'])->withInput();
-            }
-        }
-
         // Update stok barang baru sesuai transaksi baru
         if ($barangBaru) {
             if ($request->jenisTransaksi === 'Masuk') {
                 $barangBaru->jumlahTotal += $request->jumlahPinjam;
-                $barangBaru->jumlahTersedia += $request->jumlahPinjam;
             } elseif ($request->jenisTransaksi === 'Keluar') {
-                $barangBaru->jumlahTersedia -= $request->jumlahPinjam;
                 $barangBaru->jumlahTotal += $request->jumlahPinjam;
-                if ($barangBaru->jumlahTersedia < 0) $barangBaru->jumlahTersedia = 0;
             }
             $barangBaru->save();
         }
@@ -489,14 +242,12 @@ class prosesController extends Controller
         $barang = DataBarang::find($transaksi->idDataBarang);
         if ($barang) {
             if ($transaksi->jenisTransaksi === 'Masuk') {
-            // Jika transaksi masuk dihapus, stok dikurangi
-            $barang->jumlahTersedia -= $transaksi->jumlahPinjam;
-            $barang->jumlahTotal -= $transaksi->jumlahPinjam;
-            if ($barang->jumlahTersedia < 0) $barang->jumlahTersedia = 0;
+                // Jika transaksi masuk dihapus, stok dikurangi
+                $barang->jumlahTotal -= $transaksi->jumlahPinjam;
+                if ($barang->jumlahTotal < 0) $barang->jumlahTotal = 0;
             } elseif ($transaksi->jenisTransaksi === 'Keluar') {
-            // Jika transaksi keluar dihapus, stok dikembalikan
-            $barang->jumlahTersedia += $transaksi->jumlahPinjam;
-            $barang->jumlahTotal += $transaksi->jumlahPinjam;
+                // Jika transaksi keluar dihapus, stok dikembalikan
+                $barang->jumlahTotal += $transaksi->jumlahPinjam;
             }
             $barang->save();
         }
@@ -508,8 +259,8 @@ class prosesController extends Controller
         $newId = 1;
         foreach ($transaksis as $t) {
             if ($t->id != $newId) {
-            // Update id only if different
-            TransaksiBarang::where('id', $t->id)->update(['id' => $newId]);
+                // Update id only if different
+                TransaksiBarang::where('id', $t->id)->update(['id' => $newId]);
             }
             $newId++;
         }
@@ -637,7 +388,7 @@ class prosesController extends Controller
 
         $transaksi = TransaksiKendaraan::findOrFail($id);
 
-        // Ambil kendaraan lama dan baru
+        // Ambil kendaraan lama dan barug
         $kendaraanLama = DataKendaraan::find($transaksi->idDataKendaraan);
         $kendaraanBaru = DataKendaraan::where('namaKendaraan', $request->nama_kendaraan)
             ->where('nomorPolisi', $request->nomor_polisi)

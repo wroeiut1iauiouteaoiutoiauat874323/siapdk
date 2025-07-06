@@ -3,12 +3,12 @@
         <h4 class="fw-bold text-primary mb-0">Data Transaksi Kendaraan</h4>
         <div class="d-flex flex-column align-items-end me-3" style="min-width: 320px;">
             <form action="{{ route('dashboard.search', ['menu' => 'tkendaraan']) }}" method="GET" class="d-flex align-items-center w-100 mb-1">
-                <input type="text" name="search" class="form-control me-2" placeholder="Cari transaksi..." value="" style="min-width:180px;">
+                <input type="text" name="search" class="form-control me-2" placeholder="Cari transaksi..." value="" style="min-width:180px;" autofocus>
                 <button type="submit" class="btn btn-primary">
                     <i class="bi bi-search"></i>
                 </button>
             </form>
-            <small class="text-muted">Cari berdasarkan kode, nama, jenis, nomor polisi, atau ciri kendaraan atau nwama</small>
+            <small class="text-muted">Cari berdasarkan kode, nama, jenis, nomor polisi, atau ciri kendaraan atau nama</small>
         </div>
         <a href="" class="btn btn-success shadow-sm px-4 py-2">
             <i class="bi bi-plus-circle me-1"></i> Tambah Transaksi

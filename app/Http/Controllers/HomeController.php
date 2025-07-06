@@ -43,7 +43,8 @@ class HomeController extends Controller
                         $datanya = DataBarang::where(function ($query) use ($key) {
                                 $query->where('namaBarang', 'like', '%' . $key . '%')
                                       ->orWhere('kode', 'like', '%' . $key . '%')
-                                      ->orWhere('jenisBarangPersediaan', 'like', '%' . $key . '%');
+                                      ->orWhere('jenisBarangPersediaan', 'like', '%' . $key . '%')
+                                      ->orWhere('lokasi', 'like', '%' . $key . '%');
                             })
                             ->orderBy('namaBarang')
                             ->paginate(15);
@@ -65,7 +66,8 @@ class HomeController extends Controller
                                 $query->where('namaKendaraan', 'like', '%' . $key . '%')
                                       ->orWhere('kode', 'like', '%' . $key . '%')
                                       ->orWhere('jenisKendaraan', 'like', '%' . $key . '%')
-                                      ->orWhere('nomorPolisi', 'like', '%' . $key . '%');
+                                      ->orWhere('nomorPolisi', 'like', '%' . $key . '%')
+                                      ->orWhere('lokasi', 'like', '%' . $key . '%');
                             })
                             ->paginate(15);
                         return view('dashboard', [
@@ -85,7 +87,8 @@ class HomeController extends Controller
                         $datanya = TransaksiBarang::where(function ($query) use ($key) {
                                 $query->whereHas('barang', function ($q) use ($key) {
                                     $q->where('namaBarang', 'like', '%' . $key . '%')
-                                    ->orWhere('jenisBarangPersediaan', 'like', '%' . $key . '%');
+                                    ->orWhere('jenisBarangPersediaan', 'like', '%' . $key . '%')
+                                    ->orWhere('kode', 'like', '%' . $key . '%');
                                 })
                                 ->orWhere('kode', 'like', '%' . $key . '%')
                                 ->orWhere('nama_pegawai', 'like', "%{$key}%");

@@ -8,18 +8,6 @@ use App\Http\Controllers\prosesController;
 Route::post('login', [prosesController::class, 'login'])->name('login');
 Route::post('login/lempar', [prosesController::class, 'login_lempar'])->name('login.lempar');
 
-// Start Data Barang
-Route::post('/data_barang/store', [prosesController::class, 'data_barang_store'])->name('data_barang.store');
-Route::post('/data_barang/{id}/edit', [prosesController::class, 'data_barang_edit'])->name('data_barang.edit');
-Route::delete('/data_barang/{id}/delete', [prosesController::class, 'data_barang_destroy'])->name('data_barang.hapus');
-// End Data Barang
-
-// Start Data Kendaraan
-Route::post('/data_kendaraan/store', [prosesController::class, 'data_kendaraan_store'])->name('data_kendaraan.store');
-Route::post('/data_kendaraan/{id}/edit', [prosesController::class, 'data_kendaraan_edit'])->name('data_kendaraan.edit');
-Route::delete('/data_kendaraan/{id}/delete', [prosesController::class, 'data_kendaraan_destroy'])->name('data_kendaraan.hapus');
-// End Data Kendaraan
-
 // Start Transaksi Barang
 Route::post('/transaksi_barang/store', [prosesController::class, 'transaksi_barang_store'])->name('transaksi_barang.store');
 Route::post('/transaksi_barang/{id}/edit', [prosesController::class, 'transaksi_barang_edit'])->name('transaksi_barang.edit');
