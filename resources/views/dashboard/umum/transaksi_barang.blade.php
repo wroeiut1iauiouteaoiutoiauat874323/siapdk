@@ -87,7 +87,7 @@
 
                     <div class="mb-3">
                         <label for="lokasiBarang" class="form-label">Lokasi</label>
-                        <input list="listLokasi" class="form-control" id="lokasiBarang" name="lokasiBarang" placeholder="Ketik atau pilih lokasi..." required>
+                        <input list="listLokasi" class="form-control" id="lokasiBarang" name="lokasiBarang" placeholder="Ketik atau pilih lokasi akan dituju required>
                         <datalist id="listLokasi">
                             @foreach($data_barang->unique('lokasi')->sortBy('lokasi') as $barang)
                                 @if($barang->lokasi)
