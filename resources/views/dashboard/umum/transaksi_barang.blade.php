@@ -57,7 +57,7 @@
                         <input list="listKodeBarang" class="form-control" id="kodeBarang" name="kode_barang" placeholder="Ketik atau pilih kode barang..." required>
                         <datalist id="listKodeBarang">
                             @foreach($data_barang->sortBy('kode') as $barang)
-                                <option value="{{ $barang->kode }}">{{ $barang->kode }} - {{ $barang->namaBarang }}</option>
+                                <option value="{{ $barang->kode }}">{{ $barang->kode }}</option>
                             @endforeach
                         </datalist>
                         <small class="text-muted">Ketik kode barang atau pilih dari daftar.</small>
@@ -194,7 +194,7 @@
                                                     {{ $transaksi->alasan }}
                                                     <hr>
                                                     <strong>Lokasi:</strong><br>
-                                                    {{ $transaksi->transaksi->lokasi ?? '-' }}
+                                                    {{ $transaksi->lokasi ?? '-' }}
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
@@ -235,8 +235,17 @@
                                                             </select>
                                                         </div>
                                                         <div class="mb-3">
+                                                            <label for="kodeBarang{{ $transaksi->id }}" class="form-label">Kode Barang</label>
+                                                            <input list="listKodeBarangEdit{{ $transaksi->id }}" class="form-control" id="kodeBarang{{ $transaksi->id }}" name="kode_barang" value="{{ $transaksi->barang->kode ?? '' }}" required @disabled(true)>
+                                                            <datalist id="listKodeBarangEdit{{ $transaksi->id }}">
+                                                                @foreach($data_barang->sortBy('kode') as $barang)
+                                                                    <option value="{{ $barang->kode }}">{{ $barang->kode }}</option>
+                                                                @endforeach
+                                                            </datalist>
+                                                        </div>
+                                                        <div class="mb-3">
                                                             <label for="namaBarang{{ $transaksi->id }}" class="form-label">Nama Barang</label>
-                                                            <input list="listBarangEdit{{ $transaksi->id }}" class="form-control" id="namaBarang{{ $transaksi->id }}" name="nama_barang" value="{{ $transaksi->barang->namaBarang ?? '' }}" required>
+                                                            <input list="listBarangEdit{{ $transaksi->id }}" class="form-control" id="namaBarang{{ $transaksi->id }}" name="nama_barang" value="{{ $transaksi->barang->namaBarang ?? '' }}" required disabled>
                                                             <datalist id="listBarangEdit{{ $transaksi->id }}">
                                                                 @foreach($data_barang->sortBy('namaBarang') as $barang)
                                                                     <option value="{{ $barang->namaBarang }}">{{ $barang->namaBarang }}</option>
@@ -246,7 +255,7 @@
                                                         </div>
                                                         <div class="mb-3">
                                                             <label for="jenisBarangPersediaanEdit{{ $transaksi->id }}" class="form-label">Kategori</label>
-                                                            <input list="listKategoriEdit{{ $transaksi->id }}" class="form-control" id="jenisBarangPersediaanEdit{{ $transaksi->id }}" name="jenisBarangPersediaan" value="{{ $transaksi->barang->jenisBarangPersediaan ?? '' }}" required>
+                                                            <input list="listKategoriEdit{{ $transaksi->id }}" class="form-control" id="jenisBarangPersediaanEdit{{ $transaksi->id }}" name="jenisBarangPersediaan" value="{{ $transaksi->barang->jenisBarangPersediaan ?? '' }}" required disabled>
                                                             <datalist id="listKategoriEdit{{ $transaksi->id }}">
                                                                 @foreach($data_barang->unique('jenisBarangPersediaan')->sortBy('jenisBarangPersediaan') as $barang)
                                                                     @if($barang->jenisBarangPersediaan)
