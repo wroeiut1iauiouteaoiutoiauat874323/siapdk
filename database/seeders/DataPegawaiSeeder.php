@@ -15,13 +15,15 @@ class DataPegawaiSeeder extends Seeder
             'nipPegawai' => 12345678,
             'password' => Hash::make('password123'), // Password default
             'status' => 'umum', // Status default
+            'jabatan' => 'CPNS', // Jabatan default
         ]);
 
-        DataPegawai::create([
-            'namaPegawai' => 'Admin User',
+        DataPegawai::create(attributes: [
+            'namaPegawai' => 'Pegawai',
             'nipPegawai' => 87654321,
-            'password' => Hash::make('adminpass'),
-            'status' => 'admin', // Status admin
+            'password' => Hash::make('password4321'), // Password default
+            'status' => 'bukanumum', // Status admin
+            'jabatan' => 'PNS', // Jabatan default
         ]);
     }
 }

@@ -20,6 +20,13 @@ Route::post('/transaksi_kendaraan/{id}/edit', [prosesController::class, 'transak
 Route::delete('/transaksi_kendaraan/{id}/delete', [prosesController::class, 'transaksi_kendaraan_destroy'])->name('transaksi_kendaraan.hapus');
 // End Transaksi Kendaraan
 
+// Start Data Pegawai
+Route::post('/data_pegawai/store', [prosesController::class, 'data_pegawai_store'])->name('data_pegawai.store');
+Route::post('/data_pegawai/{id}/edit', [prosesController::class, 'data_pegawai_edit'])->name('data_pegawai.edit');
+Route::delete('/data_pegawai/{id}/delete', [prosesController::class, 'data_pegawai_destroy'])->name('data_pegawai.destroy');
+// End Data Pegawai
+
+
 
 
 

@@ -16,7 +16,8 @@ class DataPegawai extends Model
         'namaPegawai',
         'nipPegawai',
         'password',
-        'status'
+        'status',
+        'jabatan', // Tambahkan kolom jabatan
     ];
 
     protected $hidden = [

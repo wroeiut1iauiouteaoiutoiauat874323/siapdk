@@ -154,7 +154,7 @@ class HomeController extends Controller
             $kukis = $_COOKIE['kukis'];
             if (jurnalhelper::cekkukis($kukis)) {
                 $usernya = DataPegawai::where('kukis', $_COOKIE['kukis'])->first();
-                if($menu == 'barang' ||  $menu == 'tbarang' || $menu == 'kendaraan' || $menu == 'tkendaraan' || $menu == 'profil' ){
+                if($menu == 'barang' ||  $menu == 'tbarang' || $menu == 'kendaraan' || $menu == 'tkendaraan' || $menu == 'dpegawai' ){
                     if($menu == 'barang'){
                         $data_user = DataPegawai::all();
                         $data_barang = DataBarang::all();
@@ -183,34 +183,74 @@ class HomeController extends Controller
                             'datanya' => $datanya
                         ], compact('data_user'));
                     }
-                    if($menu == 'tbarang'){
-                        $data_user = DataPegawai::all();
-                        $data_barang = DataBarang::all();
-                        $datanya = TransaksiBarang::with(['barang', 'pegawai'])
-                            ->orderByDesc('tanggal_transaksi')
-                            ->orderByDesc('waktu')
-                            ->paginate(15);
-                        return view('dashboard', ['status' => $_COOKIE['status'], 'nama' => $_COOKIE['nama'], 'nip' => $_COOKIE['nip'], 'waktu' => $_COOKIE['current_time_formatted'], 'tanggal' => $_COOKIE['tanggal'], 'menu' => $menu, 'datanya' => $datanya], compact( 'data_user', 'data_barang'));
-                    }
-                    if($menu == 'tkendaraan'){
-                        $data_user = DataPegawai::all();
-                        $data_kendaraan = DataKendaraan::all();
-                        $datanya = Transaksikendaraan::with(['kendaraan', 'pegawai'])
-                            ->orderByDesc('tanggal_transaksi')
-                            ->orderByDesc('waktu')
-                            ->paginate(15);
-                        return view('dashboard', [
-                            'status' => $_COOKIE['status'],
-                            'nama' => $_COOKIE['nama'],
-                            'nip' => $_COOKIE['nip'],
-                            'waktu' => $_COOKIE['current_time_formatted'],
-                            'tanggal' => $_COOKIE['tanggal'],
-                            'menu' => $menu,
-                            'datanya' => $datanya
-                        ], compact('data_user', 'data_kendaraan'));
-                    }
-                    if($_COOKIE['status'] == 'admin'){
+                     if($menu == 'tbarang'){
+                            $data_user = DataPegawai::all();
+                            $data_barang = DataBarang::all();
+                            $datanya = TransaksiBarang::with(['barang', 'pegawai'])
+                                ->orderByDesc('tanggal_transaksi')
+                                ->orderByDesc('waktu')
+                                ->paginate(15);
+                            return view('dashboard', ['status' => $_COOKIE['status'], 'nama' => $_COOKIE['nama'], 'nip' => $_COOKIE['nip'], 'waktu' => $_COOKIE['current_time_formatted'], 'tanggal' => $_COOKIE['tanggal'], 'menu' => $menu, 'datanya' => $datanya], compact( 'data_user', 'data_barang'));
+                        }
+                        if($menu == 'tkendaraan'){
+                            $data_user = DataPegawai::all();
+                            $data_kendaraan = DataKendaraan::all();
+                            $datanya = Transaksikendaraan::with(['kendaraan', 'pegawai'])
+                                ->orderByDesc('tanggal_transaksi')
+                                ->orderByDesc('waktu')
+                                ->paginate(15);
+                            return view('dashboard', [
+                                'status' => $_COOKIE['status'],
+                                'nama' => $_COOKIE['nama'],
+                                'nip' => $_COOKIE['nip'],
+                                'waktu' => $_COOKIE['current_time_formatted'],
+                                'tanggal' => $_COOKIE['tanggal'],
+                                'menu' => $menu,
+                                'datanya' => $datanya
+                            ], compact('data_user', 'data_kendaraan'));
+                        }
 
+                    if($_COOKIE['status'] == 'bukanumum'){
+                    }else{
+                        if($menu == 'dpegawai'){
+                            $datanya = DataPegawai::all();
+                            $data_user = DataPegawai::orderBy('namaPegawai')->paginate(115);
+                            return view('dashboard', [
+                                'status' => $_COOKIE['status'],
+                                'nama' => $_COOKIE['nama'],
+                                'nip' => $_COOKIE['nip'],
+                                'waktu' => $_COOKIE['current_time_formatted'],
+                                'tanggal' => $_COOKIE['tanggal'],
+                                'menu' => $menu,
+                                'datanya' => $data_user
+                            ], compact('data_user'));
+                        }
+                        if($menu == 'tbarang'){
+                            $data_user = DataPegawai::all();
+                            $data_barang = DataBarang::all();
+                            $datanya = TransaksiBarang::with(['barang', 'pegawai'])
+                                ->orderByDesc('tanggal_transaksi')
+                                ->orderByDesc('waktu')
+                                ->paginate(15);
+                            return view('dashboard', ['status' => $_COOKIE['status'], 'nama' => $_COOKIE['nama'], 'nip' => $_COOKIE['nip'], 'waktu' => $_COOKIE['current_time_formatted'], 'tanggal' => $_COOKIE['tanggal'], 'menu' => $menu, 'datanya' => $datanya], compact( 'data_user', 'data_barang'));
+                        }
+                        if($menu == 'tkendaraan'){
+                            $data_user = DataPegawai::all();
+                            $data_kendaraan = DataKendaraan::all();
+                            $datanya = Transaksikendaraan::with(['kendaraan', 'pegawai'])
+                                ->orderByDesc('tanggal_transaksi')
+                                ->orderByDesc('waktu')
+                                ->paginate(15);
+                            return view('dashboard', [
+                                'status' => $_COOKIE['status'],
+                                'nama' => $_COOKIE['nama'],
+                                'nip' => $_COOKIE['nip'],
+                                'waktu' => $_COOKIE['current_time_formatted'],
+                                'tanggal' => $_COOKIE['tanggal'],
+                                'menu' => $menu,
+                                'datanya' => $datanya
+                            ], compact('data_user', 'data_kendaraan'));
+                        }
                     }
                 }
                 return redirect()->route('dashboard', ['menu' => 'barang']);
