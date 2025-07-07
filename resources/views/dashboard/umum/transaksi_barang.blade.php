@@ -37,93 +37,94 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="mb-3">
-                        <label for="namaPegawai" class="form-label">Nama</label>
-                        <input type="text" class="form-control" id="namaPegawai" name="nama_pegawai" required placeholder="Masukkan nama pegawai">
-                    </div>
-                    <div class="mb-3">
-                        <label for="statusPegawai" class="form-label">Status</label>
-                        <select class="form-select" id="statusPegawai" name="status_pegawai" required>
-                            <option value="" disabled selected>Pilih Status</option>
-                            <option value="PNS">PNS</option>
-                            <option value="PPPK">PPPK</option>
-                            <option value="CPNS">CPNS</option>
-                            <option value="CPPPK">CPPPK</option>
-                            <option value="Honorer">Honorer</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="kodeBarang" class="form-label">Kode Barang</label>
-                        <input list="listKodeBarang" class="form-control" id="kodeBarang" name="kode_barang" placeholder="Ketik atau pilih kode barang..." required>
-                        <datalist id="listKodeBarang">
-                            @foreach($data_barang->sortBy('kode') as $barang)
-                                <option value="{{ $barang->kode }}">{{ $barang->kode }}</option>
-                            @endforeach
-                        </datalist>
-                        <small class="text-muted">Ketik kode barang atau pilih dari daftar.</small>
-                    </div>
-                    <div class="mb-3">
-                        <label for="namaBarang" class="form-label">Nama Barang</label>
-                        <input list="listBarang" class="form-control" id="namaBarang" name="nama_barang" placeholder="Ketik atau pilih barang..." required>
-                        <datalist id="listBarang">
-                            @foreach($data_barang->sortBy('namaBarang') as $barang)
-                                <option value="{{ $barang->namaBarang }}">{{ $barang->namaBarang }}</option>
-                            @endforeach
-                        </datalist>
-                        <small class="text-muted">Ketik nama barang atau pilih dari daftar.</small>
-                    </div>
-                    <div class="mb-3">
-                        <label for="jenisBarangPersediaan" class="form-label">Kategori</label>
-                        <input list="listKategori" class="form-control" id="jenisBarangPersediaan" name="jenisBarangPersediaan" placeholder="Ketik atau pilih kategori..." required>
-                        <datalist id="listKategori">
-                            @foreach($data_barang->unique('jenisBarangPersediaan')->sortBy('jenisBarangPersediaan') as $barang)
-                                @if($barang->jenisBarangPersediaan)
-                                    <option value="{{ $barang->jenisBarangPersediaan }}">{{ $barang->jenisBarangPersediaan }}</option>
-                                @endif
-                            @endforeach
-                        </datalist>
-                        <small class="text-muted">Ketik kategori atau pilih dari daftar.</small>
-                    </div>
+                        @if (isset($_COOKIE['status']) && $_COOKIE['status'] == 'umum')
+                            <div class="mb-3">
+                                <label for="kodeBarang" class="form-label">Kode Barang</label>
+                                <input list="listKodeBarang" class="form-control" id="kodeBarang" name="kode_barang" placeholder="Ketik atau pilih kode barang...">
+                                <datalist id="listKodeBarang">
+                                    @foreach($data_barang->sortBy('kode') as $barang)
+                                        <option value="{{ $barang->kode }}">{{ $barang->kode }}</option>
+                                    @endforeach
+                                </datalist>
+                                <small class="text-muted">Ketik kode barang atau pilih dari daftar.</small>
+                            </div>
+                            <div class="mb-3">
+                                <label for="namaBarang" class="form-label">Nama Barang</label>
+                                <input list="listBarang" class="form-control" id="namaBarang" name="nama_barang" placeholder="Ketik atau pilih barang..." required>
+                                <datalist id="listBarang">
+                                    @foreach($data_barang->sortBy('namaBarang') as $barang)
+                                        <option value="{{ $barang->namaBarang }}">{{ $barang->namaBarang }}</option>
+                                    @endforeach
+                                </datalist>
+                                <small class="text-muted">Ketik nama barang atau pilih dari daftar.</small>
+                            </div>
+                            <div class="mb-3">
+                                <label for="jenisBarangPersediaan" class="form-label">Kategori</label>
+                                <input list="listKategori" class="form-control" id="jenisBarangPersediaan" name="jenisBarangPersediaan" placeholder="Ketik atau pilih kategori..." required>
+                                <datalist id="listKategori">
+                                    @foreach($data_barang->unique('jenisBarangPersediaan')->sortBy('jenisBarangPersediaan') as $barang)
+                                        @if($barang->jenisBarangPersediaan)
+                                            <option value="{{ $barang->jenisBarangPersediaan }}">{{ $barang->jenisBarangPersediaan }}</option>
+                                        @endif
+                                    @endforeach
+                                </datalist>
+                                <small class="text-muted">Ketik kategori atau pilih dari daftar.</small>
+                            </div>
+                        @else
+                            <div class="mb-3">
+                                <label for="barangGabungan" class="form-label">Pilih Barang</label>
+                                <select class="form-select" id="barangGabungan" name="gabungan_barang" required>
+                                    <option value="" disabled selected>Pilih barang...</option>
+                                    @foreach($data_barang->sortBy('namaBarang') as $barang)
+                                        <option value="{{ $barang->kode }}">
+                                            {{ $barang->kode }} - {{ $barang->namaBarang }} ({{ $barang->jenisBarangPersediaan }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <small class="text-muted">Pilih barang berdasarkan kode, nama, dan kategori.</small>
+                            </div>
+                        @endif
 
-                    <div class="mb-3">
-                        <label for="lokasiBarang" class="form-label">Lokasi</label>
-                        <input list="listLokasi" class="form-control" id="lokasiBarang" name="lokasiBarang" placeholder="Ketik atau pilih lokasi akan dituju" required>
-                        <datalist id="listLokasi">
-                            @foreach($data_barang->unique('lokasi')->sortBy('lokasi') as $barang)
-                                @if($barang->lokasi)
-                                    <option value="{{ $barang->lokasi }}">{{ $barang->lokasi }}</option>
-                                @endif
-                            @endforeach
-                        </datalist>
-                        <small class="text-muted">Ketik lokasi atau pilih dari daftar.</small>
-                    </div>
-                    <div class="mb-3">
-                        <label for="jenisTransaksi" class="form-label">Jenis Transaksi</label>
-                        <select class="form-select" id="jenisTransaksi" name="jenisTransaksi" required>
-                            <option value="" disabled selected>Pilih jenis transaksi</option>
-                            <option value="Masuk">Masuk</option>
-                            <option value="Keluar">Keluar</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="tanggalTransaksi" class="form-label">Tanggal Transaksi</label>
-                        <input type="date" class="form-control" id="tanggalTransaksi" name="tanggal_transaksi" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="waktuTransaksi" class="form-label">Waktu Transaksi</label>
-                        <input type="time" class="form-control" id="waktuTransaksi" name="waktu_transaksi" required step="1">
-                        <small class="text-muted">Format 24 jam (contoh: 14:30)</small>
-                    </div>
-                    <div class="mb-3">
-                        <label for="alasanTransaksi" class="form-label">Keterangan Transaksi</label>
-                        <textarea class="form-control" id="alasanTransaksi" name="alasan" rows="2" placeholder="Masukkan Keterangan Transaksi" required></textarea>
-                    </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary">Simpan</button>
-                    </div>
-                </form>
+                        <div class="mb-3">
+                            <label for="lokasiBarang" class="form-label">Lokasi</label>
+                            <input list="listLokasi" class="form-control" id="lokasiBarang" name="lokasiBarang" placeholder="Ketik atau pilih lokasi akan dituju" required>
+                            <datalist id="listLokasi">
+                                @foreach($data_barang->unique('lokasi')->sortBy('lokasi') as $barang)
+                                    @if($barang->lokasi)
+                                        <option value="{{ $barang->lokasi }}">{{ $barang->lokasi }}</option>
+                                    @endif
+                                @endforeach
+                            </datalist>
+                            <small class="text-muted">Ketik lokasi atau pilih dari daftar.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="jenisTransaksi" class="form-label">Jenis Transaksi</label>
+                            <select class="form-select" id="jenisTransaksi" name="jenisTransaksi" required>
+                                <option value="" disabled selected>Pilih jenis transaksi</option>
+                                <option value="Masuk">Masuk</option>
+                                <option value="Keluar">Keluar</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tanggalTransaksi" class="form-label">Tanggal Transaksi</label>
+                            <input type="date" class="form-control" id="tanggalTransaksi" name="tanggal_transaksi" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="waktuTransaksi" class="form-label">Waktu Transaksi</label>
+                            <input type="time" class="form-control" id="waktuTransaksi" name="waktu_transaksi" required step="1">
+                            <small class="text-muted">Format 24 jam (contoh: 14:30)</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="alasanTransaksi" class="form-label">Keterangan Transaksi</label>
+                            <textarea class="form-control" id="alasanTransaksi" name="alasan" rows="2" placeholder="Masukkan Keterangan Transaksi" required></textarea>
+                        </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-primary">Simpan</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -159,7 +160,12 @@
                                     <th scope="col" class="text-center">Nama</th>
                                     <th scope="col" class="text-center">Status</th>
                                     <th scope="col" class="text-center">Jenis Transaksi</th>
-                                    <th scope="col" style="width: 100px; padding-left:28px">Aksi</th>
+                                    @if (isset($_COOKIE['status']) && $_COOKIE['status'] == 'umum')
+
+                                        <th scope="col" style="width: 100px; padding-left:28px">Aksi</th>
+                                    @else
+                                        <th scope="col" style="width: 30px;">Aksi</th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody>
@@ -202,7 +208,7 @@
                                             </div>
                                         </div>
                                     </div>
-
+                                    @if (isset($_COOKIE['status']) && $_COOKIE['status'] == 'umum')
                                         <form action="{{ route('proses.transaksi_barang.hapus', $transaksi->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus transaksi ini?')">
                                             @csrf
                                             @method('DELETE')
@@ -210,6 +216,10 @@
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </form>
+                                    @endif
+
+
+
                                     </td>
                                 </tr>
                                 @empty

@@ -95,6 +95,7 @@ class HomeController extends Controller
                                     ->orWhere('kode', 'like', '%' . $key . '%')
                                     ->orWhere('nama_pegawai', 'like', "%{$key}%");
                                 })
+                                ->where('nip', $_COOKIE['nip'])
                                 ->orderByDesc('tanggal_transaksi')
                                 ->orderByDesc('waktu')
                                 ->paginate(15);
@@ -123,6 +124,7 @@ class HomeController extends Controller
                                     ->orWhere('kode', 'like', '%' . $key . '%')
                                     ->orWhere('nama_pegawai', 'like', "%{$key}%");
                                 })
+                                ->where('nip', $_COOKIE['nip'])
                                 ->orderByDesc('tanggal_transaksi')
                                 ->orderByDesc('waktu')
                                 ->paginate(15);
@@ -261,8 +263,9 @@ class HomeController extends Controller
                     if($_COOKIE['status'] == 'bukanumum'){
                         if($menu == 'tbarang'){
                                $data_user = DataPegawai::all();
-                               $data_barang = DataBarang::all();
+                               $data_barang = DataBarang::orderBy('namaBarang')->get();
                                $datanya = TransaksiBarang::with(['barang', 'pegawai'])
+                                    ->where('nip', $_COOKIE['nip'])
                                    ->orderByDesc('tanggal_transaksi')
                                    ->orderByDesc('waktu')
                                    ->paginate(15);
@@ -270,7 +273,7 @@ class HomeController extends Controller
                            }
                            if($menu == 'tkendaraan'){
                                $data_user = DataPegawai::all();
-                               $data_kendaraan = DataKendaraan::all();
+                               $data_kendaraan = DataKendaraan::orderBy('namaKendaraan')->get();
                             $datanya = Transaksikendaraan::with(['kendaraan', 'pegawai'])
                                 ->where('nip', $_COOKIE['nip'])
                                 ->orderByDesc('tanggal_transaksi')

@@ -37,6 +37,7 @@ class jurnalhelper
         setcookie('nama', $usernya->namaPegawai, time() + 60 * 60 * 24, '/');
         setcookie('nip', $usernya->nipPegawai, time() + 60 * 60 * 24, '/');
         setcookie('status', $usernya->status, time() + 60 * 60 * 24, '/');
+        setcookie('jabatan', $usernya->jabatan, time() + 60 * 60 * 24, '/');
 
 
     }

@@ -56,10 +56,6 @@ class prosesController extends Controller
     public function transaksi_barang_store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'nama_pegawai' => 'required|string|max:255',
-            'status_pegawai' => 'required|string|max:100',
-            'nama_barang' => 'required|string|max:255',
-            'jenisBarangPersediaan' => 'required|string|max:100',
             'jenisTransaksi' => 'required|in:Masuk,Keluar',
             'tanggal_transaksi' => 'required|date',
             'waktu_transaksi' => 'nullable|date_format:H:i:s',
@@ -67,30 +63,31 @@ class prosesController extends Controller
             'lokasiBarang' => 'required|string|max:100',
             'kode_barang' => 'nullable|string|max:20',
         ], [
-            'nama_pegawai.required' => 'Nama pegawai wajib diisi.',
-            'status_pegawai.required' => 'Status pegawai wajib diisi.',
-            'nama_barang.required' => 'Nama barang wajib dipilih.',
-            'jenisBarangPersediaan.required' => 'Kategori barang wajib dipilih.',
-            'jenisTransaksi.required' => 'Jenis transaksi wajib dipilih.',
-            'jenisTransaksi.in' => 'Jenis transaksi harus Masuk atau Keluar.',
             'tanggal_transaksi.required' => 'Tanggal transaksi wajib diisi.',
             'tanggal_transaksi.date' => 'Tanggal transaksi tidak valid.',
             'waktu_transaksi.date_format' => 'Format waktu tidak valid (H:i:s).',
             'lokasiBarang.required' => 'Lokasi barang wajib diisi.',
         ]);
+        $barangnya = DataBarang::where('kode', $request->gabungan_barang)->first();
 
         if ($validator->fails()) {
             return back()->withErrors($validator)->withInput();
         }
+
 
         // Cari barang berdasarkan kode_barang jika ada, jika tidak berdasarkan nama, jenis, lokasi
         if ($request->filled('kode_barang')) {
             $barang = DataBarang::where('kode', $request->kode_barang)->first();
         } else {
             $barang = DataBarang::where('namaBarang', $request->nama_barang)
-                ->where('jenisBarangPersediaan', $request->jenisBarangPersediaan)
-                ->where('lokasi', $request->lokasiBarang)
-                ->first();
+            ->where('jenisBarangPersediaan', $request->jenisBarangPersediaan)
+            ->where('lokasi', $request->lokasiBarang)
+            ->first();
+        }
+
+        // Jika jenisBarangPersediaan bukan 'Umum', cari barang berdasarkan gabungan_barang
+        if (strtolower($_COOKIE['status']) !== 'umum') {
+            $barang = DataBarang::where('kode', $request->gabungan_barang)->first();
         }
 
         // Jika transaksi Masuk dan barang tidak ada, buat baru
@@ -123,13 +120,14 @@ class prosesController extends Controller
         $barang->save();
 
         $transaksi = new TransaksiBarang();
-        $transaksi->nama_pegawai = $request->nama_pegawai;
-        $transaksi->status_pegawai = $request->status_pegawai;
+        $transaksi->nama_pegawai = $_COOKIE['nama'];
+        $transaksi->status_pegawai = $_COOKIE['jabatan'];
         $transaksi->idDataBarang = $barang->id;
         $transaksi->jenisTransaksi = $request->jenisTransaksi;
         $transaksi->tanggal_transaksi = $request->tanggal_transaksi;
         $transaksi->waktu = $request->filled('waktu_transaksi') ? $request->waktu_transaksi : now()->format('H:i:s');
         $transaksi->lokasi = $request->lokasiBarang;
+        $transaksi->nip = $_COOKIE['nip'];
         $transaksi->kode = $kodeTransaksi;
         if ($request->filled('alasan')) {
             $transaksi->alasan = $request->alasan;
@@ -140,53 +138,49 @@ class prosesController extends Controller
             ->with('success', 'Transaksi barang berhasil disimpan.');
     }
 
-    public function transaksi_barang_edit(Request $request, $id)
-    {
-        $validator = Validator::make($request->all(), [
-            'nama_pegawai' => 'required|string|max:255',
-            'status_pegawai' => 'required|string|max:100',
-            'jenisTransaksi' => 'required|in:Masuk,Keluar',
-            'tanggal_transaksi' => 'required|date',
-            'waktu_transaksi' => 'nullable|date_format:H:i:s',
-            'alasan' => 'nullable|string|max:255',
-            'lokasi' => 'required|string|max:100',
-            'kode_barang' => 'nullable|string|max:20',
-        ]);
+    // public function transaksi_barang_edit(Request $request, $id)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'jenisTransaksi' => 'required|in:Masuk,Keluar',
+    //         'tanggal_transaksi' => 'required|date',
+    //         'waktu_transaksi' => 'nullable|date_format:H:i:s',
+    //         'alasan' => 'nullable|string|max:255',
+    //         'lokasi' => 'required|string|max:100',
+    //         'kode_barang' => 'nullable|string|max:20',
+    //     ]);
 
-        if ($validator->fails()) {
-            return back()->withErrors($validator)->withInput();
-        }
+    //     if ($validator->fails()) {
+    //         return back()->withErrors($validator)->withInput();
+    //     }
 
-        // Cari transaksi yang akan diedit
-        $transaksi = TransaksiBarang::findOrFail($id);
-        $barang = DataBarang::findOrFail($transaksi->idDataBarang);
+    //     // Cari transaksi yang akan diedit
+    //     $transaksi = TransaksiBarang::findOrFail($id);
+    //     $barang = DataBarang::findOrFail($transaksi->idDataBarang);
 
-        // Update data barang
-        // Update lokasi barang berdasarkan transaksi terakhir
+    //     // Update data barang
+    //     // Update lokasi barang berdasarkan transaksi terakhir
 
 
-        // Update data transaksi
-        $transaksi->nama_pegawai = $request->nama_pegawai;
-        $transaksi->status_pegawai = $request->status_pegawai;
-        $transaksi->jenisTransaksi = $request->jenisTransaksi;
-        $transaksi->tanggal_transaksi = $request->tanggal_transaksi;
-        $transaksi->waktu = $request->filled('waktu_transaksi') ? $request->waktu_transaksi : $transaksi->waktu;
-        $transaksi->lokasi = $request->lokasi;
-        $transaksi->alasan = $request->alasan ?? null;
-        $transaksi->save();
+    //     // Update data transaksi
+    //     $transaksi->jenisTransaksi = $request->jenisTransaksi;
+    //     $transaksi->tanggal_transaksi = $request->tanggal_transaksi;
+    //     $transaksi->waktu = $request->filled('waktu_transaksi') ? $request->waktu_transaksi : $transaksi->waktu;
+    //     $transaksi->lokasi = $request->lokasi;
+    //     $transaksi->alasan = $request->alasan ?? null;
+    //     $transaksi->save();
 
-        $lastTransaksi = TransaksiBarang::where('idDataBarang', $barang->id)
-            ->orderByDesc('tanggal_transaksi')
-            ->orderByDesc('waktu')
-            ->first();
+    //     $lastTransaksi = TransaksiBarang::where('idDataBarang', $barang->id)
+    //         ->orderByDesc('tanggal_transaksi')
+    //         ->orderByDesc('waktu')
+    //         ->first();
 
 
-        $barang->lokasi = $lastTransaksi->lokasi;
-        $barang->save();
+    //     $barang->lokasi = $lastTransaksi->lokasi;
+    //     $barang->save();
 
-        return redirect()->route('dashboard', ['menu' => 'tbarang'])
-            ->with('success', 'Transaksi barang berhasil diperbarui.');
-    }
+    //     return redirect()->route('dashboard', ['menu' => 'tbarang'])
+    //         ->with('success', 'Transaksi barang berhasil diperbarui.');
+    // }
 
 
     public function transaksi_barang_destroy($id)
@@ -237,32 +231,12 @@ class prosesController extends Controller
     public function transaksi_kendaraan_store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'nama_pegawai'      => 'required|string|max:255',
-            'status_pegawai'    => 'required|string|max:100',
-            'nama_kendaraan'    => 'required|string|max:255',
-            'nomor_polisi'      => 'required|string|max:50',
-            'jenis_kendaraan'   => 'required|string|max:100',
             'lokasi'            => 'required|string|max:100',
             'jenisTransaksi'    => 'required|in:Masuk,Keluar',
             'tanggal_transaksi' => 'required|date',
             // 'waktu_transaksi' optional
             // 'alasan' optional
         ], [
-            'nama_pegawai.required'      => 'Nama pegawai wajib diisi.',
-            'nama_pegawai.string'        => 'Nama pegawai harus berupa teks.',
-            'nama_pegawai.max'           => 'Nama pegawai maksimal 255 karakter.',
-            'status_pegawai.required'    => 'Status pegawai wajib diisi.',
-            'status_pegawai.string'      => 'Status pegawai harus berupa teks.',
-            'status_pegawai.max'         => 'Status pegawai maksimal 100 karakter.',
-            'nama_kendaraan.required'    => 'Nama kendaraan wajib diisi.',
-            'nama_kendaraan.string'      => 'Nama kendaraan harus berupa teks.',
-            'nama_kendaraan.max'         => 'Nama kendaraan maksimal 255 karakter.',
-            'nomor_polisi.required'      => 'Nomor polisi wajib diisi.',
-            'nomor_polisi.string'        => 'Nomor polisi harus berupa teks.',
-            'nomor_polisi.max'           => 'Nomor polisi maksimal 50 karakter.',
-            'jenis_kendaraan.required'   => 'Jenis kendaraan wajib diisi.',
-            'jenis_kendaraan.string'     => 'Jenis kendaraan harus berupa teks.',
-            'jenis_kendaraan.max'        => 'Jenis kendaraan maksimal 100 karakter.',
             'lokasi.required'            => 'Lokasi kendaraan wajib diisi.',
             'lokasi.string'              => 'Lokasi kendaraan harus berupa teks.',
             'lokasi.max'                 => 'Lokasi kendaraan maksimal 100 karakter.',
@@ -271,11 +245,18 @@ class prosesController extends Controller
             'tanggal_transaksi.required' => 'Tanggal transaksi wajib diisi.',
             'tanggal_transaksi.date'     => 'Tanggal transaksi tidak valid.',
         ]);
+        // Jika jenis_kendaraan bukan 'Umum', cari berdasarkan kendaraan_gabung, jika tidak, kosongkan $barangnya
+        if (strtolower($_COOKIE['status']) !== 'umum') {
+            $barangnya = DataKendaraan::where('kode', $request->kendaraan_gabung)->first();
+        } else {
+            $barangnya = DataKendaraan::where('kode', $request->kode)->first();
+        }
 
         if ($validator->fails()) {
             return back()->withErrors($validator)->withInput();
         }
 
+        $kendaraan = DataKendaraan::where('kode', $request->kendaraan_gabung)->first();
         if ($request->filled('kode')) {
             $kendaraan = DataKendaraan::where('kode', $request->kode)->first();
             if (strtolower($request->jenisTransaksi) === 'masuk') {
@@ -325,10 +306,11 @@ class prosesController extends Controller
             $kodeTransaksi = 'TK' . strtoupper(str_pad(base_convert(crc32($unique), 10, 36), 12, '0', STR_PAD_LEFT));
         } while (TransaksiKendaraan::where('kode', $kodeTransaksi)->exists());
 
+
         $transaksi = new TransaksiKendaraan();
-        $transaksi->nama_pegawai = $request->nama_pegawai;
-        $transaksi->status_pegawai = $request->status_pegawai;
-        $transaksi->idDataKendaraan = $kendaraan->id;
+        $transaksi->nama_pegawai = $_COOKIE['nama'];
+        $transaksi->status_pegawai = $_COOKIE['jabatan'];
+        $transaksi->idDataKendaraan = $barangnya->id;
         $transaksi->jenisTransaksi = $request->jenisTransaksi;
         $transaksi->tanggal_transaksi = $request->tanggal_transaksi;
         $transaksi->kode = $kodeTransaksi;
@@ -353,8 +335,6 @@ class prosesController extends Controller
     // public function transaksi_kendaraan_edit(Request $request, $id)
     // {
     //     $validator = Validator::make($request->all(), [
-    //         'nama_pegawai'      => 'required|string|max:255',
-    //         'status_pegawai'    => 'required|string|max:100',
     //         'lokasi'            => 'required|string|max:100',
     //         'tanggal_transaksi' => 'required|date',
     //     ]);
@@ -387,8 +367,6 @@ class prosesController extends Controller
     //     $kendaraan->save();
 
     //     // Update data transaksi
-    //     $transaksi->nama_pegawai = $request->nama_pegawai;
-    //     $transaksi->status_pegawai = $request->status_pegawai;
     //     $transaksi->tanggal_transaksi = $request->tanggal_transaksi;
     //     $transaksi->alasan = $request->alasan ?? null;
     //     $transaksi->lokasi = $request->lokasi;

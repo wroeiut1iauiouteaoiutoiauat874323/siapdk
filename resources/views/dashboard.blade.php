@@ -131,14 +131,14 @@
                         {{ $nama }}
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                        <li>
+                        {{-- <li>
                             <a class="dropdown-item" href="#">
                                 <i class="bi bi-person me-2"></i> Profil
                             </a>
                         </li>
                         <li>
                             <hr class="dropdown-divider">
-                        </li>
+                        </li> --}}
                         <li>
                             <a class="dropdown-item" href="{{ route('logout') }}">
                                 <i class="bi bi-box-arrow-right me-2"></i> Logout
