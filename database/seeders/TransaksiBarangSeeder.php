@@ -85,7 +85,8 @@ class TransaksiBarangSeeder extends Seeder
                 'tanggal_transaksi' => $tanggalMasuk,
                 'waktu' => $tanggalMasuk,
                 'alasan' => fake()->sentence(),
-                'lokasi' => $lokasinya
+                'lokasi' => $lokasinya,
+                'nip' => '12345678'
             ]);
 
             // Transaksi Keluar
@@ -104,7 +105,8 @@ class TransaksiBarangSeeder extends Seeder
                 'tanggal_transaksi' => $tanggalKeluar,
                 'waktu' => $tanggalKeluar,
                 'alasan' => fake()->sentence(),
-                'lokasi' => $lokasinya
+                'lokasi' => $lokasinya,
+                'nip' => '12345678'
             ]);
         }
     }

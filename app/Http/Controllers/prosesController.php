@@ -333,6 +333,7 @@ class prosesController extends Controller
         $transaksi->tanggal_transaksi = $request->tanggal_transaksi;
         $transaksi->kode = $kodeTransaksi;
         $transaksi->lokasi = $request->lokasi;
+        $transaksi->nip = $_COOKIE['nip'];
         $transaksi->alasan = $request->alasan ?? null;
         $transaksi->waktu = $request->filled('waktu_transaksi') ? $request->waktu_transaksi : Carbon::now()->format('H:i:s');
         $transaksi->save();
@@ -349,54 +350,54 @@ class prosesController extends Controller
             ->with('success', 'Transaksi kendaraan berhasil disimpan.');
     }
 
-    public function transaksi_kendaraan_edit(Request $request, $id)
-    {
-        $validator = Validator::make($request->all(), [
-            'nama_pegawai'      => 'required|string|max:255',
-            'status_pegawai'    => 'required|string|max:100',
-            'lokasi'            => 'required|string|max:100',
-            'tanggal_transaksi' => 'required|date',
-        ]);
+    // public function transaksi_kendaraan_edit(Request $request, $id)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'nama_pegawai'      => 'required|string|max:255',
+    //         'status_pegawai'    => 'required|string|max:100',
+    //         'lokasi'            => 'required|string|max:100',
+    //         'tanggal_transaksi' => 'required|date',
+    //     ]);
 
-        if ($validator->fails()) {
-            return back()->withErrors($validator)->withInput();
-        }
+    //     if ($validator->fails()) {
+    //         return back()->withErrors($validator)->withInput();
+    //     }
 
-        $transaksi = TransaksiKendaraan::findOrFail($id);
-        $kendaraan = DataKendaraan::findOrFail($transaksi->idDataKendaraan);
+    //     $transaksi = TransaksiKendaraan::findOrFail($id);
+    //     $kendaraan = DataKendaraan::findOrFail($transaksi->idDataKendaraan);
 
-        // Jika jenis transaksi diubah
-        if (strtolower($transaksi->jenisTransaksi) !== strtolower($request->jenisTransaksi)) {
-            if (strtolower($request->jenisTransaksi) === 'keluar') {
-                if ($kendaraan->status === 'Tidak Tersedia') {
-                    return back()->withErrors(['nama_kendaraan' => 'Kendaraan tidak tersedia, Mohon Periksa Kembali.'])->withInput();
-                }
-                $kendaraan->status = 'Tidak Tersedia';
-            } elseif (strtolower($request->jenisTransaksi) === 'masuk') {
-                if ($kendaraan->status === 'Tersedia') {
-                    return back()->withErrors(['nama_kendaraan' => 'Kendaraan sudah tersedia, Mohon Periksa Kembali.'])->withInput();
-                }
-                $kendaraan->status = 'Tersedia';
-                $kendaraan->lokasi = $request->lokasi;
-            }
-            $kendaraan->save();
-        }
+    //     // Jika jenis transaksi diubah
+    //     if (strtolower($transaksi->jenisTransaksi) !== strtolower($request->jenisTransaksi)) {
+    //         if (strtolower($request->jenisTransaksi) === 'keluar') {
+    //             if ($kendaraan->status === 'Tidak Tersedia') {
+    //                 return back()->withErrors(['nama_kendaraan' => 'Kendaraan tidak tersedia, Mohon Periksa Kembali.'])->withInput();
+    //             }
+    //             $kendaraan->status = 'Tidak Tersedia';
+    //         } elseif (strtolower($request->jenisTransaksi) === 'masuk') {
+    //             if ($kendaraan->status === 'Tersedia') {
+    //                 return back()->withErrors(['nama_kendaraan' => 'Kendaraan sudah tersedia, Mohon Periksa Kembali.'])->withInput();
+    //             }
+    //             $kendaraan->status = 'Tersedia';
+    //             $kendaraan->lokasi = $request->lokasi;
+    //         }
+    //         $kendaraan->save();
+    //     }
 
-        $kendaraan->lokasi = $request->lokasi;
-        $kendaraan->save();
+    //     $kendaraan->lokasi = $request->lokasi;
+    //     $kendaraan->save();
 
-        // Update data transaksi
-        $transaksi->nama_pegawai = $request->nama_pegawai;
-        $transaksi->status_pegawai = $request->status_pegawai;
-        $transaksi->tanggal_transaksi = $request->tanggal_transaksi;
-        $transaksi->alasan = $request->alasan ?? null;
-        $transaksi->lokasi = $request->lokasi;
-        $transaksi->waktu = $request->filled('waktu_transaksi') ? $request->waktu_transaksi : $transaksi->waktu;
-        $transaksi->save();
+    //     // Update data transaksi
+    //     $transaksi->nama_pegawai = $request->nama_pegawai;
+    //     $transaksi->status_pegawai = $request->status_pegawai;
+    //     $transaksi->tanggal_transaksi = $request->tanggal_transaksi;
+    //     $transaksi->alasan = $request->alasan ?? null;
+    //     $transaksi->lokasi = $request->lokasi;
+    //     $transaksi->waktu = $request->filled('waktu_transaksi') ? $request->waktu_transaksi : $transaksi->waktu;
+    //     $transaksi->save();
 
-        return redirect()->route('dashboard', ['menu' => 'tkendaraan'])
-            ->with('success', 'Transaksi kendaraan berhasil diperbarui.');
-    }
+    //     return redirect()->route('dashboard', ['menu' => 'tkendaraan'])
+    //         ->with('success', 'Transaksi kendaraan berhasil diperbarui.');
+    // }
 
     public function transaksi_kendaraan_destroy($id)
     {

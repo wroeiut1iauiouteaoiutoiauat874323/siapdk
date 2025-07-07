@@ -94,6 +94,7 @@ class TransaksiKendaraanSeeder extends Seeder
                 'kode' => generateKodeUnik12($usedCodes),
                 'alasan' => fake()->sentence(),
                 'lokasi' => $lokasi,
+                'nip' => '12345678'
             ]);
 
             // Transaksi Keluar
@@ -107,6 +108,7 @@ class TransaksiKendaraanSeeder extends Seeder
                 'kode' => generateKodeUnik12($usedCodes),
                 'alasan' => fake()->sentence(),
                 'lokasi' => $lokasi,
+                'nip' => '12345678'
             ]);
 
             // Update status kendaraan jadi Tidak Tersedia

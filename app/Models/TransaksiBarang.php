@@ -22,6 +22,7 @@ class TransaksiBarang extends Model
         'kode',
         'alasan',
         'lokasi',
+        'nip',
     ];
 
     public function barang()

@@ -22,6 +22,7 @@ class TransaksiKendaraan extends Model
         'kode',
         'alasan',
         'lokasi',
+        'nip',
     ];
 
     public function kendaraan()
