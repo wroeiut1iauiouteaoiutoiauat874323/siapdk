@@ -103,9 +103,7 @@
                         </li>
                         @if (isset($_COOKIE['status']) && $_COOKIE['status'] == 'umum')
                             <li>
-                                <a class="dropdown-item @if($menu == 'dpegawai') active @endif" href="{{ route('dashboard', ['menu' => 'dpegawai']) }}">
-                                    Pegawai
-                                </a>
+                                <a class="dropdown-item @if(request()->is('fitur')) active @endif" href="{{ route('dashboard', ['menu' => 'dpegawai']) }}">Pegawai</a>
                             </li>
                         @endif
                     </ul>

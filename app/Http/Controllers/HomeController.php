@@ -139,6 +139,25 @@ class HomeController extends Controller
                             ], compact('data_user', 'data_kendaraan'));
                         }
                     }else{
+                        if($menu == 'dpegawai'){
+                            $key = request()->input('search');
+                            $data_user = DataPegawai::where(function ($query) use ($key) {
+                                    $query->where('namaPegawai', 'like', '%' . $key . '%')
+                                          ->orWhere('nipPegawai', 'like', '%' . $key . '%')
+                                          ->orWhere('status', 'like', '%' . $key . '%');
+                                })
+                                ->orderBy('namaPegawai')
+                                ->paginate(15);
+                            return view('dashboard', [
+                                'status' => $_COOKIE['status'],
+                                'nama' => $_COOKIE['nama'],
+                                'nip' => $_COOKIE['nip'],
+                                'waktu' => $_COOKIE['current_time_formatted'],
+                                'tanggal' => $_COOKIE['tanggal'],
+                                'menu' => $menu,
+                                'datanya' => $data_user
+                            ], compact('data_user'));
+                        }
                         if($menu == 'tbarang'){
                             $data_user = DataPegawai::all();
                             $data_barang = DataBarang::all();
@@ -193,25 +212,7 @@ class HomeController extends Controller
                                 'datanya' => $datanya
                             ], compact('data_user', 'data_kendaraan'));
                         }
-                        if($menu == 'dpegawai'){
-                            $key = request()->input('search');
-                            $data_user = DataPegawai::where(function ($query) use ($key) {
-                                    $query->where('namaPegawai', 'like', '%' . $key . '%')
-                                          ->orWhere('nipPegawai', 'like', '%' . $key . '%')
-                                          ->orWhere('status', 'like', '%' . $key . '%');
-                                })
-                                ->orderBy('namaPegawai')
-                                ->paginate(15);
-                            return view('dashboard', [
-                                'status' => $_COOKIE['status'],
-                                'nama' => $_COOKIE['nama'],
-                                'nip' => $_COOKIE['nip'],
-                                'waktu' => $_COOKIE['current_time_formatted'],
-                                'tanggal' => $_COOKIE['tanggal'],
-                                'menu' => $menu,
-                                'datanya' => $data_user
-                            ], compact('data_user'));
-                        }
+
                     }
                 }
                 return redirect()->route('dashboard', ['menu' => 'barang']);

@@ -2,7 +2,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h4 class="fw-bold text-primary mb-0">Data Pegawai</h4>
         <div class="d-flex flex-column align-items-end me-3" style="min-width: 320px;">
-            <form action="{{ route('dashboard.search', ['menu' => 'pegawai']) }}" method="GET" class="d-flex align-items-center w-100 mb-1">
+            <form action="{{ route('dashboard.search', ['menu' => 'dpegawai']) }}" method="GET" class="d-flex align-items-center w-100 mb-1">
                 <input type="text" name="search" class="form-control me-2" placeholder="Cari pegawai..." value="" style="min-width:180px;" autofocus>
                 <button type="submit" class="btn btn-primary">
                     <i class="bi bi-search"></i>
