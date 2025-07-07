@@ -11,7 +11,7 @@ class DataPegawaiSeeder extends Seeder
     public function run()
     {
         DataPegawai::create([
-            'namaPegawai' => 'Randi Afif',
+            'namaPegawai' => 'Nama Bagian Umum',
             'nipPegawai' => 12345678,
             'password' => Hash::make('password123'), // Password default
             'status' => 'umum', // Status default
@@ -19,9 +19,9 @@ class DataPegawaiSeeder extends Seeder
         ]);
 
         DataPegawai::create(attributes: [
-            'namaPegawai' => 'Pegawai',
+            'namaPegawai' => 'Nama Bagian Pegawai',
             'nipPegawai' => 87654321,
-            'password' => Hash::make('password4321'), // Password default
+            'password' => Hash::make('password321'), // Password default
             'status' => 'bukanumum', // Status admin
             'jabatan' => 'PNS', // Jabatan default
         ]);

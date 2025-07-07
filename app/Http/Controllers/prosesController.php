@@ -248,7 +248,7 @@ class prosesController extends Controller
         // Jika jenis_kendaraan bukan 'Umum', cari berdasarkan kendaraan_gabung, jika tidak, kosongkan $barangnya
         if (strtolower($_COOKIE['status']) !== 'umum') {
             $barangnya = DataKendaraan::where('kode', $request->kendaraan_gabung)->first();
-        } else {
+        } elseif($request->filled('kode')) {
             $barangnya = DataKendaraan::where('kode', $request->kode)->first();
         }
 
@@ -257,10 +257,10 @@ class prosesController extends Controller
         }
 
         $kendaraan = DataKendaraan::where('kode', $request->kendaraan_gabung)->first();
-        if ($request->filled('kode')) {
+        if (strtolower($request->jenisTransaksi) === 'masuk') {
             $kendaraan = DataKendaraan::where('kode', $request->kode)->first();
-            if (strtolower($request->jenisTransaksi) === 'masuk') {
-                if ($kendaraan) {
+            if ($kendaraan) {
+                if ($request->filled('kode')) {
                     if ($kendaraan->status === 'Tersedia') {
                         return back()->withErrors(['nama_kendaraan' => 'Kendaraan sudah tersedia, Mohon Periksa Kembali.'])->withInput();
                     }
@@ -268,7 +268,8 @@ class prosesController extends Controller
                     $kendaraan->status = 'Tersedia';
                     $kendaraan->lokasi = $request->lokasi;
                     $kendaraan->save();
-                } else {
+                }
+            }else {
                     // Jika transaksi masuk dan tidak ada kode, tambah data baru
                     $kendaraan = new DataKendaraan();
                     $kendaraan->namaKendaraan = $request->nama_kendaraan;
@@ -284,19 +285,25 @@ class prosesController extends Controller
                     } while (DataKendaraan::where('kode', $kode)->exists());
                     $kendaraan->kode = $kode;
                     $kendaraan->save();
+
+
+                    $barangnya = DataKendaraan::where('namaKendaraan', $request->nama_kendaraan)
+                    ->where('nomorPolisi', $request->nomor_polisi)
+                    ->where('jenisKendaraan', $request->jenis_kendaraan)
+                    ->first();
                 }
-            } elseif (strtolower($request->jenisTransaksi) === 'keluar') {
-                if (!$kendaraan) {
-                    return back()->withErrors(['kode' => 'Kode kendaraan tidak ditemukan untuk transaksi keluar.'])->withInput();
-                }
-                if ($kendaraan->status === 'Tidak Tersedia') {
-                    return back()->withErrors(['nama_kendaraan' => 'Kendaraan tidak tersedia, Mohon Periksa Kembali.'])->withInput();
-                }
-                // Jika transaksi keluar, ubah status jadi Tidak Tersedia
-                $kendaraan->status = 'Tidak Tersedia';
-                $kendaraan->save();
+        } elseif (strtolower($request->jenisTransaksi) === 'keluar') {
+            if (!$kendaraan) {
+                return back()->withErrors(['kode' => 'Kode kendaraan tidak ditemukan untuk transaksi keluar.'])->withInput();
             }
+            if ($kendaraan->status === 'Tidak Tersedia') {
+                return back()->withErrors(['nama_kendaraan' => 'Kendaraan tidak tersedia, Mohon Periksa Kembali.'])->withInput();
+            }
+            // Jika transaksi keluar, ubah status jadi Tidak Tersedia
+            $kendaraan->status = 'Tidak Tersedia';
+            $kendaraan->save();
         }
+
 
 
 
@@ -305,7 +312,6 @@ class prosesController extends Controller
             $unique = uniqid('', true) . random_int(1000, 9999);
             $kodeTransaksi = 'TK' . strtoupper(str_pad(base_convert(crc32($unique), 10, 36), 12, '0', STR_PAD_LEFT));
         } while (TransaksiKendaraan::where('kode', $kodeTransaksi)->exists());
-
 
         $transaksi = new TransaksiKendaraan();
         $transaksi->nama_pegawai = $_COOKIE['nama'];
