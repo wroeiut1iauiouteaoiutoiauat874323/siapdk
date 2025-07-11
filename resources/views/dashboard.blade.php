@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>SIAPDK - Sistem Informasi Aplikasi Digitalisasi Kendaraan</title>
+    <title>KATALIS – Kendaraan dan Barang Transmisi Layanan Informasi Sistematis</title>
     <link rel="stylesheet" href="{{ asset('bt/css/bootstrap.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <style>
@@ -83,7 +83,7 @@
 <body>
 <nav class="navbar navbar-expand-lg" style="background-color: #305ba9;">
     <div class="container-fluid">
-        <a class="navbar-brand text-white fw-bold" href="#">SIAPDK</a>
+        <a class="navbar-brand text-white fw-bold" href="#">KATALIS</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -151,19 +151,20 @@
 
 @if ($menu == 'barang')
     @include('dashboard.umum.dataBarang')
-@elseif ($menu == 'kendaraan')
+    @elseif ($menu == 'kendaraan')
     @include('dashboard.umum.dataKendaraan')
-@elseif ($menu == 'tbarang')
+    @elseif ($menu == 'tbarang')
     @include('dashboard.umum.transaksi_barang')
-@elseif ($menu == 'tkendaraan')
+    @elseif ($menu == 'tkendaraan')
     @include('dashboard.umum.transaksi_kendaraan')
-@elseif ($menu == 'dpegawai')
+    @elseif ($menu == 'dpegawai')
     @include('dashboard.admin.data_pegawai')
-@endif
+    @endif
 
-<!-- Bootstrap JS and dependencies -->
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+
 </body>
 
 </html>

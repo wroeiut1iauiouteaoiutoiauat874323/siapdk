@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>SIAPDK - Login</title>
+    <title>KATALIS – Kendaraan dan Barang Transmisi Layanan Informasi Sistematis</title>
     <link rel="stylesheet" href="{{ asset('bt/css/bootstrap.css') }}">
     <style>
         body {
@@ -42,10 +42,10 @@
 <body>
     <div class="container">
         <div class="row justify-content-center align-items-center" style="min-height: 100vh;">
-            <div class="col-md-6">
-                <div class="card login-card mt-5">
+            <div class="col-md-7">
+                <div class="card login-card mt-1">
                     <div class="card-header login-header pt-4 pb-4 text-center">
-                        <h4 class="mb-0">Sistem Informasi Aplikasi Digitalisasi Kendaraan</h4>
+                        <h4 class="mb-0">Kendaraan dan Barang Transmisi Layanan Informasi Sistematis</h4>
                     </div>
                     <div class="card-body px-5 py-4">
                         {{-- tampilkan error jika ada --}}
@@ -77,7 +77,7 @@
                     </div>
                 </div>
                 <div class="text-center text-white mt-4" style="opacity: 0.7;">
-                    &copy; {{ date('Y') }} SIAPDK
+                    &copy; {{ date('Y') }} KATALIS
                 </div>
             </div>
         </div>
